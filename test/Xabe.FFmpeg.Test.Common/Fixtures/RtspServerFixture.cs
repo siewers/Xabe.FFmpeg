@@ -25,7 +25,7 @@ namespace Xabe.FFmpeg.Test.Common.Fixtures
 
         public async Task InitializeAsync()
         {
-            IList<ContainerListResponse> containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters());
+            var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters());
             foreach (var container in containers.Where(x => x.Names.Contains("/Xabe.FFmpeg.Test")))
             {
                 if (container.State == "running")

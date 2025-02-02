@@ -8,7 +8,7 @@ namespace Xabe.FFmpeg
     /// <inheritdoc />
     public class SubtitleStream : ISubtitleStream
     {
-        private readonly ParametersList<ConversionParameter> _parameters = new ParametersList<ConversionParameter>();
+        private readonly ParametersList<ConversionParameter> _parameters = [];
 
         /// <inheritdoc />
         public string Codec { get; internal set; }
@@ -18,22 +18,15 @@ namespace Xabe.FFmpeg
 
         internal SubtitleStream()
         {
-
         }
 
         /// <inheritdoc />
         public string BuildParameters(ParameterPosition forPosition)
         {
-            IEnumerable<ConversionParameter> parameters = _parameters?.Where(x => x.Position == forPosition);
-            if (parameters != null &&
-                parameters.Any())
-            {
-                return string.Join(string.Empty, parameters.Select(x => x.Parameter));
-            }
-            else
-            {
-                return string.Empty;
-            }
+            var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
+            return parameters.Length > 0
+                ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
+                : string.Empty;
         }
 
         /// <inheritdoc />
@@ -43,26 +36,29 @@ namespace Xabe.FFmpeg
         public string Language { get; internal set; }
 
         /// <inheritdoc />
-        public int? Default { get; internal set; }
+        public bool? IsDefault { get; internal set; }
 
         /// <inheritdoc />
-        public int? Forced { get; internal set; }
+        public bool? IsForced { get; internal set; }
 
         /// <inheritdoc />
-        public string Title { get; internal set; }
+        public string? Title { get; internal set; }
 
         /// <inheritdoc />
         public StreamType StreamType => StreamType.Subtitle;
 
         /// <inheritdoc />
-        public ISubtitleStream SetLanguage(string lang)
+        public ISubtitleStream SetLanguage(string? lang)
         {
             var language = !string.IsNullOrEmpty(lang) ? lang : Language;
-            if (!string.IsNullOrEmpty(language))
+
+            if (string.IsNullOrEmpty(language))
             {
-                language = $"-metadata:s:s:{Index} language={language}";
-                _parameters.Add(new ConversionParameter(language));
+                return this;
             }
+
+            language = $"-metadata:s:s:{Index} language={language}";
+            _parameters.Add(new ConversionParameter(language));
 
             return this;
         }
@@ -70,7 +66,7 @@ namespace Xabe.FFmpeg
         /// <inheritdoc />
         public IEnumerable<string> GetSource()
         {
-            return new[] { Path };
+            return [ Path ];
         }
 
         /// <inheritdoc />

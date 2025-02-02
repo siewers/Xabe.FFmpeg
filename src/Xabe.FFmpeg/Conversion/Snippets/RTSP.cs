@@ -13,9 +13,9 @@ namespace Xabe.FFmpeg
         /// <param name="inputFilePath">Path to file</param>
         /// <param name="rtspServerUri">Uri of RTSP Server in format: rtsp://127.0.0.1:8554/name</param>
         /// <returns>IConversion object</returns>
-        internal static async Task<IConversion> SendToRtspServer(string inputFilePath, Uri rtspServerUri)
+        internal async static Task<IConversion> SendToRtspServer(string inputFilePath, Uri rtspServerUri)
         {
-            IMediaInfo info = await FFmpeg.GetMediaInfo(inputFilePath);
+            var info = await FFmpeg.GetMediaInfo(inputFilePath);
 
             var streams = new List<IStream>();
             foreach (var stream in info.VideoStreams)
@@ -51,7 +51,6 @@ namespace Xabe.FFmpeg
         /// <summary>
         ///     Send your dekstop to rtsp server with some default parameters like: -re, -preset ultrafast
         /// </summary>
-        /// <param name="inputFilePath">Path to file</param>
         /// <param name="rtspServerUri">Uri of RTSP Server in format: rtsp://127.0.0.1:8554/name</param>
         /// <returns>IConversion object</returns>
         internal static IConversion SendDesktopToRtspServer(Uri rtspServerUri)

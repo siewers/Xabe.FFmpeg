@@ -11,11 +11,11 @@ namespace Xabe.FFmpeg
         /// <param name="inputPath">Input path</param>
         /// <param name="outputPath">Output video stream</param>
         /// <returns>Conversion result</returns>
-        internal static async Task<IConversion> ExtractAudio(string inputPath, string outputPath)
+        internal async static Task<IConversion> ExtractAudio(string inputPath, string outputPath)
         {
-            IMediaInfo info = await FFmpeg.GetMediaInfo(inputPath);
+            var info = await FFmpeg.GetMediaInfo(inputPath);
 
-            IAudioStream audioStream = info.AudioStreams.FirstOrDefault();
+            var audioStream = info.AudioStreams.FirstOrDefault();
 
             return New()
                 .AddStream(audioStream)
@@ -30,11 +30,11 @@ namespace Xabe.FFmpeg
         /// <param name="audioPath">Audio</param>
         /// <param name="outputPath">Output file</param>
         /// <returns>Conversion result</returns>
-        internal static async Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath)
+        internal async static Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath)
         {
-            IMediaInfo videoInfo = await FFmpeg.GetMediaInfo(videoPath);
+            var videoInfo = await FFmpeg.GetMediaInfo(videoPath);
 
-            IMediaInfo audioInfo = await FFmpeg.GetMediaInfo(audioPath);
+            var audioInfo = await FFmpeg.GetMediaInfo(audioPath);
 
             return New()
                 .AddStream(videoInfo.VideoStreams.FirstOrDefault())
@@ -54,15 +54,15 @@ namespace Xabe.FFmpeg
         /// <param name="amplitudeScale">The frequency scale (default is lin)</param>
         /// <param name="frequencyScale">The amplitude scale (default is log)</param>
         /// <returns>IConversion object</returns>
-        internal static async Task<IConversion> VisualiseAudio(string inputPath, string outputPath, VideoSize size,
+        internal async static Task<IConversion> VisualiseAudio(string inputPath, string outputPath, VideoSize size,
             PixelFormat pixelFormat = PixelFormat.yuv420p,
             VisualisationMode mode = VisualisationMode.bar,
             AmplitudeScale amplitudeScale = AmplitudeScale.lin,
             FrequencyScale frequencyScale = FrequencyScale.log)
         {
-            IMediaInfo inputInfo = await FFmpeg.GetMediaInfo(inputPath);
-            IAudioStream audioStream = inputInfo.AudioStreams.FirstOrDefault();
-            IVideoStream videoStream = inputInfo.VideoStreams.FirstOrDefault();
+            var inputInfo = await FFmpeg.GetMediaInfo(inputPath);
+            var audioStream = inputInfo.AudioStreams.FirstOrDefault();
+            var videoStream = inputInfo.VideoStreams.FirstOrDefault();
 
             var filter = $"\"[0:a]showfreqs=mode={mode}:fscale={frequencyScale}:ascale={amplitudeScale},format={pixelFormat},scale={size.ToFFmpegFormat()} [v]\"";
 

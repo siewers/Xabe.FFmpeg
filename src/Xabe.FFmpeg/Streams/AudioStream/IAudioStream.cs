@@ -28,24 +28,29 @@ namespace Xabe.FFmpeg
         int Channels { get; }
 
         /// <summary>
-        /// Language 
+        ///     Channel layout
+        /// </summary>
+        string ChannelLayout { get; }
+
+        /// <summary>
+        /// Language
         /// </summary>
         string Language { get; }
 
         /// <summary>
         /// Title
         /// </summary>
-        string Title { get; }
+        string? Title { get; }
 
         /// <summary>
         /// Default
         /// </summary>
-        int? Default { get; }
+        bool? IsDefault { get; }
 
         /// <summary>
         /// Forced
         /// </summary>
-        int? Forced { get; }
+        bool? IsForced { get; }
 
         /// <summary>
         ///     Set stream to copy with orginal codec
@@ -99,7 +104,7 @@ namespace Xabe.FFmpeg
         /// </summary>
         /// <param name="minBitrate">Bitrate in bits</param>
         /// <param name="maxBitrate">Bitrate in bits</param>
-        /// <param name="buffersize">Buffersize in bits</param>
+        /// <param name="bufferSize">Buffersize in bits</param>
         /// <returns>IAudioStream</returns>
         IAudioStream SetBitrate(long minBitrate, long maxBitrate, long bufferSize);
 
@@ -113,10 +118,10 @@ namespace Xabe.FFmpeg
         /// <summary>
         ///     Change speed of media
         /// </summary>
-        /// <param name="multiplicator">Speed value. (0.5 - 2.0). To double the speed set this to 2.0</param>
+        /// <param name="multiplier">Speed value. (0.5 - 2.0). To double the speed set this to 2.0</param>
         /// <returns>IAudioStream</returns>
         /// <exception cref="ArgumentOutOfRangeException">When speed isn't between 0.5 - 2.0.</exception>
-        IAudioStream ChangeSpeed(double multiplicator);
+        IAudioStream ChangeSpeed(double multiplier);
 
         /// <summary>
         ///     Get part of audio
@@ -131,7 +136,7 @@ namespace Xabe.FFmpeg
         /// </summary>
         /// <param name="seek">Position</param>
         /// <returns>IAudioStream</returns>
-        IAudioStream SetSeek(TimeSpan? seek);
+        IAudioStream SetSeek(TimeSpan seek);
 
         /// <summary>
         ///     Set filter
@@ -162,7 +167,7 @@ namespace Xabe.FFmpeg
         IAudioStream UseNativeInputRead(bool readInputAtNativeFrameRate);
 
         /// <summary>
-        ///     "-stream_loop" parameter. Set number of times input stream shall be looped. 
+        ///     "-stream_loop" parameter. Set number of times input stream shall be looped.
         /// </summary>
         /// <param name="loopCount">Loop 0 means no loop, loop -1 means infinite loop.</param>
         /// <returns>IConversion object</returns>

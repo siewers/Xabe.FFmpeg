@@ -23,7 +23,7 @@ namespace Xabe.FFmpeg.Test
             _ = await (await FFmpeg.Conversions.FromSnippet.AddAudio(Resources.Mp4, Resources.Mp3, output))
                                              .Start();
 
-            IMediaInfo mediaInfo = await FFmpeg.GetMediaInfo(output);
+            var mediaInfo = await FFmpeg.GetMediaInfo(output);
             Assert.Single(mediaInfo.AudioStreams);
             Assert.Equal("aac", mediaInfo.AudioStreams.First()
                                          .Codec);
@@ -38,10 +38,10 @@ namespace Xabe.FFmpeg.Test
             _ = await (await FFmpeg.Conversions.FromSnippet.ExtractAudio(Resources.Mp4WithAudio, output))
                                              .Start();
 
-            IMediaInfo mediaInfo = await FFmpeg.GetMediaInfo(output);
+            var mediaInfo = await FFmpeg.GetMediaInfo(output);
             Assert.Empty(mediaInfo.VideoStreams);
             Assert.Single(mediaInfo.AudioStreams);
-            IAudioStream audioStream = mediaInfo.AudioStreams.First();
+            var audioStream = mediaInfo.AudioStreams.First();
             Assert.NotNull(audioStream);
             Assert.Equal("mp3", audioStream.Codec);
             Assert.Equal(13, audioStream.Duration.Seconds);
@@ -64,12 +64,12 @@ namespace Xabe.FFmpeg.Test
         public async Task VisualiseAudioTest(VideoSize size, PixelFormat pixelFormat, VisualisationMode mode, AmplitudeScale amplitudeScale, FrequencyScale frequencyScale)
         {
             var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-            IMediaInfo info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-            IAudioStream audioStream = info.AudioStreams.First()?.SetCodec(AudioCodec.aac);
+            var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+            var audioStream = info.AudioStreams.First()?.SetCodec(AudioCodec.aac);
             _ = await (await FFmpeg.Conversions.FromSnippet.VisualiseAudio(Resources.Mp4WithAudio, output, size, pixelFormat, mode, amplitudeScale, frequencyScale))
                 .Start();
 
-            IMediaInfo resultFile = await FFmpeg.GetMediaInfo(output);
+            var resultFile = await FFmpeg.GetMediaInfo(output);
 
             // The resulting streams are 4 seconds longer than the original
             Assert.Equal((audioStream.Duration + TimeSpan.FromSeconds(4)).Seconds, resultFile.VideoStreams.First().Duration.Seconds);

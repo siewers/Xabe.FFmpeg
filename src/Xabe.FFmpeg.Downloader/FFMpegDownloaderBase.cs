@@ -77,14 +77,14 @@ namespace Xabe.FFmpeg.Downloader
         {
             destinationDir = Path.GetFullPath(destinationDir);
 
-            using (ZipArchive zipArchive = ZipFile.OpenRead(ffMpegZipPath))
+            using (var zipArchive = ZipFile.OpenRead(ffMpegZipPath))
             {
                 if (!Directory.Exists(destinationDir))
                 {
                     Directory.CreateDirectory(destinationDir);
                 }
 
-                foreach (ZipArchiveEntry zipEntry in zipArchive.Entries.Where(filter))
+                foreach (var zipEntry in zipArchive.Entries.Where(filter))
                 {
                     // As recomended by the docs(https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchiveentry.fullname?view=net-6.0)
                     // We need to check that the target path is contained within the destination path, otherwise a malicious zip file
@@ -121,7 +121,7 @@ namespace Xabe.FFmpeg.Downloader
         {
             var tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
             var tryCount = 0;
-            TimeSpan retryDelay = _initialDelay;
+            var retryDelay = _initialDelay;
 
             using (var client = new HttpClient() { Timeout = Timeout.InfiniteTimeSpan })
             {

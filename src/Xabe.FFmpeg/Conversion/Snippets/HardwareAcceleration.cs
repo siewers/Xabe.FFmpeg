@@ -14,7 +14,7 @@ namespace Xabe.FFmpeg
         /// <param name="encoder">Codec using to encode output video (e.g. h264_nvenc)</param>
         /// <param name="device">Number of device (0 = default video card) if more than one video card.</param>
         /// <returns>IConversion object</returns>
-        internal static async Task<IConversion> ConvertWithHardwareAsync(string inputFilePath, string outputFilePath, HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0)
+        internal async static Task<IConversion> ConvertWithHardwareAsync(string inputFilePath, string outputFilePath, HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0)
         {
             var conversion = await ConvertAsync(inputFilePath, outputFilePath);
             return conversion.UseHardwareAcceleration(hardwareAccelerator, decoder, encoder, device);

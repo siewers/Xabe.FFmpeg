@@ -2,9 +2,12 @@
 
 namespace System
 {
+    using Diagnostics.CodeAnalysis;
+
     public static class StringExtensions
     {
-        public static string Escape(this string output)
+        [return: NotNullIfNotNull(nameof(output))]
+        public static string? Escape([NotNullIfNotNull(nameof(output))] this string? output)
         {
             if (output == null)
             {
@@ -20,7 +23,8 @@ namespace System
             return output;
         }
 
-        public static string Unescape(this string output)
+        [return: NotNullIfNotNull(nameof(output))]
+        public static string? Unescape(this string? output)
         {
             if (output == null || output.Length < 2)
             {

@@ -25,8 +25,8 @@ namespace Xabe.FFmpeg.Test
             Assert.InRange(mediaInfo.Duration, TimeSpan.FromSeconds(9), TimeSpan.FromSeconds(11));
             Assert.Single(mediaInfo.VideoStreams);
             Assert.Single(mediaInfo.AudioStreams);
-            IAudioStream audioStream = mediaInfo.AudioStreams.First();
-            IVideoStream videoStream = mediaInfo.VideoStreams.First();
+            var audioStream = mediaInfo.AudioStreams.First();
+            var videoStream = mediaInfo.VideoStreams.First();
             Assert.NotNull(videoStream);
             Assert.NotNull(audioStream);
             Assert.Equal("h264", videoStream.Codec);

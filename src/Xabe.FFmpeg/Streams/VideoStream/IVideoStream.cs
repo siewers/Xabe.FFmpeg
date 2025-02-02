@@ -40,12 +40,12 @@ namespace Xabe.FFmpeg
         /// <summary>
         ///     Default
         /// </summary>
-        int? Default { get; }
+        bool? IsDefault { get; }
 
         /// <summary>
         ///     Forced
         /// </summary>
-        int? Forced { get; }
+        bool? IsForced { get; }
 
         /// <summary>
         ///     Pixel Format
@@ -75,13 +75,13 @@ namespace Xabe.FFmpeg
         /// <summary>
         ///     Change speed of video
         /// </summary>
-        /// <param name="multiplicator">Speed value. (0.5 - 2.0). To double the speed set this to 2.0</param>
+        /// <param name="multiplier">Speed value. (0.5 - 2.0). To double the speed set this to 2.0</param>
         /// <returns>IVideoStream</returns>
         /// <exception cref="ArgumentOutOfRangeException">When speed isn't between 0.5 - 2.0.</exception>
-        IVideoStream ChangeSpeed(double multiplicator);
+        IVideoStream ChangeSpeed(double multiplier);
 
         /// <summary>
-        ///     Melt watermark into video
+        ///     Add watermark to video
         /// </summary>
         /// <param name="imagePath">Watermark</param>
         /// <param name="position">Position of watermark</param>
@@ -89,34 +89,34 @@ namespace Xabe.FFmpeg
         IVideoStream SetWatermark(string imagePath, Position position);
 
         /// <summary>
-        ///     Reverse video
+        ///     Reverse the video
         /// </summary>
         /// <returns>IVideoStream</returns>
         IVideoStream Reverse();
 
         /// <summary>
-        ///     Set Flags for conversion (-flags option)
+        ///     Set the flags for conversion (-flags option)
         /// </summary>
         /// <param name="flags">Flags to use</param>
         /// <returns>IVideoStream</returns>
         IVideoStream SetFlags(params Flag[] flags);
 
         /// <summary>
-        ///     Set Flags for conversion (-flags option)
+        ///     Set the flags for conversion (-flags option)
         /// </summary>
         /// <param name="flags">Flags to use</param>
         /// <returns>IVideoStream</returns>
         IVideoStream SetFlags(params string[] flags);
 
         /// <summary>
-        ///     Set Framerate of the video (-r option)
+        ///     Set the framerate of the video (-r option)
         /// </summary>
         /// <param name="framerate">Framerates in FPS</param>
         /// <returns>IVideoStream</returns>
         IVideoStream SetFramerate(double framerate);
 
         /// <summary>
-        ///     Set Bitrate of the video (-b:v option)
+        ///     Set the bitrate of the video (-b:v option)
         /// </summary>
         /// <param name="minBitrate">Bitrate in bits</param>
         /// <param name="maxBitrate">Bitrate in bits</param>
@@ -125,7 +125,7 @@ namespace Xabe.FFmpeg
         IVideoStream SetBitrate(long minBitrate, long maxBitrate, long bufferSize);
 
         /// <summary>
-        ///     Set Bitrate of the video (-b:v option)
+        ///     Set the bitrate of the video (-b:v option)
         /// </summary>
         /// <param name="bitrate">Bitrate in bits</param>
         /// <returns>IVideoStream</returns>
@@ -161,7 +161,7 @@ namespace Xabe.FFmpeg
         IVideoStream SetCodec(string codec);
 
         /// <summary>
-        ///     Set stream to copy with orginal codec
+        ///     Set stream to copy with original codec
         /// </summary>
         /// <returns>IVideoStream</returns>
         IVideoStream CopyStream();
@@ -205,7 +205,7 @@ namespace Xabe.FFmpeg
         ///     ASS style format KEY=VALUE couples separated by ","
         /// </param>
         /// <returns>IVideoStream</returns>
-        IVideoStream AddSubtitles(string subtitlePath, string encode = null, string style = null);
+        IVideoStream AddSubtitles(string subtitlePath, string? encode = null, string? style = null);
 
         /// <summary>
         ///     Burn subtitle into file
@@ -221,7 +221,7 @@ namespace Xabe.FFmpeg
         ///     is necessary to correctly scale the fonts if the aspect ratio has been changed.
         /// </param>
         /// <returns>IVideoStream</returns>
-        IVideoStream AddSubtitles(string subtitlePath, VideoSize originalSize, string encode = null, string style = null);
+        IVideoStream AddSubtitles(string subtitlePath, VideoSize originalSize, string? encode = null, string? style = null);
 
         /// <summary>
         ///     Get part of video
@@ -260,7 +260,7 @@ namespace Xabe.FFmpeg
         IVideoStream UseNativeInputRead(bool readInputAtNativeFrameRate);
 
         /// <summary>
-        ///     "-stream_loop" parameter. Set number of times input stream shall be looped. 
+        ///     "-stream_loop" parameter. Set number of times input stream shall be looped.
         /// </summary>
         /// <param name="loopCount">Loop 0 means no loop, loop -1 means infinite loop.</param>
         /// <returns>IConversion object</returns>

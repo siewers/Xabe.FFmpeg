@@ -15,24 +15,24 @@ namespace Xabe.FFmpeg
         /// <summary>
         /// Default
         /// </summary>
-        int? Default { get; }
+        bool? IsDefault { get; }
 
         /// <summary>
         /// Forced
         /// </summary>
-        int? Forced { get; }
+        bool? IsForced { get; }
 
         /// <summary>
         /// Title
         /// </summary>
-        string Title { get; }
+        string? Title { get; }
 
         /// <summary>
         ///     Set subtitle language
         /// </summary>
         /// <param name="language">Language</param>
         /// <returns>ISubtitleStream</returns>
-        ISubtitleStream SetLanguage(string language);
+        ISubtitleStream SetLanguage(string? language);
 
         /// <summary>
         ///     Set subtitle codec
@@ -56,7 +56,7 @@ namespace Xabe.FFmpeg
         ISubtitleStream UseNativeInputRead(bool readInputAtNativeFrameRate);
 
         /// <summary>
-        ///     "-stream_loop" parameter. Set number of times input stream shall be looped. 
+        ///     "-stream_loop" parameter. Set number of times input stream shall be looped.
         /// </summary>
         /// <param name="loopCount">Loop 0 means no loop, loop -1 means infinite loop.</param>
         /// <returns>IConversion object</returns>

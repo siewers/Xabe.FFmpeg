@@ -8,12 +8,11 @@ namespace Xabe.FFmpeg
     /// <inheritdoc cref="IAudioStream" />
     public class AudioStream : IAudioStream, IFilterable
     {
-        private readonly ParametersList<ConversionParameter> _parameters = new ParametersList<ConversionParameter>();
-        private readonly Dictionary<string, string> _audioFilters = new Dictionary<string, string>();
+        private readonly ParametersList<ConversionParameter> _parameters = [];
+        private readonly Dictionary<string, string> _audioFilters = [];
 
         internal AudioStream()
         {
-
         }
 
         /// <inheritdoc />
@@ -26,16 +25,10 @@ namespace Xabe.FFmpeg
         /// <inheritdoc />
         public string BuildParameters(ParameterPosition forPosition)
         {
-            IEnumerable<ConversionParameter> parameters = _parameters?.Where(x => x.Position == forPosition);
-            if (parameters != null &&
-                parameters.Any())
-            {
-                return string.Join(string.Empty, parameters.Select(x => x.Parameter));
-            }
-            else
-            {
-                return string.Empty;
-            }
+            var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
+            return parameters.Length > 0
+                ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
+                : string.Empty;
         }
 
         /// <inheritdoc />
@@ -99,9 +92,9 @@ namespace Xabe.FFmpeg
         }
 
         /// <inheritdoc />
-        public IAudioStream ChangeSpeed(double multiplication)
+        public IAudioStream ChangeSpeed(double multiplier)
         {
-            _audioFilters["atempo"] = $"{GetAudioSpeed(multiplication)}";
+            _audioFilters["atempo"] = $"{GetAudioSpeed(multiplier)}";
             return this;
         }
 
@@ -158,40 +151,43 @@ namespace Xabe.FFmpeg
         public int Channels { get; internal set; }
 
         /// <inheritdoc />
+        public string? ChannelLayout { get; internal set; }
+
+        /// <inheritdoc />
         public int SampleRate { get; internal set; }
 
         /// <inheritdoc />
         public string Language { get; internal set; }
 
         /// <inheritdoc />
-        public string Title { get; internal set; }
+        public string? Title { get; internal set; }
 
         /// <inheritdoc />
-        public int? Default { get; internal set; }
+        public bool? IsDefault { get; internal set; }
 
         /// <inheritdoc />
-        public int? Forced { get; internal set; }
+        public bool? IsForced { get; internal set; }
 
         /// <inheritdoc />
         public IEnumerable<string> GetSource()
         {
-            return new[] { Path };
+            return [ Path ];
         }
 
         /// <inheritdoc />
         public string Path { get; set; }
 
         /// <inheritdoc />
-        public IAudioStream SetSeek(TimeSpan? seek)
+        public IAudioStream SetSeek(TimeSpan seek)
         {
-            _parameters.Add(new ConversionParameter($"-ss {seek.Value.ToFFmpeg()}", ParameterPosition.PreInput));
+            _parameters.Add(new ConversionParameter($"-ss {seek.ToFFmpeg()}", ParameterPosition.PreInput));
             return this;
         }
 
         /// <inheritdoc />
         public IEnumerable<IFilterConfiguration> GetFilters()
         {
-            if (_audioFilters.Any())
+            if (_audioFilters.Count > 0)
             {
                 yield return new FilterConfiguration
                 {
@@ -218,7 +214,7 @@ namespace Xabe.FFmpeg
         /// <inheritdoc />
         public IAudioStream UseNativeInputRead(bool readInputAtNativeFrameRate)
         {
-            _parameters.Add(new ConversionParameter($"-re", ParameterPosition.PreInput));
+            _parameters.Add(new ConversionParameter("-re", ParameterPosition.PreInput));
             return this;
         }
 

@@ -12,6 +12,7 @@
 /coverage.xml
 /coverage
 /.vscode
+/.idea
 
 **/obj
 **/bin

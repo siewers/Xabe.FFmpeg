@@ -7,7 +7,7 @@ namespace Xabe.FFmpeg.Extensions
 {
     public static class StreamExtensions
     {
-        public static async Task CopyToAsync(this Stream source, Stream destination, long contentLength, int bufferSize, IProgress<ProgressInfo> progress = null, CancellationToken cancellationToken = default)
+        public async static Task CopyToAsync(this Stream source, Stream destination, long contentLength, int bufferSize, IProgress<ProgressInfo> progress = null, CancellationToken cancellationToken = default)
         {
             if (source == null)
             {

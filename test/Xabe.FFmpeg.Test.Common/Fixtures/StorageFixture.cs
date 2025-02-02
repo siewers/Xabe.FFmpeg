@@ -33,6 +33,7 @@ namespace Xabe.FFmpeg.Test.Common.Fixtures
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             for (var i = 0; i < 10; i++)
             {
                 try

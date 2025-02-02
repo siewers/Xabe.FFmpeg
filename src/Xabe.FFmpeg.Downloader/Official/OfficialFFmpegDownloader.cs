@@ -1,13 +1,15 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Xabe.FFmpeg.Downloader
 {
     internal class OfficialFFmpegDownloader : FFmpegDownloaderBase
     {
+        private static readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
+
         private readonly LinkProvider _linkProvider;
 
         internal OfficialFFmpegDownloader() : base()
@@ -39,7 +41,7 @@ namespace Xabe.FFmpeg.Downloader
             using (var wc = new WebClient())
             {
                 var json = wc.DownloadString("http://ffbinaries.com/api/v1/version/latest");
-                return JsonConvert.DeserializeObject<FFbinariesVersionInfo>(json);
+                return JsonSerializer.Deserialize<FFbinariesVersionInfo>(json);
             }
         }
 
@@ -68,7 +70,7 @@ namespace Xabe.FFmpeg.Downloader
                 return true;
             }
 
-            FFbinariesVersionInfo currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(versionPath));
+            FFbinariesVersionInfo currentVersion = JsonSerializer.Deserialize<FFbinariesVersionInfo>(File.ReadAllText(versionPath));
             if (currentVersion != null)
             {
                 if (new Version(latestVersion) > new Version(currentVersion.Version))
@@ -83,10 +85,10 @@ namespace Xabe.FFmpeg.Downloader
         internal void SaveVersion(FFbinariesVersionInfo latestVersion, string path)
         {
             var versionPath = Path.Combine(path ?? ".", "version.json");
-            File.WriteAllText(versionPath, JsonConvert.SerializeObject(new DownloadedVersion()
+            File.WriteAllText(versionPath, JsonSerializer.Serialize(new DownloadedVersion
             {
                 Version = latestVersion.Version
-            }, Formatting.Indented));
+            }, _serializerOptions));
         }
     }
 }

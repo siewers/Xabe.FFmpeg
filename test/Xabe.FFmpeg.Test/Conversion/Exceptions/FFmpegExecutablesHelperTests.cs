@@ -19,7 +19,7 @@ namespace Xabe.FFmpeg.Test
         {
             const string EXPECTED = "ffmpeg.exe";
 
-            IEnumerable<FileInfo> files = GetWindowsPathMocks();
+            var files = GetWindowsPathMocks();
 
             var path = FFmpeg.GetFullName(files, "ffmpeg");
 
@@ -31,7 +31,7 @@ namespace Xabe.FFmpeg.Test
         {
             const string EXPECTED = "ffprobe.exe";
 
-            IEnumerable<FileInfo> files = GetWindowsPathMocks();
+            var files = GetWindowsPathMocks();
 
             var path = FFmpeg.GetFullName(files, "ffprobe");
 
@@ -43,7 +43,7 @@ namespace Xabe.FFmpeg.Test
         {
             const string EXPECTED = "ffmpeg";
 
-            IEnumerable<FileInfo> files = GetLinuxPathMocks();
+            var files = GetLinuxPathMocks();
 
             var path = FFmpeg.GetFullName(files, "ffmpeg");
 
@@ -55,7 +55,7 @@ namespace Xabe.FFmpeg.Test
         {
             const string EXPECTED = "ffprobe";
 
-            IEnumerable<FileInfo> files = GetLinuxPathMocks();
+            var files = GetLinuxPathMocks();
 
             var path = FFmpeg.GetFullName(files, "ffprobe");
 

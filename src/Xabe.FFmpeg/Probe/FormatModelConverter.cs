@@ -1,0 +1,17 @@
+namespace Xabe.FFmpeg;
+
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+internal sealed class FormatModelConverter : JsonConverter<FormatModel>
+{
+    public override FormatModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return FormatModel.CreateInstance(JsonElement.ParseValue(ref reader));
+    }
+
+    public override void Write(Utf8JsonWriter writer, FormatModel value, JsonSerializerOptions options)
+    {
+    }
+}

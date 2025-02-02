@@ -296,7 +296,7 @@ namespace Xabe.FFmpeg
         /// </summary>
         /// <param name="streams">Streams to add</param>
         /// <returns>IConversion object</returns>
-        IConversion AddStream<T>(params T[] streams) where T : IStream;
+        IConversion AddStream<T>(params T?[] streams) where T : IStream;
 
         /// <summary>
         ///     Add streams to output file

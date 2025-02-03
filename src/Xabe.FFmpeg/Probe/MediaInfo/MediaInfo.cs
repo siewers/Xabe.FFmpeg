@@ -6,9 +6,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Exceptions;
+using JetBrains.Annotations;
 
 /// <inheritdoc cref="IMediaInfo" />
-public class MediaInfo : IMediaInfo
+[PublicAPI]
+public sealed class MediaInfo : IMediaInfo
 {
     private MediaInfo(string path)
     {

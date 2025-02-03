@@ -1,25 +1,24 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xabe.FFmpeg
-{
-    /// <inheritdoc />
-    public class Probe : IProbe
-    {
-        /// <summary>
-        ///     Get new instance of Conversion
-        /// </summary>
-        /// <returns>IProbe object</returns>
-        public static IProbe New()
-        {
-            return new Probe();
-        }
+namespace Xabe.FFmpeg;
 
-        /// <inheritdoc />
-        public Task<string> Start(string args, CancellationToken cancellationToken = default)
-        {
-            var wrapper = new FFprobeWrapper();
-            return wrapper.Start(args, cancellationToken);
-        }
+/// <inheritdoc />
+public class Probe : IProbe
+{
+    /// <summary>
+    ///     Get new instance of Conversion
+    /// </summary>
+    /// <returns>IProbe object</returns>
+    public static IProbe New()
+    {
+        return new Probe();
+    }
+
+    /// <inheritdoc />
+    public Task<string> Start(string args, CancellationToken cancellationToken = default)
+    {
+        var wrapper = new FFprobeWrapper();
+        return wrapper.Start(args, cancellationToken);
     }
 }

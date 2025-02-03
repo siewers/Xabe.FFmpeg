@@ -3,12 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions;
+using JetBrains.Annotations;
 using Streams;
 
 /// <inheritdoc cref="IVideoStream" />
-public class VideoStream : IVideoStream, IFilterable
+[PublicAPI]
+public sealed class VideoStream : IVideoStream, IFilterable
 {
-    private readonly ParametersList<ConversionParameter> _parameters = [];
     private readonly Dictionary<string, string> _videoFilters = [];
     private string _watermarkSource;
 
@@ -34,6 +36,8 @@ public class VideoStream : IVideoStream, IFilterable
         IsForced = model.Disposition.IsForced;
         Rotation = model.Tags.Rotation;
     }
+
+    internal ConversionParameters Parameters { get; } = [];
 
     /// <inheritdoc />
     public IEnumerable<IFilterConfiguration> GetFilters()
@@ -92,7 +96,7 @@ public class VideoStream : IVideoStream, IFilterable
     /// <returns>Parameters</returns>
     public string BuildParameters(ParameterPosition forPosition)
     {
-        var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
+        var parameters = Parameters.Where(x => x.Position == forPosition).ToArray();
         return parameters.Length > 0
             ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
             : string.Empty;
@@ -108,16 +112,16 @@ public class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream Rotate(RotateDegrees rotateDegrees)
     {
-        var rotate = rotateDegrees == RotateDegrees.Invert ? "-vf \"transpose=2,transpose=2\" " : $"-vf \"transpose={(int)rotateDegrees}\" ";
-        _parameters.Add(new ConversionParameter(rotate));
+        var rotate = rotateDegrees == RotateDegrees.Invert ? "\"transpose=2,transpose=2\" " : $"\"transpose={(int)rotateDegrees}\" ";
+        Parameters.Add("vf", rotate);
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream Pad(int width, int height)
     {
-        var vfParameter = $"-vf \"scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:-1:-1:color=black\"";
-        _parameters.Add(new ConversionParameter(vfParameter));
+        var parameter = $"\"scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:-1:-1:color=black\"";
+        Parameters.Add("vf", parameter);
         return this;
     }
 
@@ -136,47 +140,47 @@ public class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream SetLoop(int count, int delay)
     {
-        _parameters.Add(new ConversionParameter($"-loop {count}"));
+        Parameters.Add("loop", count);
 
         if (delay > 0)
         {
-            _parameters.Add(new ConversionParameter($"-final_delay {delay / 100}"));
+            Parameters.Add("final_delay", delay / 100);
         }
 
         return this;
     }
 
     /// <inheritdoc />
-    public IVideoStream AddSubtitles(string subtitlePath, VideoSize originalSize, string encode, string style)
+    public IVideoStream AddSubtitles(string subtitlePath, VideoSize originalSize, string? characterEncoding, string? style)
     {
-        return BuildSubtitleFilter(subtitlePath, originalSize, encode, style);
+        return BuildSubtitleFilter(subtitlePath, originalSize, characterEncoding, style);
     }
 
     /// <inheritdoc />
-    public IVideoStream AddSubtitles(string subtitlePath, string encode, string style)
+    public IVideoStream AddSubtitles(string subtitlePath, string? characterEncoding, string? style)
     {
-        return BuildSubtitleFilter(subtitlePath, null, encode, style);
+        return BuildSubtitleFilter(subtitlePath, null, characterEncoding, style);
     }
 
     /// <inheritdoc />
     public IVideoStream Reverse()
     {
-        _parameters.Add(new ConversionParameter("-vf reverse"));
+        Parameters.Add("vf", "reverse");
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream SetBitrate(long bitrate)
     {
-        _parameters.Add(new ConversionParameter($"-b:v {bitrate}"));
+        Parameters.Add("b:v", bitrate);
         return this;
     }
 
     public IVideoStream SetBitrate(long minBitrate, long maxBitrate, long bufferSize)
     {
-        _parameters.Add(new ConversionParameter($"-b:v {minBitrate}"));
-        _parameters.Add(new ConversionParameter($"-maxrate {maxBitrate}"));
-        _parameters.Add(new ConversionParameter($"-bufsize {bufferSize}"));
+        Parameters.Add("b:v", minBitrate);
+        Parameters.Add("maxrate", maxBitrate);
+        Parameters.Add("bufsize", bufferSize);
         return this;
     }
 
@@ -196,56 +200,49 @@ public class VideoStream : IVideoStream, IFilterable
             input = "+" + input;
         }
 
-        _parameters.Add(new ConversionParameter($"-flags {input}"));
+        Parameters.Add("flags", input);
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream SetFramerate(double framerate)
     {
-        _parameters.Add(new ConversionParameter($"-r {framerate.ToFFmpegFormat(3)}"));
+        Parameters.Add("r", framerate.ToFFmpegFormat(3));
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream SetSize(VideoSize size)
     {
-        _parameters.Add(new ConversionParameter($"-s {size.ToFFmpegFormat()}"));
+        Parameters.Add("s", size.ToFFmpegFormat());
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream SetSize(int width, int height)
     {
-        _parameters.Add(new ConversionParameter($"-s {width}x{height}"));
+        Parameters.Add("s", $"{width}x{height}");
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream SetCodec(VideoCodec codec)
     {
-        var input = codec.ToString();
+        var codecString = codec switch
+        {
+            VideoCodec._8bps => "8bps",
+            VideoCodec._4xm => "4xm",
+            VideoCodec._012v => "012v",
+            _ => codec.ToString(),
+        };
 
-        if (codec == VideoCodec._8bps)
-        {
-            input = "8bps";
-        }
-        else if (codec == VideoCodec._4xm)
-        {
-            input = "4xm";
-        }
-        else if (codec == VideoCodec._012v)
-        {
-            input = "012v";
-        }
-
-        return SetCodec($"{input}");
+        return SetCodec(codecString);
     }
 
     /// <inheritdoc />
     public IVideoStream SetCodec(string codec)
     {
-        _parameters.Add(new ConversionParameter($"-c:v {codec}"));
+        Parameters.Add("c:v", codec);
         return this;
     }
 
@@ -258,7 +255,7 @@ public class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream SetBitstreamFilter(string filter)
     {
-        _parameters.Add(new ConversionParameter($"-bsf:v {filter}"));
+        Parameters.Add("bsf:v", filter);
         return this;
     }
 
@@ -270,7 +267,7 @@ public class VideoStream : IVideoStream, IFilterable
             throw new ArgumentException("Seek can not be greater than video duration. Seek: " + seek.TotalSeconds + " Duration: " + Duration.TotalSeconds);
         }
 
-        _parameters.Add(new ConversionParameter($"-ss {seek.ToFFmpeg()}", ParameterPosition.PreInput));
+        Parameters.Add("ss", seek, ParameterPosition.PreInput);
 
         return this;
     }
@@ -278,7 +275,7 @@ public class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream SetOutputFramesCount(int number)
     {
-        _parameters.Add(new ConversionParameter($"-frames:v {number}"));
+        Parameters.Add("frames:v", number);
         return this;
     }
 
@@ -286,38 +283,20 @@ public class VideoStream : IVideoStream, IFilterable
     public IVideoStream SetWatermark(string imagePath, Position position)
     {
         _watermarkSource = imagePath;
-        var argument = string.Empty;
 
-        switch (position)
+        var argument = position switch
         {
-            case Position.Bottom:
-                argument += "(main_w-overlay_w)/2:main_h-overlay_h";
-                break;
-            case Position.Center:
-                argument += "x=(main_w-overlay_w)/2:y=(main_h-overlay_h)/2";
-                break;
-            case Position.BottomLeft:
-                argument += "5:main_h-overlay_h";
-                break;
-            case Position.UpperLeft:
-                argument += "5:5";
-                break;
-            case Position.BottomRight:
-                argument += "(main_w-overlay_w):main_h-overlay_h";
-                break;
-            case Position.UpperRight:
-                argument += "(main_w-overlay_w):5";
-                break;
-            case Position.Left:
-                argument += "5:(main_h-overlay_h)/2";
-                break;
-            case Position.Right:
-                argument += "(main_w-overlay_w-5):(main_h-overlay_h)/2";
-                break;
-            case Position.Up:
-                argument += "(main_w-overlay_w)/2:5";
-                break;
-        }
+            Position.Bottom => "(main_w-overlay_w)/2:main_h-overlay_h",
+            Position.Center => "x=(main_w-overlay_w)/2:y=(main_h-overlay_h)/2",
+            Position.BottomLeft => "5:main_h-overlay_h",
+            Position.UpperLeft => "5:5",
+            Position.BottomRight => "(main_w-overlay_w):main_h-overlay_h",
+            Position.UpperRight => "(main_w-overlay_w):5",
+            Position.Left => "5:(main_h-overlay_h)/2",
+            Position.Right => "(main_w-overlay_w-5):(main_h-overlay_h)/2",
+            Position.Up => "(main_w-overlay_w)/2:5",
+            _ => string.Empty,
+        };
 
         _videoFilters["overlay"] = argument;
         return this;
@@ -326,42 +305,30 @@ public class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream Split(TimeSpan startTime, TimeSpan duration)
     {
-        _parameters.Add(new ConversionParameter($"-ss {startTime.ToFFmpeg()}"));
-        _parameters.Add(new ConversionParameter($"-t {duration.ToFFmpeg()}"));
+        Parameters.Add("ss", startTime);
+        Parameters.Add("t", duration);
         return this;
     }
 
     /// <inheritdoc />
     public IEnumerable<string> GetSource()
     {
-        if (!string.IsNullOrWhiteSpace(_watermarkSource))
-        {
-            return new[] { Path, _watermarkSource };
-        }
-
-        return new[] { Path };
+        return string.IsNullOrWhiteSpace(_watermarkSource)
+            ? [Path]
+            : [Path, _watermarkSource];
     }
 
     /// <inheritdoc />
     public IVideoStream SetInputFormat(Format inputFormat)
     {
-        var format = inputFormat.ToString();
-
-        switch (inputFormat)
+        var format = inputFormat switch
         {
-            case Format._3dostr:
-                format = "3dostr";
-                break;
-            case Format._3g2:
-                format = "3g2";
-                break;
-            case Format._3gp:
-                format = "3gp";
-                break;
-            case Format._4xm:
-                format = "4xm";
-                break;
-        }
+            Format._3dostr => "3dostr",
+            Format._3g2 => "3g2",
+            Format._3gp => "3gp",
+            Format._4xm => "4xm",
+            _ => inputFormat.ToString(),
+        };
 
         return SetInputFormat(format);
     }
@@ -371,7 +338,7 @@ public class VideoStream : IVideoStream, IFilterable
     {
         if (format is not null)
         {
-            _parameters.Add(new ConversionParameter($"-f {format}", ParameterPosition.PreInput));
+            Parameters.Add("f", format, ParameterPosition.PreInput);
         }
 
         return this;
@@ -380,36 +347,35 @@ public class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream UseNativeInputRead(bool readInputAtNativeFrameRate)
     {
-        _parameters.Add(new ConversionParameter("-re", ParameterPosition.PreInput));
+        Parameters.Add("re", ParameterPosition.PreInput);
         return this;
     }
 
     /// <inheritdoc />
     public IVideoStream SetStreamLoop(int loopCount)
     {
-        _parameters.Add(new ConversionParameter($"-stream_loop {loopCount}", ParameterPosition.PreInput));
+        Parameters.Add("stream_loop", loopCount, ParameterPosition.PreInput);
         return this;
     }
 
-    private string GetVideoSpeedFilter(double multiplication)
+    private static string GetVideoSpeedFilter(double multiplier)
     {
-        if (multiplication is < 0.5 or > 2.0)
+        if (multiplier is < 0.5 or > 2.0)
         {
-            throw new ArgumentOutOfRangeException(nameof(multiplication), "Value has to be greater than 0.5 and less than 2.0.");
+            throw new ArgumentOutOfRangeException(nameof(multiplier), "Value has to be greater than 0.5 and less than 2.0.");
         }
 
-        var videoMultiplier = multiplication >= 1 ? 1 - (multiplication - 1) / 2 : 1 + (multiplication - 1) * -2;
+        var videoMultiplier = multiplier >= 1 ? 1 - (multiplier - 1) / 2 : 1 + (multiplier - 1) * -2;
         return $"{videoMultiplier.ToFFmpegFormat()}*PTS ";
     }
 
-    private IVideoStream BuildSubtitleFilter(string subtitlePath, VideoSize? originalSize, string encode, string style)
+    private VideoStream BuildSubtitleFilter(string subtitlePath, VideoSize? originalSize, string? characterEncoding, string? style)
     {
-        var filter = $"'{subtitlePath}'".Replace("\\", "\\\\")
-                                        .Replace(":", "\\:");
+        var filter = $"'{subtitlePath}'".Replace("\\", @"\\").Replace(":", "\\:");
 
-        if (!string.IsNullOrEmpty(encode))
+        if (!string.IsNullOrEmpty(characterEncoding))
         {
-            filter += $":charenc={encode}";
+            filter += $":charenc={characterEncoding}";
         }
 
         if (!string.IsNullOrEmpty(style))
@@ -428,7 +394,7 @@ public class VideoStream : IVideoStream, IFilterable
 
     public IVideoStream AddParameter(string parameter, ParameterPosition parameterPosition = ParameterPosition.PostInput)
     {
-        _parameters.Add(new ConversionParameter(parameter, parameterPosition));
+        Parameters.Add(parameter, parameterPosition);
         return this;
     }
 

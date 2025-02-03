@@ -1,18 +1,17 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+/// <summary>
+///     Position of input parameter
+/// </summary>
+public enum ParameterPosition
 {
     /// <summary>
-    ///     Position of input parameter
+    ///     Parameter before input config
     /// </summary>
-    public enum ParameterPosition
-    {
-        /// <summary>
-        ///     Parameter before input config
-        /// </summary>
-        PreInput,
+    PreInput,
 
-        /// <summary>
-        ///     Parameter after input config
-        /// </summary>
-        PostInput,
-    }
+    /// <summary>
+    ///     Parameter after input config
+    /// </summary>
+    PostInput,
 }

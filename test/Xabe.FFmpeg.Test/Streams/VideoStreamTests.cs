@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Fixtures;
 using Exceptions;
+using FluentAssertions;
+using FluentAssertions.Extensions;
 using Xunit;
 
 public class VideoStreamTests : IClassFixture<StorageFixture>
@@ -106,7 +108,8 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
 
         var videoStream = inputFile.VideoStreams.First();
         var originalBitrate = videoStream.Bitrate;
-        Assert.Equal(860233, originalBitrate);
+        originalBitrate.Should().Be(860233);
+
         videoStream.SetBitrate(6000, 6000, 6000);
         _ = await FFmpeg.Conversions.New()
                         .AddStream(videoStream)
@@ -114,9 +117,14 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.InRange(mediaInfo.VideoStreams.First().Bitrate, 7000, 8000);
-        Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
-        Assert.False(mediaInfo.AudioStreams.Any());
+        mediaInfo.AudioStreams.Should().ContainSingle();
+        mediaInfo.VideoStreams.Should().ContainSingle()
+                 .Which.Should().Satisfy<IVideoStream>(stream =>
+                                                       {
+                                                           stream.Bitrate.Should().BeInRange(7000, 8000);
+                                                           stream.Codec.Should().Be("h264");
+                                                       }
+                                                      );
     }
 
     // Check if Filter Flags do work. FFProbe does not support checking for Interlaced or Progressive,
@@ -201,17 +209,18 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                                  .SetOutput(outputPath)
                                  .Start();
 
+        result.Arguments.Should().Contain("-flags +ilme+ildct");
+
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
-        Assert.False(mediaInfo.AudioStreams.Any());
-        Assert.Contains("-flags +ilme+ildct", result.Arguments);
+        mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
+        mediaInfo.AudioStreams.Should().BeEmpty();
     }
 
     [Theory]
-    [InlineData(9, 1.0)]
-    [InlineData(5, 2.0)]
-    [InlineData(19, 0.5)]
-    public async Task ChangeSpeedTest(int expectedVideoDuration, double speed)
+    [InlineData(1.0, 9)]
+    [InlineData(2.0, 5)]
+    [InlineData(0.5, 19)]
+    public async Task ChangeSpeedTest(double speed, int expectedVideoDuration)
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
@@ -222,16 +231,19 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.Equal(expectedVideoDuration, mediaInfo.Duration.Seconds);
-        Assert.Equal(expectedVideoDuration, mediaInfo.VideoStreams.First().Duration.Seconds);
-        Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
-        Assert.False(mediaInfo.AudioStreams.Any());
+        mediaInfo.AudioStreams.Should().BeEmpty();
+        mediaInfo.VideoStreams.First().Should().Satisfy<IVideoStream>(stream =>
+                                                                      {
+                                                                          stream.Duration.Should().BeCloseTo(expectedVideoDuration.Seconds(), 1.Seconds());
+                                                                          stream.Codec.Should().Be("h264");
+                                                                      }
+                                                                     );
     }
 
     [Theory]
-    [InlineData(2.5)]
     [InlineData(0.4)]
-    public async Task ChangeMediaSpeedSTestArgumentOutOfRange(double multiplication)
+    [InlineData(2.5)]
+    public async Task ChangeMediaSpeedSTestArgumentOutOfRange(double multiplier)
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
@@ -239,7 +251,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await FFmpeg.Conversions.New()
                                                                                       .AddStream(inputFile.VideoStreams.First()
                                                                                                           .SetCodec(VideoCodec.h264)
-                                                                                                          .ChangeSpeed(multiplication)
+                                                                                                          .ChangeSpeed(multiplier)
                                                                                                 )
                                                                                       .SetPreset(ConversionPreset.UltraFast)
                                                                                       .SetOutput(outputPath)
@@ -252,15 +264,15 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
-                        .AddStream(inputFile.VideoStreams.First().AddSubtitles(Resources.SubtitleSrt))
-                        .SetOutput(outputPath)
-                        .Start();
+        var conversionResult = await FFmpeg.Conversions.New()
+                                           .AddStream(inputFile.VideoStreams.First().AddSubtitles(Resources.SubtitleSrt))
+                                           .SetOutput(outputPath)
+                                           .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.Equal(9, mediaInfo.Duration.Seconds);
-        Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
-        Assert.False(mediaInfo.AudioStreams.Any());
+        mediaInfo.Duration.Should().Be(9.Seconds().And(880.Milliseconds()));
+        mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
+        mediaInfo.AudioStreams.Should().BeEmpty();
     }
 
     [Fact]
@@ -309,32 +321,25 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        await Assert.ThrowsAsync<ConversionException>(async () =>
-                                                      {
-                                                          try
-                                                          {
-                                                              await FFmpeg.Conversions.New()
-                                                                          .AddStream(inputFile.VideoStreams.First()
-                                                                                              .SetCodec(VideoCodec.h264)
-                                                                                              .Reverse()
-                                                                                              .CopyStream()
-                                                                                    )
-                                                                          .SetOutput(outputPath)
-                                                                          .Start();
-                                                          }
-                                                          catch (ConversionException e)
-                                                          {
-                                                              Assert.Contains("-c:v copy", e.InputParameters);
-                                                              Assert.Contains("-vf reverse", e.InputParameters);
-                                                              Assert.EndsWith(
-                                                                              $"Filtergraph \'reverse\' was defined for video output stream 0:0 but codec copy was selected.{Environment.NewLine}Filtering and streamcopy cannot be used together.",
-                                                                              e.Message
-                                                                             );
+        var act = async () =>
+                  {
+                      await FFmpeg.Conversions.New()
+                                  .AddStream(inputFile.VideoStreams.First()
+                                                      .SetCodec(VideoCodec.h264)
+                                                      .Reverse()
+                                                      .CopyStream()
+                                            )
+                                  .SetOutput(outputPath)
+                                  .Start();
+                  };
 
-                                                              throw;
-                                                          }
-                                                      }
-                                                     );
+        (await act.Should().ThrowExactlyAsync<ConversionException>())
+            .Which.Should().Satisfy<ConversionException>(ex =>
+                                                         {
+                                                             ex.InputParameters.Should().ContainAll("-c:v copy", "-vf reverse");
+                                                             ex.Message.Should().Contain("Filtergraph 'reverse' was specified, but codec copy was selected. Filtering and streamcopy cannot be used together.");
+                                                         }
+                                                        );
     }
 
     [Fact]
@@ -350,13 +355,19 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.Equal(13, mediaInfo.Duration.Seconds);
-        Assert.Equal("gif", mediaInfo.VideoStreams.First().Codec);
-        Assert.Equal("16:9", mediaInfo.VideoStreams.First().Ratio);
-        Assert.Equal(25, mediaInfo.VideoStreams.First().Framerate);
-        Assert.Equal(1280, mediaInfo.VideoStreams.First().Width);
-        Assert.Equal(720, mediaInfo.VideoStreams.First().Height);
-        Assert.False(mediaInfo.AudioStreams.Any());
+
+        mediaInfo.Duration.Should().Be(13.Seconds().And(480.Milliseconds()));
+        mediaInfo.AudioStreams.Should().BeEmpty();
+        mediaInfo.VideoStreams.Should().ContainSingle()
+                 .Which.Should().Satisfy<IVideoStream>(stream =>
+                                                       {
+                                                           stream.Codec.Should().Be("gif");
+                                                           stream.Ratio.Should().Be("16:9");
+                                                           stream.Framerate.Should().Be(25);
+                                                           stream.Width.Should().Be(1280);
+                                                           stream.Height.Should().Be(720);
+                                                       }
+                                                      );
     }
 
     [Fact]

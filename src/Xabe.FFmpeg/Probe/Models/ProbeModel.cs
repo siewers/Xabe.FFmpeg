@@ -7,7 +7,7 @@ internal class ProbeModel
     public ProbeModel(FormatModel format, StreamModelBase[] streams)
     {
         Format = format;
-        Streams = streams ?? [];
+        Streams = streams;
     }
 
     [JsonPropertyName("format")]

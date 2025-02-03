@@ -1,42 +1,43 @@
-﻿using System.Collections.Generic;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg
+using System.Collections.Generic;
+using JetBrains.Annotations;
+
+/// <summary>
+///     Base stream class
+/// </summary>
+[PublicAPI]
+public interface IStream
 {
     /// <summary>
-    ///     Base stream class
+    ///     File source of stream
     /// </summary>
-    public interface IStream
-    {
-        /// <summary>
-        ///     File source of stream
-        /// </summary>
-        string Path { get; }
+    string Path { get; }
 
-        /// <summary>
-        ///     Index of stream
-        /// </summary>
-        int Index { get; }
+    /// <summary>
+    ///     Index of stream
+    /// </summary>
+    int Index { get; }
 
-        /// <summary>
-        ///     Format
-        /// </summary>
-        string Codec { get; }
+    /// <summary>
+    ///     Format
+    /// </summary>
+    string Codec { get; }
 
-        /// <summary>
-        ///     Build FFmpeg arguments for input
-        /// </summary>
-        /// <returns>Arguments</returns>
-        string BuildParameters(ParameterPosition forPosition);
+    /// <summary>
+    ///     Codec type
+    /// </summary>
+    StreamType StreamType { get; }
 
-        /// <summary>
-        ///     Get stream input
-        /// </summary>
-        /// <returns>Input path</returns>
-        IEnumerable<string> GetSource();
+    /// <summary>
+    ///     Build FFmpeg arguments for input
+    /// </summary>
+    /// <returns>Arguments</returns>
+    string BuildParameters(ParameterPosition forPosition);
 
-        /// <summary>
-        ///     Codec type
-        /// </summary>
-        StreamType StreamType { get; }
-    }
+    /// <summary>
+    ///     Get stream input
+    /// </summary>
+    /// <returns>Input path</returns>
+    IEnumerable<string> GetSource();
 }

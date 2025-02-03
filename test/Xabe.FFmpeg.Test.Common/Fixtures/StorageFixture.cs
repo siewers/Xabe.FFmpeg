@@ -2,49 +2,48 @@
 using System.IO;
 using System.Threading;
 
-namespace Xabe.FFmpeg.Test.Common.Fixtures
+namespace Xabe.FFmpeg.Test.Common.Fixtures;
+
+public class StorageFixture : IDisposable
 {
-    public class StorageFixture : IDisposable
+    public string TempDirPath { get; private set; }
+
+    public StorageFixture()
     {
-        public string TempDirPath { get; private set; }
+        TempDirPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(TempDirPath);
+    }
 
-        public StorageFixture()
+    public string GetTempFileName(string extension = null)
+    {
+        if (extension != null)
         {
-            TempDirPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            Directory.CreateDirectory(TempDirPath);
+            return Path.Combine(TempDirPath, $"{Guid.NewGuid()}{extension}");
         }
 
-        public string GetTempFileName(string extension = null)
+        return Path.Combine(TempDirPath, $"{Guid.NewGuid()}");
+    }
+
+    public string GetTempDirectory()
+    {
+        var path = Path.Combine(TempDirPath, $"{Guid.NewGuid()}");
+        Directory.CreateDirectory(path);
+        return path;
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        for (var i = 0; i < 10; i++)
         {
-            if (extension != null)
+            try
             {
-                return Path.Combine(TempDirPath, $"{Guid.NewGuid()}{extension}");
+                new DirectoryInfo(TempDirPath).Delete(true);
+                break;
             }
-
-            return Path.Combine(TempDirPath, $"{Guid.NewGuid()}");
-        }
-
-        public string GetTempDirectory()
-        {
-            var path = Path.Combine(TempDirPath, $"{Guid.NewGuid()}");
-            Directory.CreateDirectory(path);
-            return path;
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            for (var i = 0; i < 10; i++)
+            catch
             {
-                try
-                {
-                    new DirectoryInfo(TempDirPath).Delete(true);
-                    break;
-                }
-                catch
-                {
-                    Thread.Sleep(500 * i * i);
-                }
+                Thread.Sleep(500 * i * i);
             }
         }
     }

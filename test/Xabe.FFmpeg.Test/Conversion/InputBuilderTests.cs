@@ -1,25 +1,21 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg.Test;
+
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace Xabe.FFmpeg.Test
+public class InputBuilderTests
 {
-    public class InputBuilderTests
+    [Fact]
+    public void PrepareInputFilesTest()
     {
-        [Fact]
-        public async Task PrepareInputFilesTest()
-        {
-            var files = Directory.EnumerateFiles(Resources.Images).ToList();
-            var builder = new InputBuilder();
-            var directory = string.Empty;
+        var files = Directory.EnumerateFiles(Resources.Images).ToList();
+        var builder = new InputBuilder();
 
-            Func<string, string> inputBuilder = builder.PrepareInputFiles(files, out directory);
-            var preparedFiles = Directory.EnumerateFiles(directory).ToList();
+        builder.PrepareInputFiles(files, out var directory);
+        var preparedFiles = Directory.EnumerateFiles(directory).ToList();
 
-            Assert.Equal(12, builder.FileList.Count);
-            Assert.Equal(builder.FileList.Count, preparedFiles.Count);
-        }
+        Assert.Equal(12, builder.FileList.Count);
+        Assert.Equal(builder.FileList.Count, preparedFiles.Count);
     }
 }

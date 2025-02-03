@@ -1,53 +1,55 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+using JetBrains.Annotations;
+
+/// <summary>
+///     Position on video
+/// </summary>
+[PublicAPI]
+public enum Position
 {
     /// <summary>
-    ///     Position on video
+    ///     Upper left corner
     /// </summary>
-    public enum Position
-    {
-        /// <summary>
-        ///     Upper left corner
-        /// </summary>
-        UpperLeft,
+    UpperLeft,
 
-        /// <summary>
-        ///     Upper right corner
-        /// </summary>
-        UpperRight,
+    /// <summary>
+    ///     Upper right corner
+    /// </summary>
+    UpperRight,
 
-        /// <summary>
-        ///     5px from right border
-        /// </summary>
-        Right,
+    /// <summary>
+    ///     5px from right border
+    /// </summary>
+    Right,
 
-        /// <summary>
-        ///     5px from left border
-        /// </summary>
-        Left,
+    /// <summary>
+    ///     5px from left border
+    /// </summary>
+    Left,
 
-        /// <summary>
-        ///     5x from upper border
-        /// </summary>
-        Up,
+    /// <summary>
+    ///     5x from upper border
+    /// </summary>
+    Up,
 
-        /// <summary>
-        ///     Bottom right corner
-        /// </summary>
-        BottomRight,
+    /// <summary>
+    ///     Bottom right corner
+    /// </summary>
+    BottomRight,
 
-        /// <summary>
-        ///     Bottom left corner
-        /// </summary>
-        BottomLeft,
+    /// <summary>
+    ///     Bottom left corner
+    /// </summary>
+    BottomLeft,
 
-        /// <summary>
-        ///     Center of video
-        /// </summary>
-        Center,
+    /// <summary>
+    ///     Center of video
+    /// </summary>
+    Center,
 
-        /// <summary>
-        ///     5px from bottom corner
-        /// </summary>
-        Bottom
-    }
+    /// <summary>
+    ///     5px from bottom corner
+    /// </summary>
+    Bottom,
 }

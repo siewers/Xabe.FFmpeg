@@ -1,53 +1,52 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+/// <summary>
+///     Preset of conversion. Faster speed causes worse optimization and quality.
+/// </summary>
+public enum ConversionPreset
 {
     /// <summary>
-    ///     Preset of conversion. Faster speed causes worse optimization and quality.
+    ///     Very slow
     /// </summary>
-    public enum ConversionPreset
-    {
-        /// <summary>
-        ///     Very slow
-        /// </summary>
-        VerySlow,
+    VerySlow,
 
-        /// <summary>
-        ///     Slower
-        /// </summary>
-        Slower,
+    /// <summary>
+    ///     Slower
+    /// </summary>
+    Slower,
 
-        /// <summary>
-        ///     Slow
-        /// </summary>
-        Slow,
+    /// <summary>
+    ///     Slow
+    /// </summary>
+    Slow,
 
-        /// <summary>
-        ///     Medium
-        /// </summary>
-        Medium,
+    /// <summary>
+    ///     Medium
+    /// </summary>
+    Medium,
 
-        /// <summary>
-        ///     Fast
-        /// </summary>
-        Fast,
+    /// <summary>
+    ///     Fast
+    /// </summary>
+    Fast,
 
-        /// <summary>
-        ///     Faster
-        /// </summary>
-        Faster,
+    /// <summary>
+    ///     Faster
+    /// </summary>
+    Faster,
 
-        /// <summary>
-        ///     Very fast
-        /// </summary>
-        VeryFast,
+    /// <summary>
+    ///     Very fast
+    /// </summary>
+    VeryFast,
 
-        /// <summary>
-        ///     Super fast
-        /// </summary>
-        SuperFast,
+    /// <summary>
+    ///     Super fast
+    /// </summary>
+    SuperFast,
 
-        /// <summary>
-        ///     Ultra fast
-        /// </summary>
-        UltraFast
-    }
+    /// <summary>
+    ///     Ultra fast
+    /// </summary>
+    UltraFast
 }

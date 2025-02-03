@@ -3,83 +3,82 @@ using System.IO;
 using Xabe.FFmpeg.Test.Common.Fixtures;
 using Xunit;
 
-namespace Xabe.FFmpeg.Test
+namespace Xabe.FFmpeg.Test;
+
+public class FFmpegExecutablesHelperTests : IClassFixture<StorageFixture>
 {
-    public class FFmpegExecutablesHelperTests : IClassFixture<StorageFixture>
+    private readonly StorageFixture _storageFixture;
+
+    public FFmpegExecutablesHelperTests(StorageFixture storageFixture)
     {
-        private readonly StorageFixture _storageFixture;
+        _storageFixture = storageFixture;
+    }
 
-        public FFmpegExecutablesHelperTests(StorageFixture storageFixture)
-        {
-            _storageFixture = storageFixture;
-        }
+    [Fact]
+    public void TestSelectFFmpegPathForWindows()
+    {
+        const string EXPECTED = "ffmpeg.exe";
 
-        [Fact]
-        public void TestSelectFFmpegPathForWindows()
-        {
-            const string EXPECTED = "ffmpeg.exe";
+        var files = GetWindowsPathMocks();
 
-            var files = GetWindowsPathMocks();
+        var path = FFmpeg.GetFullName(files, "ffmpeg");
 
-            var path = FFmpeg.GetFullName(files, "ffmpeg");
+        Assert.EndsWith(EXPECTED, path);
+    }
 
-            Assert.EndsWith(EXPECTED, path);
-        }
+    [Fact]
+    public void TestSelectFFprobePathForWindows()
+    {
+        const string EXPECTED = "ffprobe.exe";
 
-        [Fact]
-        public void TestSelectFFprobePathForWindows()
-        {
-            const string EXPECTED = "ffprobe.exe";
+        var files = GetWindowsPathMocks();
 
-            var files = GetWindowsPathMocks();
+        var path = FFmpeg.GetFullName(files, "ffprobe");
 
-            var path = FFmpeg.GetFullName(files, "ffprobe");
+        Assert.EndsWith(EXPECTED, path);
+    }
 
-            Assert.EndsWith(EXPECTED, path);
-        }
+    [Fact]
+    public void TestSelectFFmpegPathForLinux()
+    {
+        const string EXPECTED = "ffmpeg";
 
-        [Fact]
-        public void TestSelectFFmpegPathForLinux()
-        {
-            const string EXPECTED = "ffmpeg";
+        var files = GetLinuxPathMocks();
 
-            var files = GetLinuxPathMocks();
+        var path = FFmpeg.GetFullName(files, "ffmpeg");
 
-            var path = FFmpeg.GetFullName(files, "ffmpeg");
+        Assert.EndsWith(EXPECTED, path);
+    }
 
-            Assert.EndsWith(EXPECTED, path);
-        }
+    [Fact]
+    public void TestSelectFFprobePathForLinux()
+    {
+        const string EXPECTED = "ffprobe";
 
-        [Fact]
-        public void TestSelectFFprobePathForLinux()
-        {
-            const string EXPECTED = "ffprobe";
+        var files = GetLinuxPathMocks();
 
-            var files = GetLinuxPathMocks();
+        var path = FFmpeg.GetFullName(files, "ffprobe");
 
-            var path = FFmpeg.GetFullName(files, "ffprobe");
+        Assert.EndsWith(EXPECTED, path);
+    }
 
-            Assert.EndsWith(EXPECTED, path);
-        }
+    private IEnumerable<FileInfo> GetWindowsPathMocks()
+    {
+        var tmpDir = _storageFixture.GetTempDirectory();
 
-        private IEnumerable<FileInfo> GetWindowsPathMocks()
-        {
-            var tmpDir = _storageFixture.GetTempDirectory();
+        File.Create(Path.Combine(tmpDir, "ffmpeg.exe"));
+        File.Create(Path.Combine(tmpDir, "FFmpeg.AutoGen.dll"));
+        File.Create(Path.Combine(tmpDir, "ffprobe.exe"));
+        return new DirectoryInfo(tmpDir).EnumerateFiles();
+    }
 
-            File.Create(Path.Combine(tmpDir, "ffmpeg.exe"));
-            File.Create(Path.Combine(tmpDir, "FFmpeg.AutoGen.dll"));
-            File.Create(Path.Combine(tmpDir, "ffprobe.exe"));
-            return new DirectoryInfo(tmpDir).EnumerateFiles();
-        }
+    private IEnumerable<FileInfo> GetLinuxPathMocks()
+    {
+        var tmpDir = _storageFixture.GetTempDirectory();
 
-        private IEnumerable<FileInfo> GetLinuxPathMocks()
-        {
-            var tmpDir = _storageFixture.GetTempDirectory();
-
-            File.Create(Path.Combine(tmpDir, "ffmpeg"));
-            File.Create(Path.Combine(tmpDir, "FFmpeg.AutoGen.dll"));
-            File.Create(Path.Combine(tmpDir, "ffprobe"));
-            return new DirectoryInfo(tmpDir).EnumerateFiles();
-        }
+        File.Create(Path.Combine(tmpDir, "ffmpeg"));
+        File.Create(Path.Combine(tmpDir, "FFmpeg.AutoGen.dll"));
+        File.Create(Path.Combine(tmpDir, "ffprobe"));
+        return new DirectoryInfo(tmpDir).EnumerateFiles();
     }
 }

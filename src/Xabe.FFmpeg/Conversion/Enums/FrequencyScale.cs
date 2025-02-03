@@ -1,9 +1,8 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+public enum FrequencyScale
 {
-    public enum FrequencyScale
-    {
-        lin,
-        log,
-        rlog,
-    }
+    lin,
+    log,
+    rlog,
 }

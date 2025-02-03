@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Fixtures;
 using Exceptions;
+using FluentAssertions;
+using FluentAssertions.Extensions;
 using Xunit;
 
 public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<RtspServerFixture>
@@ -702,7 +704,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .SetOutput(output)
                                            .Start();
 
-        Assert.Contains("-n ", conversionResult.Arguments);
+        conversionResult.Arguments.Should().Contain("-n ");
 
         await Assert.ThrowsAsync<ConversionException>(() => FFmpeg.Conversions.New()
                                                                   .AddStream(audioStream)
@@ -718,7 +720,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithAudio, output)).UseHardwareAcceleration(HardwareAccelerator.auto, VideoCodec.h264_cuvid, VideoCodec.h264_nvenc, 0).Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        Assert.Equal("h264", resultFile.VideoStreams.First().Codec);
+        resultFile.VideoStreams.First().Codec.Should().Be("h264");
     }
 
     [Theory]
@@ -730,9 +732,8 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
 
         var exception = await Record.ExceptionAsync(async () => { await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithAudio, output)).UseHardwareAcceleration(hardwareAccelerator, "h264_cuvid", "h264_nvenc").Start(); });
 
-        Assert.NotNull(exception);
-        Assert.IsType<ConversionException>(exception);
-        Assert.IsType<HardwareAcceleratorNotFoundException>(exception.InnerException);
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<ConversionException>().Which.InnerException.Should().BeOfType<HardwareAcceleratorNotFoundException>();
     }
 
     [RunnableInDebugOnly]
@@ -740,7 +741,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     {
         var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        var videoStream = info.VideoStreams.First()?.SetCodec(VideoCodec.mpeg4);
+        info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
         IConversionResult result = null;
         var exception = await Record.ExceptionAsync(async () =>
@@ -751,10 +752,9 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                                     }
                                                    );
 
-        Assert.True(result == null, "Result cannot be instantiated. Code should fail.");
-        Assert.True(exception != null, "No exception thrown.");
-        Assert.IsType<ConversionException>(exception);
-        Assert.IsType<UnknownDecoderException>(exception.InnerException);
+        result.Should().BeNull("Result cannot be instantiated. Code should fail.");
+        exception.Should().NotBeNull("No exception thrown.");
+        exception.Should().BeOfType<ConversionException>().Which.InnerException.Should().BeOfType<UnknownDecoderException>();
     }
 
     [Fact]
@@ -764,12 +764,11 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
 
         var cancellationTokenSource = new CancellationTokenSource();
         var conversion = await Conversion.ToWebM(Resources.Mp4WithAudio, output);
-        var task = conversion
-                   .SetPreset(ConversionPreset.UltraFast)
-                   .Start(cancellationTokenSource.Token);
+        var conversionTask = () => conversion.SetPreset(ConversionPreset.UltraFast)
+                                             .Start(cancellationTokenSource.Token);
 
-        cancellationTokenSource.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await task);
+        await cancellationTokenSource.CancelAsync();
+        await FluentActions.Awaiting(conversionTask).Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Theory]
@@ -788,8 +787,8 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        Assert.Equal("h264", resultFile.VideoStreams.First().Codec);
-        Assert.Contains($"-threads {expectedThreadsCount}", conversionResult.Arguments);
+        resultFile.VideoStreams.First().Codec.Should().Be("h264");
+        conversionResult.Arguments.Should().Contain($"-threads {expectedThreadsCount}");
     }
 
     [Fact]
@@ -805,8 +804,8 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        Assert.Equal("h264", resultFile.VideoStreams.First().Codec);
-        Assert.Contains($"-threads {Math.Min(Environment.ProcessorCount, 16)}", conversionResult.Arguments);
+        resultFile.VideoStreams.First().Codec.Should().Be("h264");
+        conversionResult.Arguments.Should().Contain($"-threads {Math.Min(Environment.ProcessorCount, 16)}");
     }
 
     [Fact]
@@ -819,12 +818,11 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .AddStream(info.VideoStreams.First())
                                            .UseMultiThread(false)
                                            .SetOutput(output)
-                                           .Start()
-            ;
+                                           .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        Assert.Equal("h264", resultFile.VideoStreams.First().Codec);
-        Assert.Contains("-threads 1", conversionResult.Arguments);
+        resultFile.VideoStreams.First().Codec.Should().Be("h264");
+        conversionResult.Arguments.Should().Contain("-threads 1");
     }
 
     [Fact]
@@ -837,10 +835,9 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .AddStream(info.VideoStreams.First())
                                            .AddParameter("-re", ParameterPosition.PreInput)
                                            .SetOutput(output)
-                                           .Start()
-            ;
+                                           .Start();
 
-        Assert.StartsWith("-re", conversionResult.Arguments);
+        conversionResult.Arguments.Should().Contain("-re");
     }
 
     [Fact]
@@ -852,11 +849,9 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         {
             FFmpeg.SetExecutablesPath(_storageFixture.TempDirPath);
 
-            var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
             var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo(Resources.MkvWithAudio));
 
-            Assert.NotNull(exception);
-            Assert.IsType<FFmpegNotFoundException>(exception);
+            exception.Should().NotBeNull().And.BeOfType<FFmpegNotFoundException>();
         }
         finally
         {
@@ -877,13 +872,13 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                         .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        var resultVideoStream = resultFile.VideoStreams?.First();
+        var resultVideoStream = resultFile.VideoStreams.First();
 
-        Assert.Equal(".mp4", Path.GetExtension(resultFile.Path));
+        Path.GetExtension(resultFile.Path).Should().Be(".mp4");
 
-        // It does not has to be the same
-        Assert.Equal(116, (int)resultVideoStream.Framerate);
-        Assert.Equal(3, resultVideoStream.Duration.Seconds);
+        // It does not have to be the same
+        resultVideoStream.Framerate.Should().Be(116.244);
+        resultVideoStream.Duration.Should().BeCloseTo(3.Seconds(), 50.Milliseconds());
     }
 
     [Theory]
@@ -902,7 +897,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .SetOutput(output)
                                            .Start();
 
-        Assert.Contains($"-vsync {vsyncMethod}", conversionResult.Arguments);
+        conversionResult.Arguments.Should().Contain($"-vsync {vsyncMethod}");
     }
 
     [Fact]
@@ -917,7 +912,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                                            .SetOutput(output)
                                            .Start();
 
-        Assert.Contains("-vsync -1", conversionResult.Arguments);
+        conversionResult.Arguments.Should().Contain("-vsync -1");
     }
 
     [Fact]
@@ -933,7 +928,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         // Assert
         var info = await MediaInfo.Get(output);
 
-        Assert.Single(info.Streams);
+        info.Streams.Should().ContainSingle();
     }
 
     [RunnableInDebugOnly]
@@ -943,8 +938,8 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         var devices = await FFmpeg.GetAvailableDevices();
 
         // Assert
-        Assert.Equal(2, devices.Count());
-        Assert.Single(devices.Where(x => x.Name == "Logitech HD Webcam C270"));
+        devices.Should().HaveCount(2);
+        devices.Should().ContainSingle(device => device.Name == "Logitech HD Webcam C270");
     }
 
     [RunnableInDebugOnly]
@@ -960,7 +955,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
 
         // Assert
         var info = await FFmpeg.GetMediaInfo(output);
-        Assert.Single(info.Streams);
+        info.Streams.Should().ContainSingle();
     }
 
     [RunnableInDebugOnly]
@@ -974,11 +969,17 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                         .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        Assert.Equal("h264", resultFile.VideoStreams.First().Codec);
-        Assert.Equal(3, resultFile.VideoStreams.First().Duration.Seconds);
-        Assert.Equal(320, resultFile.VideoStreams.First().Width);
-        Assert.Equal(200, resultFile.VideoStreams.First().Height);
-        Assert.Equal(29.833, resultFile.VideoStreams.First().Framerate);
+
+        resultFile.VideoStreams.Should().ContainSingle()
+                  .Which.Should().Satisfy<IVideoStream>(stream =>
+                                                        {
+                                                            stream.Codec.Should().Be("h264");
+                                                            stream.Duration.Should().BeCloseTo(3.Seconds(), 50.Milliseconds());
+                                                            stream.Width.Should().Be(320);
+                                                            stream.Height.Should().Be(200);
+                                                            stream.Framerate.Should().Be(29.833);
+                                                        }
+                                                       );
     }
 
     [Fact]

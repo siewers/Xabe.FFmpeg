@@ -1,14 +1,13 @@
 ﻿using Xunit;
 
-namespace Xabe.FFmpeg.Test
+namespace Xabe.FFmpeg.Test;
+
+public class RunnableInDebugOnlyAttribute : FactAttribute
 {
-    public class RunnableInDebugOnlyAttribute : FactAttribute
+    public RunnableInDebugOnlyAttribute()
     {
-        public RunnableInDebugOnlyAttribute()
-        {
 #if !DEBUG
-            Skip = "Only running in interactive mode.";
+        Skip = "Only running in interactive mode.";
 #endif
-        }
     }
 }

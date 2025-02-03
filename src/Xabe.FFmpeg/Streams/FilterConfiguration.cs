@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg
+using System.Collections.Generic;
+
+/// <inheritdoc />
+internal sealed class FilterConfiguration : IFilterConfiguration
 {
     /// <inheritdoc />
-    internal class FilterConfiguration : IFilterConfiguration
-    {
-        /// <inheritdoc />
-        public string FilterType { get; set; }
+    public required string FilterType { get; init; }
 
-        /// <inheritdoc />
-        public int StreamNumber { get; set; }
+    /// <inheritdoc />
+    public required int StreamNumber { get; init; }
 
-        /// <inheritdoc />
-        public Dictionary<string, string> Filters { get; set; } = new Dictionary<string, string>();
-    }
+    /// <inheritdoc />
+    public Dictionary<string, string> Filters { get; init; } = [];
 }

@@ -1,9 +1,8 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+public enum VisualisationMode
 {
-    public enum VisualisationMode
-    {
-        line,
-        bar,
-        dot,
-    }
+    line,
+    bar,
+    dot,
 }

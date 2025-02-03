@@ -1,10 +1,12 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+using JetBrains.Annotations;
+
+[PublicAPI]
+public enum AmplitudeScale
 {
-    public enum AmplitudeScale
-    {
-        lin,
-        sqrt,
-        cbrt,
-        log,
-    }
+    lin,
+    sqrt,
+    cbrt,
+    log,
 }

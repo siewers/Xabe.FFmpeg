@@ -1,9 +1,8 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+public enum PipeDescriptor
 {
-    public enum PipeDescriptor
-    {
-        stdin,
-        stdout,
-        stderr
-    }
+    stdin,
+    stdout,
+    stderr
 }

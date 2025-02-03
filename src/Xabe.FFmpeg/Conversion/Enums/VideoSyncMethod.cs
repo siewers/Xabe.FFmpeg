@@ -1,11 +1,10 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+public enum VideoSyncMethod
 {
-    public enum VideoSyncMethod
-    {
-        passthrough,
-        cfr,
-        vfr,
-        drop,
-        auto
-    }
+    passthrough,
+    cfr,
+    vfr,
+    drop,
+    auto
 }

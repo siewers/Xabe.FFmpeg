@@ -1,36 +1,38 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg.Extensions;
+
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
-namespace Xabe.FFmpeg.Extensions
+[PublicAPI]
+public static class HttpClientExtensions
 {
-    public static class HttpClientExtensions
+    public async static Task DownloadAsync(this HttpClient client, string requestUri, Stream destination, IProgress<ProgressInfo> progress = null, CancellationToken cancellationToken = default)
     {
-        public async static Task DownloadAsync(this HttpClient client, string requestUri, Stream destination, IProgress<ProgressInfo> progress = null, CancellationToken cancellationToken = default)
+        // Get the http headers first to examine the content length
+        using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead))
         {
-            // Get the http headers first to examine the content length
-            using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead))
+            response.EnsureSuccessStatusCode();
+
+            var contentLength = response.Content.Headers.ContentLength;
+
+            using (var download = await response.Content.ReadAsStreamAsync())
             {
-                response.EnsureSuccessStatusCode();
-
-                var contentLength = response.Content.Headers.ContentLength;
-                using (var download = await response.Content.ReadAsStreamAsync())
+                // Ignore progress reporting when no progress reporter was
+                // passed or when the content length is unknown
+                if (progress == null || !contentLength.HasValue)
                 {
-                    // Ignore progress reporting when no progress reporter was
-                    // passed or when the content length is unknown
-                    if (progress == null || !contentLength.HasValue)
-                    {
-                        await download.CopyToAsync(destination);
-                        return;
-                    }
-
-                    var relativeProgress = new Progress<ProgressInfo>(totalBytes => progress.Report(totalBytes));
-                    // Use extension method to report progress while downloading
-                    await download.CopyToAsync(destination, contentLength.Value, 81920, relativeProgress, cancellationToken);
-                    progress.Report(new ProgressInfo(1L, 1L));
+                    await download.CopyToAsync(destination);
+                    return;
                 }
+
+                var relativeProgress = new Progress<ProgressInfo>(totalBytes => progress.Report(totalBytes));
+                // Use extension method to report progress while downloading
+                await download.CopyToAsync(destination, contentLength.Value, 81920, relativeProgress, cancellationToken);
+                progress.Report(new ProgressInfo(1L, 1L));
             }
         }
     }

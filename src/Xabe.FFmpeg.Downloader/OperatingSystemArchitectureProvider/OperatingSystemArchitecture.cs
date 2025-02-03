@@ -1,10 +1,9 @@
-﻿namespace Xabe.FFmpeg.Downloader
+﻿namespace Xabe.FFmpeg.Downloader;
+
+internal enum OperatingSystemArchitecture
 {
-    internal enum OperatingSystemArchitecture
-    {
-        X86,
-        X64,
-        Arm,
-        Arm64,
-    }
+    X86,
+    X64,
+    Arm,
+    Arm64,
 }

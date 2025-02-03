@@ -2,62 +2,61 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Xabe.FFmpeg
+namespace Xabe.FFmpeg;
+
+/// <summary>
+/// Default Implementation of the IInputBuilder Interface
+/// </summary>
+public class InputBuilder : IInputBuilder
 {
-    /// <summary>
-    /// Default Implementation of the IInputBuilder Interface
-    /// </summary>
-    public class InputBuilder : IInputBuilder
+    /// <inheritdoc />
+    public List<FileInfo> FileList { get; }
+
+    /// <inheritdoc />
+    public InputBuilder()
     {
-        /// <inheritdoc />
-        public List<FileInfo> FileList { get; }
+        FileList = new List<FileInfo>();
+    }
 
-        /// <inheritdoc />
-        public InputBuilder()
+    /// <inheritdoc />
+    public Func<string, string> PrepareInputFiles(List<string> files, out string directory)
+    {
+        var directoryGuid = Guid.NewGuid();
+
+        for (var i = 0; i < files.Count; i++)
         {
-            FileList = new List<FileInfo>();
+            var destinationPath = Path.Combine(Path.GetTempPath(), directoryGuid.ToString(), BuildFileName(i + 1, Path.GetExtension(files[i])));
+
+            if (!Directory.Exists(Path.Combine(Path.GetTempPath(), directoryGuid.ToString())))
+            {
+                Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), directoryGuid.ToString()));
+            }
+
+            File.Copy(files[i], destinationPath);
+            FileList.Add(new FileInfo(destinationPath));
         }
 
-        /// <inheritdoc />
-        public Func<string, string> PrepareInputFiles(List<string> files, out string directory)
+        directory = Path.Combine(Path.GetTempPath(), directoryGuid.ToString());
+        return (number) => { return $" -i {Path.Combine(FileList[0].DirectoryName, "img" + number + FileList[0].Extension)} "; };
+    }
+
+    private string BuildFileName(int fileIndex, string extension)
+    {
+        var name = $"img_";
+
+        if (fileIndex < 10)
         {
-            var directoryGuid = Guid.NewGuid();
-
-            for (var i = 0; i < files.Count; i++)
-            {
-                var destinationPath = Path.Combine(Path.GetTempPath(), directoryGuid.ToString(), BuildFileName(i + 1, Path.GetExtension(files[i])));
-
-                if (!Directory.Exists(Path.Combine(Path.GetTempPath(), directoryGuid.ToString())))
-                {
-                    Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), directoryGuid.ToString()));
-                }
-
-                File.Copy(files[i], destinationPath);
-                FileList.Add(new FileInfo(destinationPath));
-            }
-
-            directory = Path.Combine(Path.GetTempPath(), directoryGuid.ToString());
-            return (number) => { return $" -i {Path.Combine(FileList[0].DirectoryName, "img" + number + FileList[0].Extension)} "; };
+            name += $"00{fileIndex}" + extension;
+        }
+        else if (fileIndex < 100)
+        {
+            name += $"0{fileIndex}" + extension;
+        }
+        else
+        {
+            name += $"{fileIndex}" + extension;
         }
 
-        private string BuildFileName(int fileIndex, string extension)
-        {
-            var name = $"img_";
-
-            if (fileIndex < 10)
-            {
-                name += $"00{fileIndex}" + extension;
-            }
-            else if (fileIndex < 100)
-            {
-                name += $"0{fileIndex}" + extension;
-            }
-            else
-            {
-                name += $"{fileIndex}" + extension;
-            }
-
-            return name;
-        }
+        return name;
     }
 }

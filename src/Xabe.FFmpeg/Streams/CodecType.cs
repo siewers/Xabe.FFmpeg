@@ -1,23 +1,25 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+using JetBrains.Annotations;
+
+/// <summary>
+///     Stream type
+/// </summary>
+[PublicAPI]
+public enum StreamType
 {
     /// <summary>
-    ///     Stream type
+    ///     Video stream
     /// </summary>
-    public enum StreamType
-    {
-        /// <summary>
-        ///     Video stream
-        /// </summary>
-        Video = 0,
+    Video = 0,
 
-        /// <summary>
-        ///     Audio stream
-        /// </summary>
-        Audio = 1,
+    /// <summary>
+    ///     Audio stream
+    /// </summary>
+    Audio = 1,
 
-        /// <summary>
-        ///     Subtitle stream
-        /// </summary>
-        Subtitle = 2
-    }
+    /// <summary>
+    ///     Subtitle stream
+    /// </summary>
+    Subtitle = 2,
 }

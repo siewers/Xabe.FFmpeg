@@ -60,16 +60,16 @@ public abstract partial class FFmpeg
     ///     Set path to the directory containing FFmpeg and FFprobe
     /// </summary>
     /// <param name="directoryWithFFmpegAndFFprobe"></param>
-    /// <param name="ffmpegExeutableName">Name of FFmpeg executable name</param>
+    /// <param name="ffmpegExecutableName">Name of FFmpeg executable name</param>
     /// <param name="ffprobeExecutableName">Name of FFprobe executable name</param>
     /// <param name="filteringMethod">Select method to compare file names</param>
     /// <param name="formatprovider">Select if filter should be Case Sensitive</param>
-    public static void SetExecutablesPath(string? directoryWithFFmpegAndFFprobe, string ffmpegExeutableName = "ffmpeg", string ffprobeExecutableName = "ffprobe", FileNameFilterMethod filteringMethod = FileNameFilterMethod.Contains, IFormatProvider? formatprovider = null)
+    public static void SetExecutablesPath(string? directoryWithFFmpegAndFFprobe, string ffmpegExecutableName = "ffmpeg", string ffprobeExecutableName = "ffprobe", FileNameFilterMethod filteringMethod = FileNameFilterMethod.Contains, IFormatProvider? formatprovider = null)
     {
         ExecutablesPath = directoryWithFFmpegAndFFprobe == null ? null : new DirectoryInfo(directoryWithFFmpegAndFFprobe).FullName;
         FilterMethod = filteringMethod;
         FormatProvider = formatprovider ?? CultureInfo.CurrentCulture;
-        _ffmpegExecutableName = ffmpegExeutableName;
+        _ffmpegExecutableName = ffmpegExecutableName;
         _ffprobeExecutableName = ffprobeExecutableName;
     }
 
@@ -80,28 +80,6 @@ public abstract partial class FFmpeg
     internal async static Task<Device[]> GetAvailableDevices()
     {
         return await Conversion.GetAvailableDevices();
-    }
-}
-
-public class Conversions
-{
-    /// <summary>
-    ///     Get new instance of Conversion
-    /// </summary>
-    /// <returns>IConversion object</returns>
-    public readonly Snippets FromSnippet = new();
-
-    internal Conversions()
-    {
-    }
-
-    /// <summary>
-    ///     Get new instance of Conversion
-    /// </summary>
-    /// <returns>IConversion object</returns>
-    public IConversion New()
-    {
-        return Conversion.New();
     }
 }
 
@@ -231,7 +209,7 @@ public class Snippets
     /// <param name="subtitlePath">Path to subtitle file in .srt format</param>
     /// <param name="language">Language code in ISO 639. Example: "eng", "pol", "pl", "de", "ger"</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, string language = null)
+    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, string? language = null)
     {
         return await Conversion.AddSubtitleAsync(inputPath, outputPath, subtitlePath, language);
     }
@@ -246,7 +224,7 @@ public class Snippets
     /// <param name="subtitleCodec">The Subtitle Codec to Use to Encode the Subtitles</param>
     /// <param name="language">Language code in ISO 639. Example: "eng", "pol", "pl", "de", "ger"</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, SubtitleCodec subtitleCodec, string language = null)
+    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, SubtitleCodec subtitleCodec, string? language = null)
     {
         return await Conversion.AddSubtitleAsync(inputPath, outputPath, subtitlePath, subtitleCodec, language);
     }
@@ -365,10 +343,10 @@ public class Snippets
     /// </summary>
     /// <param name="inputFilePath">Path to file</param>
     /// <param name="outputFilePath">Path to file</param>
-    /// <param name="audioCodec"> The Audio Codec to Transcode the input to</param>
-    /// <param name="videoCodec"> The Video Codec to Transcode the input to</param>
-    /// <param name="videoCodec"> The Subtitle Codec to Transcode the input to</param>
-    /// <param name="keepSubtitles">Whether to Keep Subtitles in the output video</param>
+    /// <param name="audioCodec"> The audio codec to Transcode the input to</param>
+    /// <param name="videoCodec"> The video codec to Transcode the input to</param>
+    /// <param name="subtitleCodec"> The subtitle codec to Transcode the input to</param>
+    /// <param name="keepSubtitles">Whether to keep subtitles in the output video</param>
     /// <returns>IConversion object</returns>
     public async Task<IConversion> Transcode(string inputFilePath, string outputFilePath, VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec, bool keepSubtitles = false)
     {

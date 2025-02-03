@@ -1,7 +1,6 @@
-﻿namespace Xabe.FFmpeg
+﻿namespace Xabe.FFmpeg;
+
+internal interface IOperatingSystemProvider
 {
-    internal interface IOperatingSystemProvider
-    {
-        OperatingSystem GetOperatingSystem();
-    }
+    OperatingSystem GetOperatingSystem();
 }

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg
+using System.Collections.Generic;
+
+internal interface IFilterable
 {
-    internal interface IFilterable
-    {
-        IEnumerable<IFilterConfiguration> GetFilters();
-    }
+    IEnumerable<IFilterConfiguration> GetFilters();
 }

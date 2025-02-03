@@ -152,8 +152,16 @@ internal sealed class FFprobeWrapper : FFmpeg
         mediaInfo.VideoStreams = PrepareVideoStreams(probeResult);
         mediaInfo.AudioStreams = PrepareAudioStreams(probeResult);
         mediaInfo.SubtitleStreams = PrepareSubtitleStreams(probeResult);
-        mediaInfo.Duration = probeResult.Format.Duration;
+        mediaInfo.Duration = CalculateDuration(probeResult);
         return mediaInfo;
+    }
+
+    private static TimeSpan CalculateDuration(ProbeModel probeModel)
+    {
+        var audioMax = probeModel.Streams.OfType<AudioStreamModel>().Max(stream => stream.Duration);
+        var videoMax = probeModel.Streams.OfType<VideoStreamModel>().Max(stream => stream.Duration);
+
+        return (audioMax > videoMax ? audioMax : videoMax) ?? probeModel.Format.Duration;
     }
 
     private static IEnumerable<IVideoStream> PrepareVideoStreams(ProbeModel probeModel)

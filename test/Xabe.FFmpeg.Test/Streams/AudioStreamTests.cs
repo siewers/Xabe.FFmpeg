@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Fixtures;
 using Exceptions;
+using FluentAssertions;
 using Xunit;
 
 public class AudioStreamTests : IClassFixture<StorageFixture>
@@ -157,7 +158,7 @@ public class AudioStreamTests : IClassFixture<StorageFixture>
 
         Assert.True(inputFile.AudioStreams.First().IsDefault.Value);
         Assert.False(inputFile.AudioStreams.First().IsForced.Value);
-        Assert.Null(inputFile.AudioStreams.First().Language);
+        Assert.Equal("und", inputFile.AudioStreams.First().Language);
     }
 
     [Fact]
@@ -317,15 +318,19 @@ public class AudioStreamTests : IClassFixture<StorageFixture>
         audioStream.SetCodec(AudioCodec.comfortnoise);
         audioStream.CopyStream();
 
-        var result = await FFmpeg.Conversions.New()
-                                 .AddStream(audioStream)
-                                 .SetOutput(outputPath)
-                                 .Start();
+        var conversionResult = await FFmpeg.Conversions.New()
+                                           .AddStream(audioStream)
+                                           .SetOutput(outputPath)
+                                           .Start();
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var actualMediaInfo = await FFmpeg.GetMediaInfo(outputPath);
 
-        Assert.Contains("-c:a copy", result.Arguments);
-        Assert.Equal(inputFile.AudioStreams.First().Codec, mediaInfo.AudioStreams.First().Codec);
+        conversionResult.Arguments.Should().Contain("-c:a copy");
+        actualMediaInfo.AudioStreams.Should()
+                       .BeEquivalentTo(inputFile.AudioStreams,
+                                       config => config.Excluding(stream => stream.Path)
+                                                       .Excluding(stream => stream.Index)
+                                      );
     }
 
     [Fact]

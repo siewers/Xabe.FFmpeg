@@ -1,99 +1,99 @@
-﻿using System.Collections.Generic;
+﻿namespace Xabe.FFmpeg;
+
+using System.Collections.Generic;
 using System.Linq;
-using Xabe.FFmpeg.Streams;
-using Xabe.FFmpeg.Streams.SubtitleStream;
+using JetBrains.Annotations;
+using Streams;
+using Streams.SubtitleStream;
 
-namespace Xabe.FFmpeg
+/// <inheritdoc />
+[PublicAPI]
+public sealed class SubtitleStream : ISubtitleStream
 {
-    /// <inheritdoc />
-    public class SubtitleStream : ISubtitleStream
+    private readonly ConversionParameters _parameters = [];
+
+    internal SubtitleStream()
     {
-        private readonly ParametersList<ConversionParameter> _parameters = [];
+    }
 
-        /// <inheritdoc />
-        public string Codec { get; internal set; }
+    /// <inheritdoc />
+    public string Codec { get; internal set; }
 
-        /// <inheritdoc />
-        public string Path { get; internal set; }
+    /// <inheritdoc />
+    public string Path { get; internal set; }
 
-        internal SubtitleStream()
+    /// <inheritdoc />
+    public string BuildParameters(ParameterPosition forPosition)
+    {
+        var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
+        return parameters.Length > 0
+            ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
+            : string.Empty;
+    }
+
+    /// <inheritdoc />
+    public int Index { get; internal set; }
+
+    /// <inheritdoc />
+    public string Language { get; internal set; }
+
+    /// <inheritdoc />
+    public bool? IsDefault { get; internal set; }
+
+    /// <inheritdoc />
+    public bool? IsForced { get; internal set; }
+
+    /// <inheritdoc />
+    public string? Title { get; internal set; }
+
+    /// <inheritdoc />
+    public StreamType StreamType => StreamType.Subtitle;
+
+    /// <inheritdoc />
+    public ISubtitleStream SetLanguage(string? lang)
+    {
+        var language = !string.IsNullOrEmpty(lang) ? lang : Language;
+
+        if (string.IsNullOrEmpty(language))
         {
-        }
-
-        /// <inheritdoc />
-        public string BuildParameters(ParameterPosition forPosition)
-        {
-            var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
-            return parameters.Length > 0
-                ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
-                : string.Empty;
-        }
-
-        /// <inheritdoc />
-        public int Index { get; internal set; }
-
-        /// <inheritdoc />
-        public string Language { get; internal set; }
-
-        /// <inheritdoc />
-        public bool? IsDefault { get; internal set; }
-
-        /// <inheritdoc />
-        public bool? IsForced { get; internal set; }
-
-        /// <inheritdoc />
-        public string? Title { get; internal set; }
-
-        /// <inheritdoc />
-        public StreamType StreamType => StreamType.Subtitle;
-
-        /// <inheritdoc />
-        public ISubtitleStream SetLanguage(string? lang)
-        {
-            var language = !string.IsNullOrEmpty(lang) ? lang : Language;
-
-            if (string.IsNullOrEmpty(language))
-            {
-                return this;
-            }
-
-            language = $"-metadata:s:s:{Index} language={language}";
-            _parameters.Add(new ConversionParameter(language));
-
             return this;
         }
 
-        /// <inheritdoc />
-        public IEnumerable<string> GetSource()
-        {
-            return [ Path ];
-        }
+        _parameters.Add($"metadata:s:s:{Index}", $"language={language}");
 
-        /// <inheritdoc />
-        public ISubtitleStream SetCodec(SubtitleCodec codec)
-        {
-            return SetCodec(codec.ToString());
-        }
+        return this;
+    }
 
-        /// <inheritdoc />
-        public ISubtitleStream SetCodec(string codec)
-        {
-            _parameters.Add(new ConversionParameter($"-c:s {codec}"));
-            return this;
-        }
+    /// <inheritdoc />
+    public IEnumerable<string> GetSource()
+    {
+        return [Path];
+    }
 
-        /// <inheritdoc />
-        public ISubtitleStream UseNativeInputRead(bool readInputAtNativeFrameRate)
-        {
-            _parameters.Add(new ConversionParameter($"-re", ParameterPosition.PreInput));
-            return this;
-        }
+    /// <inheritdoc />
+    public ISubtitleStream SetCodec(SubtitleCodec codec)
+    {
+        return SetCodec(codec.ToString());
+    }
 
-        /// <inheritdoc />
-        public ISubtitleStream SetStreamLoop(int loopCount)
-        {
-            _parameters.Add(new ConversionParameter($"-stream_loop {loopCount}", ParameterPosition.PreInput));
-            return this;
-        }
+    /// <inheritdoc />
+    public ISubtitleStream SetCodec(string codec)
+    {
+        _parameters.Add("c:s", codec);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public ISubtitleStream UseNativeInputRead(bool readInputAtNativeFrameRate)
+    {
+        _parameters.Add("re", ParameterPosition.PreInput);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public ISubtitleStream SetStreamLoop(int loopCount)
+    {
+        _parameters.Add("stream_loop", loopCount, ParameterPosition.PreInput);
+        return this;
     }
 }

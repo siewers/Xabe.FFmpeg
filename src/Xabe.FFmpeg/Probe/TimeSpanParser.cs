@@ -20,6 +20,8 @@ internal static class TimeSpanParser
 
         if (duration.Length > 16)
         {
+            // Example FFmpeg duration: 01:29:43.253000000
+            // Trim to the max timespan length (FFmpeg milliseconds component is 9 digits)
             duration = duration[..16];
         }
 

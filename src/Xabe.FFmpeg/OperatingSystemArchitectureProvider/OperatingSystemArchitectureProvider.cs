@@ -1,25 +1,19 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg;
+
+using System;
 using System.Runtime.InteropServices;
 
-namespace Xabe.FFmpeg
+internal sealed class OperatingSystemArchitectureProvider : IOperatingSystemArchitectureProvider
 {
-    internal class OperatingSystemArchitectureProvider : IOperatingSystemArchitectureProvider
+    public OperatingSystemArchitecture GetArchitecture()
     {
-        public OperatingSystemArchitecture GetArchitecture()
+        return RuntimeInformation.ProcessArchitecture switch
         {
-            switch (RuntimeInformation.ProcessArchitecture)
-            {
-                case Architecture.Arm:
-                    return OperatingSystemArchitecture.Arm;
-                case Architecture.Arm64:
-                    return OperatingSystemArchitecture.Arm64;
-                case Architecture.X64:
-                    return OperatingSystemArchitecture.X64;
-                case Architecture.X86:
-                    return OperatingSystemArchitecture.X86;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+            Architecture.Arm => OperatingSystemArchitecture.Arm,
+            Architecture.Arm64 => OperatingSystemArchitecture.Arm64,
+            Architecture.X64 => OperatingSystemArchitecture.X64,
+            Architecture.X86 => OperatingSystemArchitecture.X86,
+            _ => throw new NotImplementedException(),
+        };
     }
 }

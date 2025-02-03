@@ -23,10 +23,10 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [Fact]
     internal async Task FullProcessPassed()
     {
-        const OperatingSystem OS = OperatingSystem.Linux64;
+        const OperatingSystem os = OperatingSystem.Linux64;
 
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => OS);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
         var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
@@ -35,8 +35,8 @@ public class DownloaderTests : IClassFixture<StorageFixture>
         {
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
 
-            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", OS, FFmpeg.ExecutablesPath);
-            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", OS, FFmpeg.ExecutablesPath);
+            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", os, FFmpeg.ExecutablesPath);
+            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", os, FFmpeg.ExecutablesPath);
 
             // 1- First download
 
@@ -92,10 +92,10 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [Fact]
     internal async Task FullProcessPassedWithRetries()
     {
-        const OperatingSystem OS = OperatingSystem.Linux64;
+        const OperatingSystem os = OperatingSystem.Linux64;
 
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => OS);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
         var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
@@ -104,8 +104,8 @@ public class DownloaderTests : IClassFixture<StorageFixture>
         {
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
 
-            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", OS, FFmpeg.ExecutablesPath);
-            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", OS, FFmpeg.ExecutablesPath);
+            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", os, FFmpeg.ExecutablesPath);
+            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", os, FFmpeg.ExecutablesPath);
 
             // 1- First download
 
@@ -161,10 +161,10 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [Fact]
     internal async Task FullProcessPassedWithProgress()
     {
-        const OperatingSystem OS = OperatingSystem.Linux64;
+        const OperatingSystem os = OperatingSystem.Linux64;
 
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => OS);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
         var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
@@ -173,12 +173,12 @@ public class DownloaderTests : IClassFixture<StorageFixture>
         {
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
 
-            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", OS, FFmpeg.ExecutablesPath);
-            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", OS, FFmpeg.ExecutablesPath);
-            IProgress<ProgressInfo> progress;
+            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", os, FFmpeg.ExecutablesPath);
+            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", os, FFmpeg.ExecutablesPath);
 
-            // 1- First download
-            progress = new Progress<ProgressInfo>();
+            IProgress<ProgressInfo> progress =
+                // 1- First download
+                new Progress<ProgressInfo>();
             await downloader.GetLatestVersion(FFmpeg.ExecutablesPath, progress);
 
             Assert.True(File.Exists(ffmpegPath));
@@ -235,10 +235,10 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [Fact]
     internal async Task FullProcessPassedWithProgressAndRetries()
     {
-        const OperatingSystem OS = OperatingSystem.Linux64;
+        const OperatingSystem os = OperatingSystem.Linux64;
 
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => OS);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
         var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
@@ -247,12 +247,12 @@ public class DownloaderTests : IClassFixture<StorageFixture>
         {
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
 
-            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", OS, FFmpeg.ExecutablesPath);
-            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", OS, FFmpeg.ExecutablesPath);
-            IProgress<ProgressInfo> progress;
+            var ffmpegPath = downloader.ComputeFileDestinationPath("ffmpeg", os, FFmpeg.ExecutablesPath);
+            var ffprobePath = downloader.ComputeFileDestinationPath("ffprobe", os, FFmpeg.ExecutablesPath);
 
-            // 1- First download
-            progress = new Progress<ProgressInfo>();
+            IProgress<ProgressInfo> progress =
+                // 1- First download
+                new Progress<ProgressInfo>();
             await downloader.GetLatestVersion(FFmpeg.ExecutablesPath, progress, 3);
 
             Assert.True(File.Exists(ffmpegPath));
@@ -317,14 +317,13 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestVersionTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
-        var linkProvider = new LinkProvider(operatingSystemProvider);
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             await downloader.DownloadLatestVersion(currentVersion, FFmpeg.ExecutablesPath);
@@ -349,14 +348,13 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestVersionWithRetriesTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
-        var linkProvider = new LinkProvider(operatingSystemProvider);
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             await downloader.DownloadLatestVersion(currentVersion, FFmpeg.ExecutablesPath, null, 3);
@@ -381,14 +379,13 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestVersionWithProgressTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
-        var linkProvider = new LinkProvider(operatingSystemProvider);
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             IProgress<ProgressInfo> progress = new Progress<ProgressInfo>();
@@ -414,14 +411,13 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestVersionWithProgressAndRetriesTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
-        var linkProvider = new LinkProvider(operatingSystemProvider);
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             IProgress<ProgressInfo> progress = new Progress<ProgressInfo>();
@@ -444,13 +440,12 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestAndroidVersionTest(OperatingSystemArchitecture arch)
     {
         var operatingSystemArchProvider = Substitute.For<IOperatingSystemArchitectureProvider>();
-        operatingSystemArchProvider.GetArchitecture().Returns(x => arch);
+        operatingSystemArchProvider.GetArchitecture().Returns(_ => arch);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new AndroidFFmpegDownloader(operatingSystemArchProvider);
             await downloader.GetLatestVersion(FFmpeg.ExecutablesPath);
@@ -472,13 +467,12 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestAndroidVersionWithRetriesTest(OperatingSystemArchitecture arch)
     {
         var operatingSystemArchProvider = Substitute.For<IOperatingSystemArchitectureProvider>();
-        operatingSystemArchProvider.GetArchitecture().Returns(x => arch);
+        operatingSystemArchProvider.GetArchitecture().Returns(_ => arch);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new AndroidFFmpegDownloader(operatingSystemArchProvider);
             await downloader.GetLatestVersion(FFmpeg.ExecutablesPath, null, 3);
@@ -500,13 +494,12 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestAndroidVersionWithProgressTest(OperatingSystemArchitecture arch)
     {
         var operatingSystemArchProvider = Substitute.For<IOperatingSystemArchitectureProvider>();
-        operatingSystemArchProvider.GetArchitecture().Returns(x => arch);
+        operatingSystemArchProvider.GetArchitecture().Returns(_ => arch);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new AndroidFFmpegDownloader(operatingSystemArchProvider);
             IProgress<ProgressInfo> progress = new Progress<ProgressInfo>();
@@ -529,13 +522,12 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestAndroidVersionWithProgressAndRetriesTest(OperatingSystemArchitecture arch)
     {
         var operatingSystemArchProvider = Substitute.For<IOperatingSystemArchitectureProvider>();
-        operatingSystemArchProvider.GetArchitecture().Returns(x => arch);
+        operatingSystemArchProvider.GetArchitecture().Returns(_ => arch);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(File.ReadAllText(Resources.FFbinariesInfo));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new AndroidFFmpegDownloader(operatingSystemArchProvider);
             IProgress<ProgressInfo> progress = new Progress<ProgressInfo>();
@@ -557,7 +549,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestFullVersionTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
@@ -584,7 +576,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestFullVersionWithRetriesTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
@@ -611,7 +603,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestFullVersionWithProgressTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
@@ -638,7 +630,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     internal async Task DownloadLatestFullVersionWithProgressAndRetriesTest(OperatingSystem os)
     {
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
-        operatingSystemProvider.GetOperatingSystem().Returns(x => os);
+        operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
         var ffmpegExecutablesPath = FFmpeg.ExecutablesPath;
 
@@ -663,15 +655,15 @@ public class DownloaderTests : IClassFixture<StorageFixture>
         get
         {
             var operatingSystemProviderMock = Substitute.For<IOperatingSystemProvider>();
-            operatingSystemProviderMock.GetOperatingSystem().Returns(x => OperatingSystem.Windows64);
+            operatingSystemProviderMock.GetOperatingSystem().Returns(_ => OperatingSystem.Windows64);
 
             var operatingSystemArchitectureProviderMock = Substitute.For<IOperatingSystemArchitectureProvider>();
-            operatingSystemArchitectureProviderMock.GetArchitecture().Returns(x => OperatingSystemArchitecture.X86);
+            operatingSystemArchitectureProviderMock.GetArchitecture().Returns(_ => OperatingSystemArchitecture.X86);
 
-            yield return new object[] { new OfficialFFmpegDownloader(operatingSystemProviderMock) };
-            yield return new object[] { new FullFFmpegDownloader(operatingSystemProviderMock) };
-            yield return new object[] { new SharedFFmpegDownloader(operatingSystemProviderMock) };
-            yield return new object[] { new AndroidFFmpegDownloader(operatingSystemArchitectureProviderMock) };
+            yield return [new OfficialFFmpegDownloader(operatingSystemProviderMock)];
+            yield return [new FullFFmpegDownloader(operatingSystemProviderMock)];
+            yield return [new SharedFFmpegDownloader(operatingSystemProviderMock)];
+            yield return [new AndroidFFmpegDownloader(operatingSystemArchitectureProviderMock)];
         }
     }
 

@@ -1,1762 +1,1764 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 /// <summary>
 ///     Video format ("ffmpeg -formats")
 /// </summary>
 public enum Format
 {
-    ///<summary>
+    /// <summary>
     ///     3DO STR
-    ///</summary>
+    /// </summary>
     _3dostr,
 
-    ///<summary>
+    /// <summary>
     ///     3GP2 (3GPP2 file format)
-    ///</summary>
+    /// </summary>
     _3g2,
 
-    ///<summary>
+    /// <summary>
     ///     3GP (3GPP file format)
-    ///</summary>
+    /// </summary>
     _3gp,
 
-    ///<summary>
+    /// <summary>
     ///     4X Technologies
-    ///</summary>
+    /// </summary>
     _4xm,
 
-    ///<summary>
+    /// <summary>
     ///     a64 - video for Commodore 64
-    ///</summary>
+    /// </summary>
     a64,
 
-    ///<summary>
+    /// <summary>
     ///     Audible AA format files
-    ///</summary>
+    /// </summary>
     aa,
 
-    ///<summary>
+    /// <summary>
     ///     raw ADTS AAC (Advanced Audio Coding)
-    ///</summary>
+    /// </summary>
     aac,
 
-    ///<summary>
+    /// <summary>
     ///     raw AC-3
-    ///</summary>
+    /// </summary>
     ac3,
 
-    ///<summary>
+    /// <summary>
     ///     Interplay ACM
-    ///</summary>
+    /// </summary>
     acm,
 
-    ///<summary>
+    /// <summary>
     ///     ACT Voice file format
-    ///</summary>
+    /// </summary>
     act,
 
-    ///<summary>
+    /// <summary>
     ///     Artworx Data Format
-    ///</summary>
+    /// </summary>
     adf,
 
-    ///<summary>
+    /// <summary>
     ///     ADP
-    ///</summary>
+    /// </summary>
     adp,
 
-    ///<summary>
+    /// <summary>
     ///     Sony PS2 ADS
-    ///</summary>
+    /// </summary>
     ads,
 
-    ///<summary>
+    /// <summary>
     ///     ADTS AAC (Advanced Audio Coding)
-    ///</summary>
+    /// </summary>
     adts,
 
-    ///<summary>
+    /// <summary>
     ///     CRI ADX
-    ///</summary>
+    /// </summary>
     adx,
 
-    ///<summary>
+    /// <summary>
     ///     MD STUDIO audio
-    ///</summary>
+    /// </summary>
     aea,
 
-    ///<summary>
+    /// <summary>
     ///     AFC
-    ///</summary>
+    /// </summary>
     afc,
 
-    ///<summary>
+    /// <summary>
     ///     Audio IFF
-    ///</summary>
+    /// </summary>
     aiff,
 
-    ///<summary>
+    /// <summary>
     ///     CRI AIX
-    ///</summary>
+    /// </summary>
     aix,
 
-    ///<summary>
+    /// <summary>
     ///     PCM A-law
-    ///</summary>
+    /// </summary>
     alaw,
 
-    ///<summary>
+    /// <summary>
     ///     Alias/Wavefront PIX image
-    ///</summary>
+    /// </summary>
     alias_pix,
 
-    ///<summary>
+    /// <summary>
     ///     3GPP AMR
-    ///</summary>
+    /// </summary>
     amr,
 
-    ///<summary>
+    /// <summary>
     ///     raw AMR-NB
-    ///</summary>
+    /// </summary>
     amrnb,
 
-    ///<summary>
+    /// <summary>
     ///     raw AMR-WB
-    ///</summary>
+    /// </summary>
     amrwb,
 
-    ///<summary>
+    /// <summary>
     ///     Deluxe Paint Animation
-    ///</summary>
+    /// </summary>
     anm,
 
-    ///<summary>
+    /// <summary>
     ///     CRYO APC
-    ///</summary>
+    /// </summary>
     apc,
 
-    ///<summary>
+    /// <summary>
     ///     Monkey's Audio
-    ///</summary>
+    /// </summary>
     ape,
 
-    ///<summary>
+    /// <summary>
     ///     Animated Portable Network Graphics
-    ///</summary>
+    /// </summary>
     apng,
 
-    ///<summary>
+    /// <summary>
     ///     raw aptX (Audio Processing Technology for Bluetooth)
-    ///</summary>
+    /// </summary>
     aptx,
 
-    ///<summary>
+    /// <summary>
     ///     raw aptX HD (Audio Processing Technology for Bluetooth)
-    ///</summary>
+    /// </summary>
     aptx_hd,
 
-    ///<summary>
+    /// <summary>
     ///     AQTitle subtitles
-    ///</summary>
+    /// </summary>
     aqtitle,
 
-    ///<summary>
+    /// <summary>
     ///     ASF (Advanced / Active Streaming Format)
-    ///</summary>
+    /// </summary>
     asf,
 
-    ///<summary>
+    /// <summary>
     ///     ASF (Advanced / Active Streaming Format)
-    ///</summary>
+    /// </summary>
     asf_o,
 
-    ///<summary>
+    /// <summary>
     ///     ASF (Advanced / Active Streaming Format)
-    ///</summary>
+    /// </summary>
     asf_stream,
 
-    ///<summary>
+    /// <summary>
     ///     SSA (SubStation Alpha) subtitle
-    ///</summary>
+    /// </summary>
     ass,
 
-    ///<summary>
+    /// <summary>
     ///     AST (Audio Stream)
-    ///</summary>
+    /// </summary>
     ast,
 
-    ///<summary>
+    /// <summary>
     ///     Sun AU
-    ///</summary>
+    /// </summary>
     au,
 
-    ///<summary>
+    /// <summary>
     ///     AVI (Audio Video Interleaved)
-    ///</summary>
+    /// </summary>
     avi,
 
-    ///<summary>
+    /// <summary>
     ///     AviSynth script
-    ///</summary>
+    /// </summary>
     avisynth,
 
-    ///<summary>
+    /// <summary>
     ///     SWF (ShockWave Flash) (AVM2)
-    ///</summary>
+    /// </summary>
     avm2,
 
-    ///<summary>
+    /// <summary>
     ///     AVR (Audio Visual Research)
-    ///</summary>
+    /// </summary>
     avr,
 
-    ///<summary>
+    /// <summary>
     ///     Argonaut Games Creature Shock
-    ///</summary>
+    /// </summary>
     avs,
 
-    ///<summary>
+    /// <summary>
     ///     raw AVS2-P2/IEEE1857.4 video
-    ///</summary>
+    /// </summary>
     avs2,
 
-    ///<summary>
+    /// <summary>
     ///     Bethesda Softworks VID
-    ///</summary>
+    /// </summary>
     bethsoftvid,
 
-    ///<summary>
+    /// <summary>
     ///     Brute Force and Ignorance
-    ///</summary>
+    /// </summary>
     bfi,
 
-    ///<summary>
+    /// <summary>
     ///     BFSTM (Binary Cafe Stream)
-    ///</summary>
+    /// </summary>
     bfstm,
 
-    ///<summary>
+    /// <summary>
     ///     Binary text
-    ///</summary>
+    /// </summary>
     bin,
 
-    ///<summary>
+    /// <summary>
     ///     Bink
-    ///</summary>
+    /// </summary>
     bink,
 
-    ///<summary>
+    /// <summary>
     ///     G.729 BIT file format
-    ///</summary>
+    /// </summary>
     bit,
 
-    ///<summary>
+    /// <summary>
     ///     piped bmp sequence
-    ///</summary>
+    /// </summary>
     bmp_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     Discworld II BMV
-    ///</summary>
+    /// </summary>
     bmv,
 
-    ///<summary>
+    /// <summary>
     ///     Black Ops Audio
-    ///</summary>
+    /// </summary>
     boa,
 
-    ///<summary>
+    /// <summary>
     ///     BRender PIX image
-    ///</summary>
+    /// </summary>
     brender_pix,
 
-    ///<summary>
+    /// <summary>
     ///     BRSTM (Binary Revolution Stream)
-    ///</summary>
+    /// </summary>
     brstm,
 
-    ///<summary>
+    /// <summary>
     ///     Interplay C93
-    ///</summary>
+    /// </summary>
     c93,
 
-    ///<summary>
+    /// <summary>
     ///     Apple CAF (Core Audio Format)
-    ///</summary>
+    /// </summary>
     caf,
 
-    ///<summary>
+    /// <summary>
     ///     raw Chinese AVS (Audio Video Standard) video
-    ///</summary>
+    /// </summary>
     cavsvideo,
 
-    ///<summary>
+    /// <summary>
     ///     CD Graphics
-    ///</summary>
+    /// </summary>
     cdg,
 
-    ///<summary>
+    /// <summary>
     ///     Commodore CDXL video
-    ///</summary>
+    /// </summary>
     cdxl,
 
-    ///<summary>
+    /// <summary>
     ///     Phantom Cine
-    ///</summary>
+    /// </summary>
     cine,
 
-    ///<summary>
+    /// <summary>
     ///     codec2 .c2 muxer
-    ///</summary>
+    /// </summary>
     codec2,
 
-    ///<summary>
+    /// <summary>
     ///     raw codec2 muxer
-    ///</summary>
+    /// </summary>
     codec2raw,
 
-    ///<summary>
+    /// <summary>
     ///     Virtual concatenation script
-    ///</summary>
+    /// </summary>
     concat,
 
-    ///<summary>
+    /// <summary>
     ///     CRC testing
-    ///</summary>
+    /// </summary>
     crc,
 
-    ///<summary>
+    /// <summary>
     ///     DASH Muxer
-    ///</summary>
+    /// </summary>
     dash,
 
-    ///<summary>
+    /// <summary>
     ///     raw data
-    ///</summary>
+    /// </summary>
     data,
 
-    ///<summary>
+    /// <summary>
     ///     D-Cinema audio
-    ///</summary>
+    /// </summary>
     daud,
 
-    ///<summary>
+    /// <summary>
     ///     Sega DC STR
-    ///</summary>
+    /// </summary>
     dcstr,
 
-    ///<summary>
+    /// <summary>
     ///     piped dds sequence
-    ///</summary>
+    /// </summary>
     dds_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     Chronomaster DFA
-    ///</summary>
+    /// </summary>
     dfa,
 
-    ///<summary>
+    /// <summary>
     ///     Video DAV
-    ///</summary>
+    /// </summary>
     dhav,
 
-    ///<summary>
+    /// <summary>
     ///     raw Dirac
-    ///</summary>
+    /// </summary>
     dirac,
 
-    ///<summary>
+    /// <summary>
     ///     raw DNxHD (SMPTE VC-3)
-    ///</summary>
+    /// </summary>
     dnxhd,
 
-    ///<summary>
+    /// <summary>
     ///     piped dpx sequence
-    ///</summary>
+    /// </summary>
     dpx_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     DSD Stream File (DSF)
-    ///</summary>
+    /// </summary>
     dsf,
 
-    ///<summary>
+    /// <summary>
     ///     DirectShow capture
-    ///</summary>
+    /// </summary>
     dshow,
 
-    ///<summary>
+    /// <summary>
     ///     Delphine Software International CIN
-    ///</summary>
+    /// </summary>
     dsicin,
 
-    ///<summary>
+    /// <summary>
     ///     Digital Speech Standard (DSS)
-    ///</summary>
+    /// </summary>
     dss,
 
-    ///<summary>
+    /// <summary>
     ///     raw DTS
-    ///</summary>
+    /// </summary>
     dts,
 
-    ///<summary>
+    /// <summary>
     ///     raw DTS-HD
-    ///</summary>
+    /// </summary>
     dtshd,
 
-    ///<summary>
+    /// <summary>
     ///     DV (Digital Video)
-    ///</summary>
+    /// </summary>
     dv,
 
-    ///<summary>
+    /// <summary>
     ///     raw dvbsub
-    ///</summary>
+    /// </summary>
     dvbsub,
 
-    ///<summary>
+    /// <summary>
     ///     dvbtxt
-    ///</summary>
+    /// </summary>
     dvbtxt,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-2 PS (DVD VOB)
-    ///</summary>
+    /// </summary>
     dvd,
 
-    ///<summary>
+    /// <summary>
     ///     DXA
-    ///</summary>
+    /// </summary>
     dxa,
 
-    ///<summary>
+    /// <summary>
     ///     Electronic Arts Multimedia
-    ///</summary>
+    /// </summary>
     ea,
 
-    ///<summary>
+    /// <summary>
     ///     Electronic Arts cdata
-    ///</summary>
+    /// </summary>
     ea_cdata,
 
-    ///<summary>
+    /// <summary>
     ///     raw E-AC-3
-    ///</summary>
+    /// </summary>
     eac3,
 
-    ///<summary>
+    /// <summary>
     ///     Ensoniq Paris Audio File
-    ///</summary>
+    /// </summary>
     epaf,
 
-    ///<summary>
+    /// <summary>
     ///     piped exr sequence
-    ///</summary>
+    /// </summary>
     exr_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 32-bit floating-point big-endian
-    ///</summary>
+    /// </summary>
     f32be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 32-bit floating-point little-endian
-    ///</summary>
+    /// </summary>
     f32le,
 
-    ///<summary>
+    /// <summary>
     ///     F4V Adobe Flash Video
-    ///</summary>
+    /// </summary>
     f4v,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 64-bit floating-point big-endian
-    ///</summary>
+    /// </summary>
     f64be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 64-bit floating-point little-endian
-    ///</summary>
+    /// </summary>
     f64le,
 
-    ///<summary>
+    /// <summary>
     ///     FFmpeg metadata in text
-    ///</summary>
+    /// </summary>
     ffmetadata,
 
-    ///<summary>
+    /// <summary>
     ///     FIFO queue pseudo-muxer
-    ///</summary>
+    /// </summary>
     fifo,
 
-    ///<summary>
+    /// <summary>
     ///     Fifo test muxer
-    ///</summary>
+    /// </summary>
     fifo_test,
 
-    ///<summary>
+    /// <summary>
     ///     Sega FILM / CPK
-    ///</summary>
+    /// </summary>
     film_cpk,
 
-    ///<summary>
+    /// <summary>
     ///     Adobe Filmstrip
-    ///</summary>
+    /// </summary>
     filmstrip,
 
-    ///<summary>
+    /// <summary>
     ///     Flexible Image Transport System
-    ///</summary>
+    /// </summary>
     fits,
 
-    ///<summary>
+    /// <summary>
     ///     raw FLAC
-    ///</summary>
+    /// </summary>
     flac,
 
-    ///<summary>
+    /// <summary>
     ///     FLI/FLC/FLX animation
-    ///</summary>
+    /// </summary>
     flic,
 
-    ///<summary>
+    /// <summary>
     ///     FLV (Flash Video)
-    ///</summary>
+    /// </summary>
     flv,
 
-    ///<summary>
+    /// <summary>
     ///     framecrc testing
-    ///</summary>
+    /// </summary>
     framecrc,
 
-    ///<summary>
+    /// <summary>
     ///     Per-frame hash testing
-    ///</summary>
+    /// </summary>
     framehash,
 
-    ///<summary>
+    /// <summary>
     ///     Per-frame MD5 testing
-    ///</summary>
+    /// </summary>
     framemd5,
 
-    ///<summary>
+    /// <summary>
     ///     Megalux Frame
-    ///</summary>
+    /// </summary>
     frm,
 
-    ///<summary>
+    /// <summary>
     ///     FMOD Sample Bank
-    ///</summary>
+    /// </summary>
     fsb,
 
-    ///<summary>
+    /// <summary>
     ///     raw G.722
-    ///</summary>
+    /// </summary>
     g722,
 
-    ///<summary>
+    /// <summary>
     ///     raw G.723.1
-    ///</summary>
+    /// </summary>
     g723_1,
 
-    ///<summary>
+    /// <summary>
     ///     raw big-endian G.726 ("left-justified")
-    ///</summary>
+    /// </summary>
     g726,
 
-    ///<summary>
+    /// <summary>
     ///     raw little-endian G.726 ("right-justified")
-    ///</summary>
+    /// </summary>
     g726le,
 
-    ///<summary>
+    /// <summary>
     ///     G.729 raw format demuxer
-    ///</summary>
+    /// </summary>
     g729,
 
-    ///<summary>
+    /// <summary>
     ///     GDI API Windows frame grabber
-    ///</summary>
+    /// </summary>
     gdigrab,
 
-    ///<summary>
+    /// <summary>
     ///     Gremlin Digital Video
-    ///</summary>
+    /// </summary>
     gdv,
 
-    ///<summary>
+    /// <summary>
     ///     GENeric Header
-    ///</summary>
+    /// </summary>
     genh,
 
-    ///<summary>
+    /// <summary>
     ///     CompuServe Graphics Interchange Format (GIF)
-    ///</summary>
+    /// </summary>
     gif,
 
-    ///<summary>
+    /// <summary>
     ///     piped gif sequence
-    ///</summary>
+    /// </summary>
     gif_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     raw GSM
-    ///</summary>
+    /// </summary>
     gsm,
 
-    ///<summary>
+    /// <summary>
     ///     GXF (General eXchange Format)
-    ///</summary>
+    /// </summary>
     gxf,
 
-    ///<summary>
+    /// <summary>
     ///     raw H.261
-    ///</summary>
+    /// </summary>
     h261,
 
-    ///<summary>
+    /// <summary>
     ///     raw H.263
-    ///</summary>
+    /// </summary>
     h263,
 
-    ///<summary>
+    /// <summary>
     ///     raw H.264 video
-    ///</summary>
+    /// </summary>
     h264,
 
-    ///<summary>
+    /// <summary>
     ///     Hash testing
-    ///</summary>
+    /// </summary>
     hash,
 
-    ///<summary>
+    /// <summary>
     ///     Macintosh HCOM
-    ///</summary>
+    /// </summary>
     hcom,
 
-    ///<summary>
+    /// <summary>
     ///     HDS Muxer
-    ///</summary>
+    /// </summary>
     hds,
 
-    ///<summary>
+    /// <summary>
     ///     raw HEVC video
-    ///</summary>
+    /// </summary>
     hevc,
 
-    ///<summary>
+    /// <summary>
     ///     Apple HTTP Live Streaming
-    ///</summary>
+    /// </summary>
     hls,
 
-    ///<summary>
+    /// <summary>
     ///     Cryo HNM v4
-    ///</summary>
+    /// </summary>
     hnm,
 
-    ///<summary>
+    /// <summary>
     ///     Microsoft Windows ICO
-    ///</summary>
+    /// </summary>
     ico,
 
-    ///<summary>
+    /// <summary>
     ///     id Cinematic
-    ///</summary>
+    /// </summary>
     idcin,
 
-    ///<summary>
+    /// <summary>
     ///     iCE Draw File
-    ///</summary>
+    /// </summary>
     idf,
 
-    ///<summary>
+    /// <summary>
     ///     IFF (Interchange File Format)
-    ///</summary>
+    /// </summary>
     iff,
 
-    ///<summary>
+    /// <summary>
     ///     IFV CCTV DVR
-    ///</summary>
+    /// </summary>
     ifv,
 
-    ///<summary>
+    /// <summary>
     ///     iLBC storage
-    ///</summary>
+    /// </summary>
     ilbc,
 
-    ///<summary>
+    /// <summary>
     ///     image2 sequence
-    ///</summary>
+    /// </summary>
     image2,
 
-    ///<summary>
+    /// <summary>
     ///     piped image2 sequence
-    ///</summary>
+    /// </summary>
     image2pipe,
 
-    ///<summary>
+    /// <summary>
     ///     raw Ingenient MJPEG
-    ///</summary>
+    /// </summary>
     ingenient,
 
-    ///<summary>
+    /// <summary>
     ///     Interplay MVE
-    ///</summary>
+    /// </summary>
     ipmovie,
 
-    ///<summary>
+    /// <summary>
     ///     iPod H.264 MP4 (MPEG-4 Part 14)
-    ///</summary>
+    /// </summary>
     ipod,
 
-    ///<summary>
+    /// <summary>
     ///     Berkeley/IRCAM/CARL Sound Format
-    ///</summary>
+    /// </summary>
     ircam,
 
-    ///<summary>
+    /// <summary>
     ///     ISMV/ISMA (Smooth Streaming)
-    ///</summary>
+    /// </summary>
     ismv,
 
-    ///<summary>
+    /// <summary>
     ///     Funcom ISS
-    ///</summary>
+    /// </summary>
     iss,
 
-    ///<summary>
+    /// <summary>
     ///     IndigoVision 8000 video
-    ///</summary>
+    /// </summary>
     iv8,
 
-    ///<summary>
+    /// <summary>
     ///     On2 IVF
-    ///</summary>
+    /// </summary>
     ivf,
 
-    ///<summary>
+    /// <summary>
     ///     IVR (Internet Video Recording)
-    ///</summary>
+    /// </summary>
     ivr,
 
-    ///<summary>
+    /// <summary>
     ///     piped j2k sequence
-    ///</summary>
+    /// </summary>
     j2k_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     JACOsub subtitle format
-    ///</summary>
+    /// </summary>
     jacosub,
 
-    ///<summary>
+    /// <summary>
     ///     piped jpeg sequence
-    ///</summary>
+    /// </summary>
     jpeg_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped jpegls sequence
-    ///</summary>
+    /// </summary>
     jpegls_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     Bitmap Brothers JV
-    ///</summary>
+    /// </summary>
     jv,
 
-    ///<summary>
+    /// <summary>
     ///     KUX (YouKu)
-    ///</summary>
+    /// </summary>
     kux,
 
-    ///<summary>
+    /// <summary>
     ///     LOAS/LATM
-    ///</summary>
+    /// </summary>
     latm,
 
-    ///<summary>
+    /// <summary>
     ///     Libavfilter virtual input device
-    ///</summary>
+    /// </summary>
     lavfi,
 
-    ///<summary>
+    /// <summary>
     ///     Tracker formats (libopenmpt)
-    ///</summary>
+    /// </summary>
     libopenmpt,
 
-    ///<summary>
+    /// <summary>
     ///     live RTMP FLV (Flash Video)
-    ///</summary>
+    /// </summary>
     live_flv,
 
-    ///<summary>
+    /// <summary>
     ///     raw lmlm4
-    ///</summary>
+    /// </summary>
     lmlm4,
 
-    ///<summary>
+    /// <summary>
     ///     LOAS AudioSyncStream
-    ///</summary>
+    /// </summary>
     loas,
 
-    ///<summary>
+    /// <summary>
     ///     LRC lyrics
-    ///</summary>
+    /// </summary>
     lrc,
 
-    ///<summary>
+    /// <summary>
     ///     LVF
-    ///</summary>
+    /// </summary>
     lvf,
 
-    ///<summary>
+    /// <summary>
     ///     VR native stream (LXF)
-    ///</summary>
+    /// </summary>
     lxf,
 
-    ///<summary>
+    /// <summary>
     ///     raw MPEG-4 video
-    ///</summary>
+    /// </summary>
     m4v,
 
-    ///<summary>
-    ///        Matroska / WebM
-    ///</summary>
+    /// <summary>
+    ///     Matroska / WebM
+    /// </summary>
     matroska,
 
-    ///<summary>
+    /// <summary>
     ///     MD5 testing
-    ///</summary>
+    /// </summary>
     md5,
 
-    ///<summary>
+    /// <summary>
     ///     Metal Gear Solid: The Twin Snakes
-    ///</summary>
+    /// </summary>
     mgsts,
 
-    ///<summary>
+    /// <summary>
     ///     MicroDVD subtitle format
-    ///</summary>
+    /// </summary>
     microdvd,
 
-    ///<summary>
+    /// <summary>
     ///     raw MJPEG video
-    ///</summary>
+    /// </summary>
     mjpeg,
 
-    ///<summary>
+    /// <summary>
     ///     raw MJPEG 2000 video
-    ///</summary>
+    /// </summary>
     mjpeg_2000,
 
-    ///<summary>
-    ///      pts as timecode v2 format, as defined by mkvtoolnix
-    ///</summary>
+    /// <summary>
+    ///     pts as timecode v2 format, as defined by mkvtoolnix
+    /// </summary>
     mkvtimestamp_v2,
 
-    ///<summary>
+    /// <summary>
     ///     raw MLP
-    ///</summary>
+    /// </summary>
     mlp,
 
-    ///<summary>
+    /// <summary>
     ///     Magic Lantern Video (MLV)
-    ///</summary>
+    /// </summary>
     mlv,
 
-    ///<summary>
+    /// <summary>
     ///     American Laser Games MM
-    ///</summary>
+    /// </summary>
     mm,
 
-    ///<summary>
+    /// <summary>
     ///     Yamaha SMAF
-    ///</summary>
+    /// </summary>
     mmf,
 
-    ///<summary>
+    /// <summary>
     ///     ,m4a,3gp,3g2,mj2 QuickTime / MOV
-    ///</summary>
+    /// </summary>
     mov,
 
-    ///<summary>
+    /// <summary>
     ///     MP2 (MPEG audio layer 2)
-    ///</summary>
+    /// </summary>
     mp2,
 
-    ///<summary>
+    /// <summary>
     ///     MP3 (MPEG audio layer 3)
-    ///</summary>
+    /// </summary>
     mp3,
 
-    ///<summary>
+    /// <summary>
     ///     MP4 (MPEG-4 Part 14)
-    ///</summary>
+    /// </summary>
     mp4,
 
-    ///<summary>
+    /// <summary>
     ///     Musepack
-    ///</summary>
+    /// </summary>
     mpc,
 
-    ///<summary>
+    /// <summary>
     ///     Musepack SV8
-    ///</summary>
+    /// </summary>
     mpc8,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-1 Systems / MPEG program stream
-    ///</summary>
+    /// </summary>
     mpeg,
 
-    ///<summary>
+    /// <summary>
     ///     raw MPEG-1 video
-    ///</summary>
+    /// </summary>
     mpeg1video,
 
-    ///<summary>
+    /// <summary>
     ///     raw MPEG-2 video
-    ///</summary>
+    /// </summary>
     mpeg2video,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-TS (MPEG-2 Transport Stream)
-    ///</summary>
+    /// </summary>
     mpegts,
 
-    ///<summary>
+    /// <summary>
     ///     raw MPEG-TS (MPEG-2 Transport Stream)
-    ///</summary>
+    /// </summary>
     mpegtsraw,
 
-    ///<summary>
+    /// <summary>
     ///     raw MPEG video
-    ///</summary>
+    /// </summary>
     mpegvideo,
 
-    ///<summary>
+    /// <summary>
     ///     MIME multipart JPEG
-    ///</summary>
+    /// </summary>
     mpjpeg,
 
-    ///<summary>
+    /// <summary>
     ///     MPL2 subtitles
-    ///</summary>
+    /// </summary>
     mpl2,
 
-    ///<summary>
+    /// <summary>
     ///     MPlayer subtitles
-    ///</summary>
+    /// </summary>
     mpsub,
 
-    ///<summary>
+    /// <summary>
     ///     Sony PS3 MSF
-    ///</summary>
+    /// </summary>
     msf,
 
-    ///<summary>
+    /// <summary>
     ///     MSN TCP Webcam stream
-    ///</summary>
+    /// </summary>
     msnwctcp,
 
-    ///<summary>
+    /// <summary>
     ///     Konami PS2 MTAF
-    ///</summary>
+    /// </summary>
     mtaf,
 
-    ///<summary>
+    /// <summary>
     ///     MTV
-    ///</summary>
+    /// </summary>
     mtv,
 
-    ///<summary>
+    /// <summary>
     ///     PCM mu-law
-    ///</summary>
+    /// </summary>
     mulaw,
 
-    ///<summary>
+    /// <summary>
     ///     Eurocom MUSX
-    ///</summary>
+    /// </summary>
     musx,
 
-    ///<summary>
+    /// <summary>
     ///     Silicon Graphics Movie
-    ///</summary>
+    /// </summary>
     mv,
 
-    ///<summary>
+    /// <summary>
     ///     Motion Pixels MVI
-    ///</summary>
+    /// </summary>
     mvi,
 
-    ///<summary>
+    /// <summary>
     ///     MXF (Material eXchange Format)
-    ///</summary>
+    /// </summary>
     mxf,
 
-    ///<summary>
+    /// <summary>
     ///     MXF (Material eXchange Format) D-10 Mapping
-    ///</summary>
+    /// </summary>
     mxf_d10,
 
-    ///<summary>
+    /// <summary>
     ///     MXF (Material eXchange Format) Operational Pattern Atom
-    ///</summary>
+    /// </summary>
     mxf_opatom,
 
-    ///<summary>
+    /// <summary>
     ///     MxPEG clip
-    ///</summary>
+    /// </summary>
     mxg,
 
-    ///<summary>
+    /// <summary>
     ///     NC camera feed
-    ///</summary>
+    /// </summary>
     nc,
 
-    ///<summary>
+    /// <summary>
     ///     NIST SPeech HEader REsources
-    ///</summary>
+    /// </summary>
     nistsphere,
 
-    ///<summary>
+    /// <summary>
     ///     Computerized Speech Lab NSP
-    ///</summary>
+    /// </summary>
     nsp,
 
-    ///<summary>
+    /// <summary>
     ///     Nullsoft Streaming Video
-    ///</summary>
+    /// </summary>
     nsv,
 
-    ///<summary>
+    /// <summary>
     ///     NUT
-    ///</summary>
+    /// </summary>
     nut,
 
-    ///<summary>
+    /// <summary>
     ///     NuppelVideo
-    ///</summary>
+    /// </summary>
     nuv,
 
-    ///<summary>
+    /// <summary>
     ///     Ogg Audio
-    ///</summary>
+    /// </summary>
     oga,
 
-    ///<summary>
+    /// <summary>
     ///     Ogg
-    ///</summary>
+    /// </summary>
     ogg,
 
-    ///<summary>
+    /// <summary>
     ///     Ogg Video
-    ///</summary>
+    /// </summary>
     ogv,
 
-    ///<summary>
+    /// <summary>
     ///     Sony OpenMG audio
-    ///</summary>
+    /// </summary>
     oma,
 
-    ///<summary>
+    /// <summary>
     ///     Ogg Opus
-    ///</summary>
+    /// </summary>
     opus,
 
-    ///<summary>
+    /// <summary>
     ///     Amazing Studio Packed Animation File
-    ///</summary>
+    /// </summary>
     paf,
 
-    ///<summary>
+    /// <summary>
     ///     piped pam sequence
-    ///</summary>
+    /// </summary>
     pam_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped pbm sequence
-    ///</summary>
+    /// </summary>
     pbm_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped pcx sequence
-    ///</summary>
+    /// </summary>
     pcx_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped pgm sequence
-    ///</summary>
+    /// </summary>
     pgm_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped pgmyuv sequence
-    ///</summary>
+    /// </summary>
     pgmyuv_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped pictor sequence
-    ///</summary>
+    /// </summary>
     pictor_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     PJS (Phoenix Japanimation Society) subtitles
-    ///</summary>
+    /// </summary>
     pjs,
 
-    ///<summary>
+    /// <summary>
     ///     Playstation Portable PMP
-    ///</summary>
+    /// </summary>
     pmp,
 
-    ///<summary>
+    /// <summary>
     ///     piped png sequence
-    ///</summary>
+    /// </summary>
     png_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped ppm sequence
-    ///</summary>
+    /// </summary>
     ppm_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     piped psd sequence
-    ///</summary>
+    /// </summary>
     psd_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     PSP MP4 (MPEG-4 Part 14)
-    ///</summary>
+    /// </summary>
     psp,
 
-    ///<summary>
+    /// <summary>
     ///     Sony Playstation STR
-    ///</summary>
+    /// </summary>
     psxstr,
 
-    ///<summary>
+    /// <summary>
     ///     TechnoTrend PVA
-    ///</summary>
+    /// </summary>
     pva,
 
-    ///<summary>
+    /// <summary>
     ///     PVF (Portable Voice Format)
-    ///</summary>
+    /// </summary>
     pvf,
 
-    ///<summary>
+    /// <summary>
     ///     QCP
-    ///</summary>
+    /// </summary>
     qcp,
 
-    ///<summary>
+    /// <summary>
     ///     piped qdraw sequence
-    ///</summary>
+    /// </summary>
     qdraw_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     REDCODE R3D
-    ///</summary>
+    /// </summary>
     r3d,
 
-    ///<summary>
+    /// <summary>
     ///     raw video
-    ///</summary>
+    /// </summary>
     rawvideo,
 
-    ///<summary>
+    /// <summary>
     ///     RealText subtitle format
-    ///</summary>
+    /// </summary>
     realtext,
 
-    ///<summary>
+    /// <summary>
     ///     RedSpark
-    ///</summary>
+    /// </summary>
     redspark,
 
-    ///<summary>
+    /// <summary>
     ///     RL2
-    ///</summary>
+    /// </summary>
     rl2,
 
-    ///<summary>
+    /// <summary>
     ///     RealMedia
-    ///</summary>
+    /// </summary>
     rm,
 
-    ///<summary>
+    /// <summary>
     ///     raw id RoQ
-    ///</summary>
+    /// </summary>
     roq,
 
-    ///<summary>
+    /// <summary>
     ///     RPL / ARMovie
-    ///</summary>
+    /// </summary>
     rpl,
 
-    ///<summary>
+    /// <summary>
     ///     GameCube RSD
-    ///</summary>
+    /// </summary>
     rsd,
 
-    ///<summary>
+    /// <summary>
     ///     Lego Mindstorms RSO
-    ///</summary>
+    /// </summary>
     rso,
 
-    ///<summary>
+    /// <summary>
     ///     RTP output
-    ///</summary>
+    /// </summary>
     rtp,
 
-    ///<summary>
+    /// <summary>
     ///     RTP/mpegts output format
-    ///</summary>
+    /// </summary>
     rtp_mpegts,
 
-    ///<summary>
+    /// <summary>
     ///     RTSP output
-    ///</summary>
+    /// </summary>
     rtsp,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16-bit big-endian
-    ///</summary>
+    /// </summary>
     s16be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16-bit little-endian
-    ///</summary>
+    /// </summary>
     s16le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 24-bit big-endian
-    ///</summary>
+    /// </summary>
     s24be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 24-bit little-endian
-    ///</summary>
+    /// </summary>
     s24le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 32-bit big-endian
-    ///</summary>
+    /// </summary>
     s32be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 32-bit little-endian
-    ///</summary>
+    /// </summary>
     s32le,
 
-    ///<summary>
+    /// <summary>
     ///     SMPTE 337M
-    ///</summary>
+    /// </summary>
     s337m,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 8-bit
-    ///</summary>
+    /// </summary>
     s8,
 
-    ///<summary>
+    /// <summary>
     ///     SAMI subtitle format
-    ///</summary>
+    /// </summary>
     sami,
 
-    ///<summary>
+    /// <summary>
     ///     SAP output
-    ///</summary>
+    /// </summary>
     sap,
 
-    ///<summary>
+    /// <summary>
     ///     raw SBC
-    ///</summary>
+    /// </summary>
     sbc,
 
-    ///<summary>
+    /// <summary>
     ///     SBaGen binaural beats script
-    ///</summary>
+    /// </summary>
     sbg,
 
-    ///<summary>
+    /// <summary>
     ///     Scenarist Closed Captions
-    ///</summary>
+    /// </summary>
     scc,
 
-    ///<summary>
-    ///             SDL2 output device
-    ///</summary>
+    /// <summary>
+    ///     SDL2 output device
+    /// </summary>
     sdl,
 
-    ///<summary>
+    /// <summary>
     ///     SDP
-    ///</summary>
+    /// </summary>
     sdp,
 
-    ///<summary>
+    /// <summary>
     ///     SDR2
-    ///</summary>
+    /// </summary>
     sdr2,
 
-    ///<summary>
+    /// <summary>
     ///     MIDI Sample Dump Standard
-    ///</summary>
+    /// </summary>
     sds,
 
-    ///<summary>
+    /// <summary>
     ///     Sample Dump eXchange
-    ///</summary>
+    /// </summary>
     sdx,
 
-    ///<summary>
+    /// <summary>
     ///     segment
-    ///</summary>
+    /// </summary>
     segment,
 
-    ///<summary>
+    /// <summary>
     ///     SER (Simple uncompressed video format for astronomical capturing)
-    ///</summary>
+    /// </summary>
     ser,
 
-    ///<summary>
+    /// <summary>
     ///     piped sgi sequence
-    ///</summary>
+    /// </summary>
     sgi_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     raw Shorten
-    ///</summary>
+    /// </summary>
     shn,
 
-    ///<summary>
+    /// <summary>
     ///     Beam Software SIFF
-    ///</summary>
+    /// </summary>
     siff,
 
-    ///<summary>
+    /// <summary>
     ///     JPEG single image
-    ///</summary>
+    /// </summary>
     singlejpeg,
 
-    ///<summary>
+    /// <summary>
     ///     Asterisk raw pcm
-    ///</summary>
+    /// </summary>
     sln,
 
-    ///<summary>
+    /// <summary>
     ///     Loki SDL MJPEG
-    ///</summary>
+    /// </summary>
     smjpeg,
 
-    ///<summary>
+    /// <summary>
     ///     Smacker
-    ///</summary>
+    /// </summary>
     smk,
 
-    ///<summary>
-    ///      Streaming Muxer
-    ///</summary>
+    /// <summary>
+    ///     Streaming Muxer
+    /// </summary>
     smoothstreaming,
 
-    ///<summary>
+    /// <summary>
     ///     LucasArts Smush
-    ///</summary>
+    /// </summary>
     smush,
 
-    ///<summary>
+    /// <summary>
     ///     Sierra SOL
-    ///</summary>
+    /// </summary>
     sol,
 
-    ///<summary>
+    /// <summary>
     ///     SoX native
-    ///</summary>
+    /// </summary>
     sox,
 
-    ///<summary>
+    /// <summary>
     ///     IEC 61937 (used on S/PDIF - IEC958)
-    ///</summary>
+    /// </summary>
     spdif,
 
-    ///<summary>
+    /// <summary>
     ///     Ogg Speex
-    ///</summary>
+    /// </summary>
     spx,
 
-    ///<summary>
+    /// <summary>
     ///     SubRip subtitle
-    ///</summary>
+    /// </summary>
     srt,
 
-    ///<summary>
+    /// <summary>
     ///     Spruce subtitle format
-    ///</summary>
+    /// </summary>
     stl,
 
-    ///<summary>
-    ///      streaming segment muxer
-    ///</summary>
+    /// <summary>
+    ///     streaming segment muxer
+    /// </summary>
     stream_segment,
 
-    ///<summary>
+    /// <summary>
     ///     SubViewer subtitle format
-    ///</summary>
+    /// </summary>
     subviewer,
 
-    ///<summary>
+    /// <summary>
     ///     SubViewer v1 subtitle format
-    ///</summary>
+    /// </summary>
     subviewer1,
 
-    ///<summary>
+    /// <summary>
     ///     piped sunrast sequence
-    ///</summary>
+    /// </summary>
     sunrast_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     raw HDMV Presentation Graphic Stream subtitles
-    ///</summary>
+    /// </summary>
     sup,
 
-    ///<summary>
+    /// <summary>
     ///     Konami PS2 SVAG
-    ///</summary>
+    /// </summary>
     svag,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-2 PS (SVCD)
-    ///</summary>
+    /// </summary>
     svcd,
 
-    ///<summary>
+    /// <summary>
     ///     piped svg sequence
-    ///</summary>
+    /// </summary>
     svg_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     SWF (ShockWave Flash)
-    ///</summary>
+    /// </summary>
     swf,
 
-    ///<summary>
+    /// <summary>
     ///     raw TAK
-    ///</summary>
+    /// </summary>
     tak,
 
-    ///<summary>
+    /// <summary>
     ///     TED Talks captions
-    ///</summary>
+    /// </summary>
     tedcaptions,
 
-    ///<summary>
+    /// <summary>
     ///     Multiple muxer tee
-    ///</summary>
+    /// </summary>
     tee,
 
-    ///<summary>
+    /// <summary>
     ///     THP
-    ///</summary>
+    /// </summary>
     thp,
 
-    ///<summary>
+    /// <summary>
     ///     Tiertex Limited SEQ
-    ///</summary>
+    /// </summary>
     tiertexseq,
 
-    ///<summary>
+    /// <summary>
     ///     piped tiff sequence
-    ///</summary>
+    /// </summary>
     tiff_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     8088flex TMV
-    ///</summary>
+    /// </summary>
     tmv,
 
-    ///<summary>
+    /// <summary>
     ///     raw TrueHD
-    ///</summary>
+    /// </summary>
     truehd,
 
-    ///<summary>
+    /// <summary>
     ///     TTA (True Audio)
-    ///</summary>
+    /// </summary>
     tta,
 
-    ///<summary>
+    /// <summary>
     ///     Tele-typewriter
-    ///</summary>
+    /// </summary>
     tty,
 
-    ///<summary>
+    /// <summary>
     ///     Renderware TeXture Dictionary
-    ///</summary>
+    /// </summary>
     txd,
 
-    ///<summary>
+    /// <summary>
     ///     TiVo TY Stream
-    ///</summary>
+    /// </summary>
     ty,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 16-bit big-endian
-    ///</summary>
+    /// </summary>
     u16be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 16-bit little-endian
-    ///</summary>
+    /// </summary>
     u16le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 24-bit big-endian
-    ///</summary>
+    /// </summary>
     u24be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 24-bit little-endian
-    ///</summary>
+    /// </summary>
     u24le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 32-bit big-endian
-    ///</summary>
+    /// </summary>
     u32be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 32-bit little-endian
-    ///</summary>
+    /// </summary>
     u32le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 8-bit
-    ///</summary>
+    /// </summary>
     u8,
 
-    ///<summary>
-    ///      framecrc testing
-    ///</summary>
+    /// <summary>
+    ///     framecrc testing
+    /// </summary>
     uncodedframecrc,
 
-    ///<summary>
+    /// <summary>
     ///     Uncompressed 4:2:2 10-bit
-    ///</summary>
+    /// </summary>
     v210,
 
-    ///<summary>
+    /// <summary>
     ///     Uncompressed 4:2:2 10-bit
-    ///</summary>
+    /// </summary>
     v210x,
 
-    ///<summary>
+    /// <summary>
     ///     Sony PS2 VAG
-    ///</summary>
+    /// </summary>
     vag,
 
-    ///<summary>
+    /// <summary>
     ///     raw VC-1 video
-    ///</summary>
+    /// </summary>
     vc1,
 
-    ///<summary>
+    /// <summary>
     ///     VC-1 test bitstream
-    ///</summary>
+    /// </summary>
     vc1test,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-1 Systems / MPEG program stream (VCD)
-    ///</summary>
+    /// </summary>
     vcd,
 
-    ///<summary>
+    /// <summary>
     ///     VfW video capture
-    ///</summary>
+    /// </summary>
     vfwcap,
 
-    ///<summary>
+    /// <summary>
     ///     PCM Archimedes VIDC
-    ///</summary>
+    /// </summary>
     vidc,
 
-    ///<summary>
+    /// <summary>
     ///     Vividas VIV
-    ///</summary>
+    /// </summary>
     vividas,
 
-    ///<summary>
+    /// <summary>
     ///     Vivo
-    ///</summary>
+    /// </summary>
     vivo,
 
-    ///<summary>
+    /// <summary>
     ///     Sierra VMD
-    ///</summary>
+    /// </summary>
     vmd,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-2 PS (VOB)
-    ///</summary>
+    /// </summary>
     vob,
 
-    ///<summary>
+    /// <summary>
     ///     VobSub subtitle format
-    ///</summary>
+    /// </summary>
     vobsub,
 
-    ///<summary>
+    /// <summary>
     ///     Creative Voice
-    ///</summary>
+    /// </summary>
     voc,
 
-    ///<summary>
+    /// <summary>
     ///     Sony PS2 VPK
-    ///</summary>
+    /// </summary>
     vpk,
 
-    ///<summary>
+    /// <summary>
     ///     VPlayer subtitles
-    ///</summary>
+    /// </summary>
     vplayer,
 
-    ///<summary>
+    /// <summary>
     ///     Nippon Telegraph and Telephone Corporation (NTT) TwinVQ
-    ///</summary>
+    /// </summary>
     vqf,
 
-    ///<summary>
+    /// <summary>
     ///     Sony Wave64
-    ///</summary>
+    /// </summary>
     w64,
 
-    ///<summary>
+    /// <summary>
     ///     WAV / WAVE (Waveform Audio)
-    ///</summary>
+    /// </summary>
     wav,
 
-    ///<summary>
+    /// <summary>
     ///     Wing Commander III movie
-    ///</summary>
+    /// </summary>
     wc3movie,
 
-    ///<summary>
+    /// <summary>
     ///     WebM
-    ///</summary>
+    /// </summary>
     webm,
 
-    ///<summary>
+    /// <summary>
     ///     WebM Chunk Muxer
-    ///</summary>
+    /// </summary>
     webm_chunk,
 
-    ///<summary>
-    ///      DASH Manifest
-    ///</summary>
+    /// <summary>
+    ///     DASH Manifest
+    /// </summary>
     webm_dash_manifest,
 
-    ///<summary>
+    /// <summary>
     ///     WebP
-    ///</summary>
+    /// </summary>
     webp,
 
-    ///<summary>
+    /// <summary>
     ///     piped webp sequence
-    ///</summary>
+    /// </summary>
     webp_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     WebVTT subtitle
-    ///</summary>
+    /// </summary>
     webvtt,
 
-    ///<summary>
+    /// <summary>
     ///     Westwood Studios audio
-    ///</summary>
+    /// </summary>
     wsaud,
 
-    ///<summary>
+    /// <summary>
     ///     Wideband Single-bit Data (WSD)
-    ///</summary>
+    /// </summary>
     wsd,
 
-    ///<summary>
+    /// <summary>
     ///     Westwood Studios VQA
-    ///</summary>
+    /// </summary>
     wsvqa,
 
-    ///<summary>
+    /// <summary>
     ///     Windows Television (WTV)
-    ///</summary>
+    /// </summary>
     wtv,
 
-    ///<summary>
+    /// <summary>
     ///     raw WavPack
-    ///</summary>
+    /// </summary>
     wv,
 
-    ///<summary>
+    /// <summary>
     ///     Psion 3 audio
-    ///</summary>
+    /// </summary>
     wve,
 
-    ///<summary>
+    /// <summary>
     ///     Maxis XA
-    ///</summary>
+    /// </summary>
     xa,
 
-    ///<summary>
+    /// <summary>
     ///     eXtended BINary text (XBIN)
-    ///</summary>
+    /// </summary>
     xbin,
 
-    ///<summary>
+    /// <summary>
     ///     Microsoft XMV
-    ///</summary>
+    /// </summary>
     xmv,
 
-    ///<summary>
+    /// <summary>
     ///     piped xpm sequence
-    ///</summary>
+    /// </summary>
     xpm_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     Sony PS3 XVAG
-    ///</summary>
+    /// </summary>
     xvag,
 
-    ///<summary>
+    /// <summary>
     ///     piped xwd sequence
-    ///</summary>
+    /// </summary>
     xwd_pipe,
 
-    ///<summary>
+    /// <summary>
     ///     Microsoft xWMA
-    ///</summary>
+    /// </summary>
     xwma,
 
-    ///<summary>
+    /// <summary>
     ///     Psygnosis YOP
-    ///</summary>
+    /// </summary>
     yop,
 
-    ///<summary>
+    /// <summary>
     ///     YUV4MPEG pipe
-    ///</summary>
+    /// </summary>
     yuv4mpegpipe,
 
-    ///<summary>
+    /// <summary>
     ///     x11grab
-    ///</summary>
+    /// </summary>
     x11grab,
 
-    ///<summary>
-    ///         avfoundation
-    ///</summary>
+    /// <summary>
+    ///     avfoundation
+    /// </summary>
     avfoundation,
 
-    ///<summary>
-    ///         video4linux2
-    ///</summary>
-    v4l2
+    /// <summary>
+    ///     video4linux2
+    /// </summary>
+    v4l2,
 }

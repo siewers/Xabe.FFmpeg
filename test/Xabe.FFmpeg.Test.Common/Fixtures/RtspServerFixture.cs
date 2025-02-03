@@ -1,12 +1,12 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg.Test.Common.Fixtures;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Xunit;
-
-namespace Xabe.FFmpeg.Test.Common.Fixtures;
 
 public class RtspServerFixture : IAsyncLifetime
 {
@@ -26,6 +26,7 @@ public class RtspServerFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters());
+
         foreach (var container in containers.Where(x => x.Names.Contains("/Xabe.FFmpeg.Test")))
         {
             if (container.State == "running")
@@ -37,29 +38,36 @@ public class RtspServerFixture : IAsyncLifetime
         await _dockerClient.Images.CreateImageAsync(
                                                     new ImagesCreateParameters
                                                     {
-                                                        FromImage = "aler9/rtsp-simple-server:latest"
+                                                        FromImage = "aler9/rtsp-simple-server:latest",
                                                     },
                                                     null,
-                                                    new Progress<JSONMessage>((m) => { }),
-                                                    default);
+                                                    new Progress<JSONMessage>(_ => { }),
+                                                    default
+                                                   );
 
-        var response = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters()
+        var response = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
                                                                            {
                                                                                Image = "aler9/rtsp-simple-server",
-                                                                               ExposedPorts = new Dictionary<string, EmptyStruct>() { { "8554", default } },
-                                                                               Env = new List<string>() { "RTSP_PROTOCOLS=tcp" },
-                                                                               HostConfig = new HostConfig()
+                                                                               ExposedPorts = new Dictionary<string, EmptyStruct> { { "8554", default } },
+                                                                               Env = new List<string> { "RTSP_PROTOCOLS=tcp" },
+                                                                               HostConfig = new HostConfig
                                                                                             {
                                                                                                 PortBindings = new Dictionary<string, IList<PortBinding>>
                                                                                                                {
-                                                                                                                   {"8554", new List<PortBinding> {new()
-                                                                                                                                                   {HostPort = "8554" } }}
+                                                                                                                   {
+                                                                                                                       "8554", new List<PortBinding>
+                                                                                                                               {
+                                                                                                                                   new()
+                                                                                                                                   { HostPort = "8554" },
+                                                                                                                               }
+                                                                                                                   },
                                                                                                                },
                                                                                                 PublishAllPorts = true,
                                                                                                 AutoRemove = true,
                                                                                             },
-                                                                               Name = "Xabe.FFmpeg.Test"
-                                                                           });
+                                                                               Name = "Xabe.FFmpeg.Test",
+                                                                           }
+                                                                          );
 
         _containerId = response.ID;
         await _dockerClient.Containers.StartContainerAsync(_containerId, null);

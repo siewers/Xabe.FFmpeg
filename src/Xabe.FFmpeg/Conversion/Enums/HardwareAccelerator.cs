@@ -1,4 +1,6 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 /// <summary>
 ///     Hardware accelerators ("ffmpeg -hwaccels")
@@ -41,7 +43,7 @@ public enum HardwareAccelerator
     vaapi,
 
     /// <summary>
-    ///     
+    ///
     /// </summary>
     libmfx
 }

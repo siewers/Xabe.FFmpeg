@@ -1,22 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace Xabe.FFmpeg.Downloader;
 
-namespace Xabe.FFmpeg.Downloader;
+using System;
+using System.Threading.Tasks;
 
 internal class FullFFmpegDownloader : FFmpegDownloaderBase
 {
-    internal FullFFmpegDownloader() : base()
+    internal FullFFmpegDownloader()
     {
-
     }
 
-    internal FullFFmpegDownloader(IOperatingSystemProvider operatingSystemProvider) : base(operatingSystemProvider)
+    internal FullFFmpegDownloader(IOperatingSystemProvider operatingSystemProvider)
+        : base(operatingSystemProvider)
     {
     }
 
     private string GenerateLink()
     {
-        switch (_operatingSystemProvider.GetOperatingSystem())
+        switch (OperatingSystemProvider.GetOperatingSystem())
         {
             case OperatingSystem.Windows64:
                 return "https://xabe.net/ffmpeg/versions/ffmpeg-latest-win64-static.zip";
@@ -25,11 +25,11 @@ internal class FullFFmpegDownloader : FFmpegDownloaderBase
             case OperatingSystem.Osx64:
                 return "https://xabe.net/ffmpeg/versions/ffmpeg-latest-macos64-static.zip";
             default:
-                throw new NotSupportedException($"The automated download of the full FFmpeg package is not supported for the current Operation System: {_operatingSystemProvider.GetOperatingSystem()}.");
+                throw new NotSupportedException($"The automated download of the full FFmpeg package is not supported for the current Operation System: {OperatingSystemProvider.GetOperatingSystem()}.");
         }
     }
 
-    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES)
+    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries)
     {
         if (!CheckIfFilesExist(path))
         {
@@ -43,5 +43,7 @@ internal class FullFFmpegDownloader : FFmpegDownloaderBase
     }
 
     protected override void Extract(string ffMpegZipPath, string destinationDir)
-        => Extract(ffMpegZipPath, destinationDir, filter: item => item.FullName.Contains("bin"), item => item.Name);
+    {
+        Extract(ffMpegZipPath, destinationDir, item => item.FullName.Contains("bin"), item => item.Name);
+    }
 }

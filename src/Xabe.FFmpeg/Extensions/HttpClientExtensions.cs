@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 [PublicAPI]
 public static class HttpClientExtensions
 {
-    public async static Task DownloadAsync(this HttpClient client, string requestUri, Stream destination, IProgress<ProgressInfo> progress = null, CancellationToken cancellationToken = default)
+    public async static Task DownloadAsync(this HttpClient client, string requestUri, Stream destination, IProgress<ProgressInfo>? progress = null, CancellationToken cancellationToken = default)
     {
         // Get the http headers first to examine the content length
         using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead))

@@ -1,4 +1,6 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 /// <summary>
 /// Hash Formats ("ffmpeg -i INPUT -f hash")

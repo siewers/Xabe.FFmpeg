@@ -264,10 +264,10 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var conversionResult = await FFmpeg.Conversions.New()
-                                           .AddStream(inputFile.VideoStreams.First().AddSubtitles(Resources.SubtitleSrt))
-                                           .SetOutput(outputPath)
-                                           .Start();
+        await FFmpeg.Conversions.New()
+                    .AddStream(inputFile.VideoStreams.First().AddSubtitles(Resources.SubtitleSrt))
+                    .SetOutput(outputPath)
+                    .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
         mediaInfo.Duration.Should().Be(9.Seconds().And(880.Milliseconds()));
@@ -403,7 +403,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
 
         var currentProgress = new TimeSpan();
         var videoLength = new TimeSpan();
-        conversion.OnProgress += (sender, e) =>
+        conversion.OnProgress += (_, e) =>
                                  {
                                      currentProgress = e.Duration;
                                      videoLength = e.TotalLength;

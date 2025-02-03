@@ -1,57 +1,54 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg.Downloader;
+
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Xabe.FFmpeg.Extensions;
-
-namespace Xabe.FFmpeg.Downloader;
+using Extensions;
 
 internal abstract class FFmpegDownloaderBase : IFFmpegDownloader
 {
-    public const int DEFAULT_MAX_RETRIES = 6;
-
+    public const int DefaultMaxRetries = 6;
+    private const double DelayMultiplier = 2.0;
     private readonly TimeSpan _initialDelay = TimeSpan.FromSeconds(1);
     private readonly TimeSpan _maxDelay = TimeSpan.FromMinutes(2);
-    private const double DELAY_MULTIPLIER = 2.0;
-
-    protected IOperatingSystemProvider _operatingSystemProvider;
-    protected IOperatingSystemArchitectureProvider _operatingSystemArchitectureProvider;
+    protected readonly IOperatingSystemArchitectureProvider OperatingSystemArchitectureProvider;
+    protected readonly IOperatingSystemProvider OperatingSystemProvider;
 
     protected FFmpegDownloaderBase(IOperatingSystemProvider operatingSystemProvider)
     {
-        _operatingSystemProvider = operatingSystemProvider;
+        OperatingSystemProvider = operatingSystemProvider;
     }
 
     protected FFmpegDownloaderBase(IOperatingSystemArchitectureProvider operatingSystemArchitectureProvider)
     {
-        _operatingSystemArchitectureProvider = operatingSystemArchitectureProvider;
+        OperatingSystemArchitectureProvider = operatingSystemArchitectureProvider;
     }
 
     protected FFmpegDownloaderBase()
     {
-        _operatingSystemProvider = new OperatingSystemProvider();
-        _operatingSystemArchitectureProvider = new OperatingSystemArchitectureProvider();
+        OperatingSystemProvider = new OperatingSystemProvider();
+        OperatingSystemArchitectureProvider = new OperatingSystemArchitectureProvider();
     }
 
-    public abstract Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES);
+    public abstract Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries);
 
     protected bool CheckIfFilesExist(string path)
     {
-        if (_operatingSystemProvider != null)
+        if (OperatingSystemProvider != null)
         {
-            return !File.Exists(ComputeFileDestinationPath("ffmpeg", _operatingSystemProvider.GetOperatingSystem(), path)) || !File.Exists(ComputeFileDestinationPath("ffprobe", _operatingSystemProvider.GetOperatingSystem(), path));
+            return !File.Exists(ComputeFileDestinationPath("ffmpeg", OperatingSystemProvider.GetOperatingSystem(), path)) || !File.Exists(ComputeFileDestinationPath("ffprobe", OperatingSystemProvider.GetOperatingSystem(), path));
         }
-        else if (_operatingSystemArchitectureProvider != null)
+
+        if (OperatingSystemArchitectureProvider != null)
         {
             return !File.Exists(ComputeFileDestinationPath("ffmpeg", path)) || !File.Exists(ComputeFileDestinationPath("ffprobe", path));
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     internal string ComputeFileDestinationPath(string filename, OperatingSystem os, string destinationPath)
@@ -71,7 +68,10 @@ internal abstract class FFmpegDownloaderBase : IFFmpegDownloader
         return Path.Combine(destinationPath ?? ".", filename);
     }
 
-    protected virtual void Extract(string ffMpegZipPath, string destinationDir) => Extract(ffMpegZipPath, destinationDir, _ => true, zipEntry => zipEntry.FullName);
+    protected virtual void Extract(string ffMpegZipPath, string destinationDir)
+    {
+        Extract(ffMpegZipPath, destinationDir, _ => true, zipEntry => zipEntry.FullName);
+    }
 
     internal void Extract(string ffMpegZipPath, string destinationDir, Func<ZipArchiveEntry, bool> filter, Func<ZipArchiveEntry, string> getName)
     {
@@ -109,7 +109,7 @@ internal abstract class FFmpegDownloaderBase : IFFmpegDownloader
                         Directory.CreateDirectory(directoryPath);
                     }
 
-                    zipEntry.ExtractToFile(destinationPath, overwrite: true);
+                    zipEntry.ExtractToFile(destinationPath, true);
                 }
             }
         }
@@ -123,7 +123,7 @@ internal abstract class FFmpegDownloaderBase : IFFmpegDownloader
         var tryCount = 0;
         var retryDelay = _initialDelay;
 
-        using (var client = new HttpClient() { Timeout = Timeout.InfiniteTimeSpan })
+        using (var client = new HttpClient { Timeout = Timeout.InfiniteTimeSpan })
         {
             while (true)
             {
@@ -156,7 +156,7 @@ internal abstract class FFmpegDownloaderBase : IFFmpegDownloader
                     {
                         // Add an exponential delay between subsequent retries
                         await Task.Delay(retryDelay);
-                        retryDelay = TimeSpan.FromSeconds(Math.Min(_maxDelay.TotalSeconds, retryDelay.TotalSeconds * DELAY_MULTIPLIER));
+                        retryDelay = TimeSpan.FromSeconds(Math.Min(_maxDelay.TotalSeconds, retryDelay.TotalSeconds * DelayMultiplier));
                     }
 
                     tryCount++;

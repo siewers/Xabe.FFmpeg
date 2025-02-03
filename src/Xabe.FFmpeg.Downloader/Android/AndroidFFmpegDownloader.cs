@@ -39,14 +39,14 @@ internal class AndroidFFmpegDownloader : FFmpegDownloaderBase
         return string.Empty;
     }
 
-    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES)
+    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries)
     {
-        var arch = _operatingSystemArchitectureProvider.GetArchitecture();
+        var arch = OperatingSystemArchitectureProvider.GetArchitecture();
 
         await GetLatestVersionForArchitecture(path, arch, progress, retries);
     }
 
-    protected async Task GetLatestVersionForArchitecture(string path, OperatingSystemArchitecture arch, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES)
+    protected async Task GetLatestVersionForArchitecture(string path, OperatingSystemArchitecture arch, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries)
     {
         if (!CheckIfFilesExist(path))
         {

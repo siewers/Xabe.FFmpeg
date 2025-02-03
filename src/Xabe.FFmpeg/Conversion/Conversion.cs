@@ -23,7 +23,7 @@ public partial class Conversion : IConversion
     private readonly Dictionary<ParameterPosition, List<string>> _userDefinedParameters = [];
     private Func<string, string>? _buildInputFileName;
     private Func<string, string>? _buildOutputFileName;
-    private FFmpegWrapper _ffmpeg;
+    private FFmpegWrapper? _ffmpeg;
     private bool _hasInputBuilder;
     private string _output;
     private ProcessPriorityClass? _priority;

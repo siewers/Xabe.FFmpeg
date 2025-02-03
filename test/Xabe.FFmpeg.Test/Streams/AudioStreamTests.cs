@@ -138,7 +138,7 @@ public class AudioStreamTests : IClassFixture<StorageFixture>
 
         var currentProgress = new TimeSpan();
         var videoLength = new TimeSpan();
-        conversion.OnProgress += (sender, e) =>
+        conversion.OnProgress += (_, e) =>
                                  {
                                      currentProgress = e.Duration;
                                      videoLength = e.TotalLength;

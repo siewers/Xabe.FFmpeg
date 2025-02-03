@@ -1,4 +1,6 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
 

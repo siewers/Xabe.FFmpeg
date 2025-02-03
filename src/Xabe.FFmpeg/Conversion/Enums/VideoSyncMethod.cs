@@ -1,4 +1,6 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 public enum VideoSyncMethod
 {
@@ -6,5 +8,5 @@ public enum VideoSyncMethod
     cfr,
     vfr,
     drop,
-    auto
+    auto,
 }

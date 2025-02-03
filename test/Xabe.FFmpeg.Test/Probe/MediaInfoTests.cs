@@ -153,8 +153,6 @@ public class MediaInfoTests : IClassFixture<StorageFixture>, IClassFixture<RtspS
     [Fact]
     public async Task RTSP_NotExistingStream_CancelledAfter30Seconds()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.WebM);
-
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo(@"rtsp://192.168.1.123:554/"));
 
         Assert.NotNull(exception);
@@ -164,7 +162,6 @@ public class MediaInfoTests : IClassFixture<StorageFixture>, IClassFixture<RtspS
     [Fact]
     public async Task RTSP_NotExistingStream_CancelledAfter2Seconds()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.WebM);
         var cancellationTokenSource = new CancellationTokenSource(2000);
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo(@"rtsp://192.168.1.123:554/", cancellationTokenSource.Token));
 

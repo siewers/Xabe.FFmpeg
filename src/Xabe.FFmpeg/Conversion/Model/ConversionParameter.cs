@@ -2,17 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 internal sealed record ConversionParameter
 {
-    private ConversionParameter(string parameter, ParameterPosition position = ParameterPosition.PostInput)
-    {
-        Parameter = $"{parameter.Trim()} ";
-        Key = parameter.Split(' ').First();
-        Position = position;
-    }
-
     private ConversionParameter(string name, string? value = null, ParameterPosition position = ParameterPosition.PostInput)
     {
         Parameter = $"-{name.TrimStart('-').Trim()} {value?.Trim()} ";

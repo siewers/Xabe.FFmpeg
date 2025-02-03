@@ -1,4 +1,6 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 /// <summary>
 ///     Pixel Format ("ffmpeg -pix_fmts")
@@ -968,5 +970,5 @@ public enum PixelFormat
     ///<summary>
     /// nv42
     ///</summary>
-    nv42
+    nv42,
 }

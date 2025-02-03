@@ -49,10 +49,10 @@ public class SubtitleTests : IClassFixture<StorageFixture>
         var subtitleStream = info.SubtitleStreams.FirstOrDefault(x => x.Language == "spa");
         Assert.NotNull(subtitleStream);
 
-        var result = await FFmpeg.Conversions.New()
-                                 .AddStream(subtitleStream)
-                                 .SetOutput(outputPath)
-                                 .Start();
+        await FFmpeg.Conversions.New()
+                    .AddStream(subtitleStream)
+                    .SetOutput(outputPath)
+                    .Start();
 
         var resultInfo = await FFmpeg.GetMediaInfo(outputPath);
         Assert.Empty(resultInfo.VideoStreams);

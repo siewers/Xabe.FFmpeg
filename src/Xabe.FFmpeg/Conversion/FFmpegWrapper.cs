@@ -20,8 +20,8 @@ using Microsoft.Win32.SafeHandles;
 internal class FFmpegWrapper : FFmpeg
 {
     private const string TIME_FORMAT_PATTERN = @"\w\w:\w\w:\w\w";
-    private static readonly Regex _timeFormatRegex = new(TIME_FORMAT_PATTERN, RegexOptions.Compiled);
-    private List<string> _outputLog;
+    private static readonly Regex TimeFormatRegex = new(TIME_FORMAT_PATTERN, RegexOptions.Compiled);
+    private List<string> _outputLog = [];
     private TimeSpan _totalTime;
     private bool _wasKilled;
 
@@ -56,7 +56,7 @@ internal class FFmpegWrapper : FFmpeg
 
                                          using (process)
                                          {
-                                             process.ErrorDataReceived += (sender, e) => ProcessOutputData(e, args, processId);
+                                             process.ErrorDataReceived += (_, e) => ProcessOutputData(e, args, processId);
                                              process.BeginErrorReadLine();
 
                                              if (pipedOutput)
@@ -147,14 +147,9 @@ internal class FFmpegWrapper : FFmpeg
             return;
         }
 
-        OnDataReceived?.Invoke(this, e);
+        OnDataReceived(this, e);
 
         _outputLog.Add(e.Data);
-
-        if (OnProgress == null)
-        {
-            return;
-        }
 
         CalculateTime(e, args, processId);
     }
@@ -182,11 +177,11 @@ internal class FFmpegWrapper : FFmpeg
 
         if (e.Data.Contains("Duration"))
         {
-            GetDuration(e, _timeFormatRegex, args);
+            GetDuration(e, TimeFormatRegex, args);
         }
         else if (e.Data.Contains("size"))
         {
-            var match = _timeFormatRegex.Match(e.Data);
+            var match = TimeFormatRegex.Match(e.Data);
             var ts = GetTimeSpanValue(match);
 
             if (ts.TotalMilliseconds > 0)

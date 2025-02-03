@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 internal class OfficialFFmpegDownloader : FFmpegDownloaderBase
 {
-    private static readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
+    private static readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = true };
     private readonly LinkProvider _linkProvider;
 
     internal OfficialFFmpegDownloader()
     {
-        _linkProvider = new LinkProvider(_operatingSystemProvider);
+        _linkProvider = new LinkProvider(OperatingSystemProvider);
     }
 
     internal OfficialFFmpegDownloader(IOperatingSystemProvider operatingSystemProvider)
@@ -22,7 +22,7 @@ internal class OfficialFFmpegDownloader : FFmpegDownloaderBase
         _linkProvider = new LinkProvider(operatingSystemProvider);
     }
 
-    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES)
+    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries)
     {
         var latestVersion = GetLatestVersionInfo();
 
@@ -45,7 +45,7 @@ internal class OfficialFFmpegDownloader : FFmpegDownloaderBase
         }
     }
 
-    internal async Task DownloadLatestVersion(FFbinariesVersionInfo latestFFmpegBinaries, string path, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES)
+    internal async Task DownloadLatestVersion(FFbinariesVersionInfo latestFFmpegBinaries, string path, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries)
     {
         var links = _linkProvider.GetLinks(latestFFmpegBinaries);
 
@@ -90,7 +90,7 @@ internal class OfficialFFmpegDownloader : FFmpegDownloaderBase
         File.WriteAllText(versionPath, JsonSerializer.Serialize(new DownloadedVersion
                                                                 {
                                                                     Version = latestVersion.Version,
-                                                                }, _serializerOptions
+                                                                }, SerializerOptions
                                                                )
                          );
     }

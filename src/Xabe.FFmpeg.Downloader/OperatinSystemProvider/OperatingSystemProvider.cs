@@ -1,7 +1,7 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿namespace Xabe.FFmpeg.Downloader;
 
-namespace Xabe.FFmpeg.Downloader;
+using System;
+using System.Runtime.InteropServices;
 
 internal class OperatingSystemProvider : IOperatingSystemProvider
 {
@@ -13,15 +13,18 @@ internal class OperatingSystemProvider : IOperatingSystemProvider
             {
                 return OperatingSystem.Windows32;
             }
-            else if (RuntimeInformation.OSArchitecture == Architecture.X64)
+
+            if (RuntimeInformation.OSArchitecture == Architecture.X64)
             {
                 return OperatingSystem.Windows64;
             }
-            else if (RuntimeInformation.OSArchitecture == Architecture.Arm)
+
+            if (RuntimeInformation.OSArchitecture == Architecture.Arm)
             {
                 return OperatingSystem.Windows32;
             }
-            else if (RuntimeInformation.OSArchitecture == Architecture.Arm64)
+
+            if (RuntimeInformation.OSArchitecture == Architecture.Arm64)
             {
                 return OperatingSystem.Windows64;
             }
@@ -42,8 +45,6 @@ internal class OperatingSystemProvider : IOperatingSystemProvider
                     return OperatingSystem.LinuxArmhf;
                 case Architecture.Arm64:
                     return OperatingSystem.LinuxArm64;
-                default:
-                    break;
             }
 
             // TODO : How to distinct Tizen / Raspberry architecture

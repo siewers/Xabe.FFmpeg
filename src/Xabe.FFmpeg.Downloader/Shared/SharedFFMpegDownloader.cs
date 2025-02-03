@@ -19,7 +19,7 @@ internal class SharedFFmpegDownloader : FFmpegDownloaderBase
 
     private string GenerateLink()
     {
-        switch (_operatingSystemProvider.GetOperatingSystem())
+        switch (OperatingSystemProvider.GetOperatingSystem())
         {
             case OperatingSystem.Windows64:
                 return "https://xabe.net/ffmpeg/versions/ffmpeg-latest-win64-shared.zip";
@@ -28,11 +28,11 @@ internal class SharedFFmpegDownloader : FFmpegDownloaderBase
             case OperatingSystem.Osx64:
                 return "https://xabe.net/ffmpeg/versions/ffmpeg-latest-macos64-shared.zip";
             default:
-                throw new NotSupportedException($"The automated download of the full Shared FFmpeg package is not supported for the current Operation System: {_operatingSystemProvider.GetOperatingSystem()}.");
+                throw new NotSupportedException($"The automated download of the full Shared FFmpeg package is not supported for the current Operation System: {OperatingSystemProvider.GetOperatingSystem()}.");
         }
     }
 
-    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DEFAULT_MAX_RETRIES)
+    public override async Task GetLatestVersion(string path, IProgress<ProgressInfo> progress = null, int retries = DefaultMaxRetries)
     {
         if (!CheckIfFilesExist(path))
         {

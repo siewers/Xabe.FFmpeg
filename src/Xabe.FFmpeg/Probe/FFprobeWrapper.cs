@@ -52,31 +52,33 @@ internal sealed class FFprobeWrapper : FFmpeg
                                           );
     }
 
-    public async Task<ProbeModel> GetProbeModel(FileInfo mediaFile, CancellationToken cancellationToken)
+    public async Task<ProbeModel> GetProbeModel(Uri mediaUri, CancellationToken cancellationToken)
     {
-        var arguments = $"-v panic -print_format json -show_format -show_streams {mediaFile.FullName}";
+        var mediaLocation = $"\"{mediaUri.OriginalString.Trim('"')}\"";
+
+        var arguments = $"-v panic -print_format json -show_format -show_streams {mediaLocation}";
         var probeResult = await Start(arguments, cancellationToken);
 
         if (string.IsNullOrWhiteSpace(probeResult))
         {
-            throw new ArgumentException($"Invalid file. Cannot load file {mediaFile.FullName}.");
+            throw new ArgumentException($"Invalid file. Cannot load file {mediaLocation}.");
         }
 
         var probeData = JsonDeserializer.Deserialize<ProbeModel>(probeResult);
 
         if (probeData is null)
         {
-            throw new ArgumentException($"Invalid file. Cannot deserialize probe data {mediaFile.FullName}.");
+            throw new ArgumentException($"Invalid file. Cannot deserialize probe data {mediaLocation}.");
         }
 
         if (probeData.Format is null)
         {
-            throw new ArgumentException($"Invalid file. No format found {mediaFile.FullName}.");
+            throw new ArgumentException($"Invalid file. No format found {mediaLocation}.");
         }
 
         if (probeData.Streams is null || probeData.Streams.Length == 0)
         {
-            throw new ArgumentException($"Invalid file. No streams found {mediaFile.FullName}.");
+            throw new ArgumentException($"Invalid file. No streams found {mediaLocation}.");
         }
 
         return probeData;

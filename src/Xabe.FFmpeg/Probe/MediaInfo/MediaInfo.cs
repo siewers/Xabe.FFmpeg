@@ -14,9 +14,9 @@ using Models;
 [PublicAPI]
 public sealed class MediaInfo : IMediaInfo
 {
-    private MediaInfo(FileInfo mediaFile, ProbeModel probeModel)
+    private MediaInfo(Uri location, ProbeModel probeModel)
     {
-        Path = mediaFile;
+        Location = location;
         Size = probeModel.Format.Size;
         CreationTime = probeModel.Format.Tags.CreationTime?.UtcDateTime;
         VideoStreams = probeModel.Streams.OfType<VideoStreamModel>().Select(stream => new VideoStream(stream, probeModel.Format));
@@ -26,7 +26,7 @@ public sealed class MediaInfo : IMediaInfo
     }
 
     /// <inheritdoc />
-    public FileInfo Path { get; }
+    public Uri Location { get; }
 
     /// <inheritdoc />
     public DateTime? CreationTime { get; internal set; }
@@ -49,24 +49,19 @@ public sealed class MediaInfo : IMediaInfo
     /// <inheritdoc />
     public IEnumerable<ISubtitleStream> SubtitleStreams { get; internal set; }
 
-    /// <summary>
-    ///     Get MediaInfo from file
-    /// </summary>
-    /// <param name="mediaFile">The media file to get information from</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    internal async static Task<IMediaInfo> Get(FileInfo mediaFile, CancellationToken cancellationToken = default)
+    internal async static Task<IMediaInfo> Get(Uri mediaLocation, CancellationToken cancellationToken = default)
     {
-        if (!mediaFile.Exists)
+        if (mediaLocation.IsFile && !File.Exists(mediaLocation.OriginalString))
         {
-            throw new InvalidInputException($"Input file {mediaFile.FullName} doesn't exists.");
+            throw new InvalidInputException($"Input file {mediaLocation.LocalPath} doesn't exists.");
         }
 
         using var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
 
         var wrapper = new FFprobeWrapper();
-        var probeResult = await wrapper.GetProbeModel(mediaFile, cancellationTokenSource.Token);
-        return new MediaInfo(mediaFile, probeResult);
+        var probeResult = await wrapper.GetProbeModel(mediaLocation, cancellationTokenSource.Token);
+        return new MediaInfo(mediaLocation, probeResult);
     }
 
     private static TimeSpan CalculateDuration(ProbeModel probeModel)

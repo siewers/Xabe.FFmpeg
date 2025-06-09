@@ -10,6 +10,9 @@ internal sealed class VideoStreamModel : StreamModelBase
     [JsonPropertyName("width")]
     public int Width { get; set; }
 
+    [JsonPropertyName("pix_fmt")]
+    public required string PixelFormat { get; set; }
+
     [JsonPropertyName("coded_height")]
     public int CodedHeight { get; set; }
 

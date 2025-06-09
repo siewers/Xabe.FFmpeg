@@ -18,9 +18,10 @@ public class MediaInfoTests(StorageFixture storageFixture, RtspServerFixture rts
     {
         var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp3);
 
-        mediaInfo.Path.Exists.Should().BeTrue();
-        mediaInfo.Path.Extension.Should().Be(FileExtensions.Mp3);
-        mediaInfo.Path.Name.Should().Be("audio.mp3");
+        var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
+        mediaFile.Exists.Should().BeTrue();
+        mediaFile.Extension.Should().Be(FileExtensions.Mp3);
+        mediaFile.Name.Should().Be("audio.mp3");
 
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
@@ -72,9 +73,10 @@ public class MediaInfoTests(StorageFixture storageFixture, RtspServerFixture rts
     {
         var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
-        mediaInfo.Path.Exists.Should().BeTrue();
-        mediaInfo.Path.Extension.Should().Be(FileExtensions.Mkv);
-        mediaInfo.Path.Name.Should().Be("SampleVideo_360x240_1mb.mkv");
+        var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
+        mediaFile.Exists.Should().BeTrue();
+        mediaFile.Extension.Should().Be(FileExtensions.Mkv);
+        mediaFile.Name.Should().Be("SampleVideo_360x240_1mb.mkv");
 
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
@@ -103,9 +105,10 @@ public class MediaInfoTests(StorageFixture storageFixture, RtspServerFixture rts
     {
         var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp4WithAudio);
 
-        mediaInfo.Path.Exists.Should().BeTrue();
-        mediaInfo.Path.Extension.Should().Be(FileExtensions.Mp4);
-        mediaInfo.Path.Name.Should().Be("input.mp4");
+        var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
+        mediaFile.Exists.Should().BeTrue();
+        mediaFile.Extension.Should().Be(FileExtensions.Mp4);
+        mediaFile.Name.Should().Be("input.mp4");
 
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
@@ -141,26 +144,26 @@ public class MediaInfoTests(StorageFixture storageFixture, RtspServerFixture rts
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
 
         mediaInfo.Should().NotBeNull();
-        mediaInfo.Path.Extension.Should().Be(FileExtensions.Mp4);
+        Path.GetExtension(mediaInfo.Location.LocalPath).Should().Be(FileExtensions.Mp4);
     }
 
     [Fact]
-    public async Task RTSP_NotExistingStream_CancelledAfter30Seconds()
+    public async Task RTSP_NotExistingStream_CanceledAfter30Seconds()
     {
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo(@"rtsp://192.168.1.123:554/"));
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://192.168.1.123:554/"));
 
         exception.Should().NotBeNull();
         exception.Should().BeOfType<ArgumentException>();
     }
 
     [Fact]
-    public async Task RTSP_NotExistingStream_CancelledAfter2Seconds()
+    public async Task RTSP_NotExistingStream_CanceledAfter2Seconds()
     {
         var cancellationTokenSource = new CancellationTokenSource(2000);
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo(@"rtsp://192.168.1.123:554/", cancellationTokenSource.Token));
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://192.168.1.123:554/", cancellationTokenSource.Token));
 
-        Assert.NotNull(exception);
-        Assert.IsType<ArgumentException>(exception);
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<ArgumentException>();
     }
 
     [Fact]
@@ -271,7 +274,7 @@ public class MediaInfoTests(StorageFixture storageFixture, RtspServerFixture rts
 
         var mediaInfo = await FFmpeg.GetMediaInfo(input);
 
-        mediaInfo.Path.FullName.Should().Be(input);
+        mediaInfo.Location.OriginalString.Should().Be(input);
     }
 
     [Fact]

@@ -38,13 +38,18 @@ public abstract partial class FFmpeg
     /// <summary>
     ///     Get MediaInfo from file
     /// </summary>
-    /// <param name="filePath">FullPath to file</param>
+    /// <param name="location">FullPath to file</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <exception cref="ArgumentException">File does not exist</exception>
     /// <exception cref="TaskCanceledException">Operation takes too long</exception>
-    public async static Task<IMediaInfo> GetMediaInfo(string filePath, CancellationToken cancellationToken = default)
+    public async static Task<IMediaInfo> GetMediaInfo(string location, CancellationToken cancellationToken = default)
     {
-        return await MediaInfo.Get(new FileInfo(filePath), cancellationToken);
+        if (!Uri.TryCreate(location, UriKind.Absolute, out var mediaLocation))
+        {
+            throw new ArgumentException($"Invalid location: {location}", nameof(location));
+        }
+
+        return await MediaInfo.Get(mediaLocation, cancellationToken);
     }
 
     /// <summary>

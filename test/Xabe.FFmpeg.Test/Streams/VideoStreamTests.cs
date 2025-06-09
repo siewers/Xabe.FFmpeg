@@ -86,8 +86,8 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var videoStream = inputFile.VideoStreams.First();
-        var originalBitrate = videoStream.Bitrate;
-        Assert.Equal(860233, originalBitrate);
+        videoStream.Bitrate.Should().Be(860233);
+
         videoStream.SetBitrate(860237);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(videoStream)
@@ -95,9 +95,9 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.InRange(mediaInfo.VideoStreams.First().Bitrate, 560000, 580000);
-        Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
-        Assert.False(mediaInfo.AudioStreams.Any());
+        mediaInfo.VideoStreams.First().Bitrate.Should().BeInRange(560000, 580000);
+        mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
+        mediaInfo.AudioStreams.Should().BeEmpty();
     }
 
     [Fact]
@@ -111,13 +111,12 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         originalBitrate.Should().Be(860233);
 
         videoStream.SetBitrate(6000, 6000, 6000);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(videoStream)
-                        .SetOutput(outputPath)
-                        .Start();
+        var conversionResult = await FFmpeg.Conversions.Create()
+                                           .AddStream(videoStream)
+                                           .SetOutput(outputPath)
+                                           .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        mediaInfo.AudioStreams.Should().ContainSingle();
         mediaInfo.VideoStreams.Should().ContainSingle()
                  .Which.Should().Satisfy<IVideoStream>(stream =>
                                                        {
@@ -125,6 +124,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                                                            stream.Codec.Should().Be("h264");
                                                        }
                                                       );
+        mediaInfo.AudioStreams.Should().BeEmpty();
     }
 
     // Check if Filter Flags do work. FFProbe does not support checking for Interlaced or Progressive,
@@ -565,9 +565,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                                                                             .Start()
                                                    );
 
-        Assert.NotNull(exception);
-        Assert.IsType<ConversionExceptionBase>(exception);
-        Assert.IsType<InvalidBitstreamFilterException>(exception.InnerException);
+        exception.Should().BeOfType<InvalidBitstreamFilterException>();
     }
 
     [Fact]
@@ -598,9 +596,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                                                                             .Start()
                                                    );
 
-        Assert.NotNull(exception);
-        Assert.IsType<ConversionExceptionBase>(exception);
-        Assert.IsType<InvalidBitstreamFilterException>(exception.InnerException);
+        exception.Should().BeOfType<InvalidBitstreamFilterException>();
     }
 
     [Theory]

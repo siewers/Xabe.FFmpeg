@@ -70,7 +70,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         await conversion.Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        resultFile.Path.Extension.Should().Be(".ts");
+        Path.GetExtension(resultFile.Location.AbsoluteUri).Should().Be(".ts");
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
                         .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        resultFile.Path.Extension.Should().Be(".ts");
+        Path.GetExtension(resultFile.Location.AbsoluteUri).Should().Be(".ts");
     }
 
     [Theory]
@@ -214,7 +214,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
         resultFile.VideoStreams.First().Codec.Should().Be("mpeg4");
-        resultFile.Path.Extension.Should().Be(".avi");
+        Path.GetExtension(resultFile.Location.AbsoluteUri).Should().Be(".avi");
     }
 
     [Fact]
@@ -406,20 +406,21 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetAudioBitrateTest()
     {
+        const long targetBitrate = 128000;
         var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.ac3);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(audioStream)
-                        .SetAudioBitrate(128000)
-                        .SetOutput(output)
-                        .Start();
+        var result = await FFmpeg.Conversions.Create()
+                                 .AddStream(audioStream)
+                                 .SetAudioBitrate(targetBitrate)
+                                 .SetOutput(output)
+                                 .Start();
 
-        var lowerBound = 128000 * 0.95;
-        var upperBound = 128000 * 1.05;
+        const long lowerBound = (long)(128000 * 0.95);
+        const long upperBound = (long)(128000 * 1.05);
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
-        Assert.InRange(resultFile.AudioStreams.First().Bitrate, lowerBound, upperBound);
+        resultFile.AudioStreams.First().Bitrate.Should().BeInRange(lowerBound, upperBound);
     }
 
     [Fact]
@@ -872,7 +873,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         var resultFile = await FFmpeg.GetMediaInfo(output);
         var resultVideoStream = resultFile.VideoStreams.First();
 
-        resultFile.Path.Extension.Should().Be(".mp4");
+        Path.GetExtension(resultFile.Location.AbsoluteUri).Should().Be(".mp4");
 
         // It does not have to be the same
         resultVideoStream.Framerate.Should().Be(116.244);
@@ -917,14 +918,14 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     public async Task SendToRtspServer_MinimumConfiguration_FileIsBeingStreamed()
     {
         // Arrange
-        var output = "rtsp://127.0.0.1:8554/newFile";
+        var output = new Uri("rtsp://127.0.0.1:8554/newFile");
 
         // Act
-        _ = (await FFmpeg.Conversions.FromSnippet.SendToRtspServer(Resources.Mp4, new Uri(output))).Start();
-        await Task.Delay(2000);
+        _ = (await FFmpeg.Conversions.FromSnippet.SendToRtspServer(Resources.Mp4, output)).Start();
+        await Task.Delay(2.Seconds());
 
         // Assert
-        var info = await MediaInfo.Get(new FileInfo(output));
+        var info = await MediaInfo.Get(output);
 
         info.Streams.Should().ContainSingle();
     }

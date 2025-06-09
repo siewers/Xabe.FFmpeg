@@ -14,7 +14,7 @@ internal class StreamModelBase
     public int Index { get; set; }
 
     [JsonPropertyName("codec_name")]
-    public required string CodecName { get; set; }
+    public string? CodecName { get; set; }
 
     [JsonPropertyName("codec_long_name")]
     public string? CodecLongName { get; set; }
@@ -24,9 +24,6 @@ internal class StreamModelBase
 
     [JsonPropertyName("duration")]
     public TimeSpan? Duration { get; set; }
-
-    [JsonPropertyName("pix_fmt")]
-    public required string PixelFormat { get; set; }
 
     [JsonPropertyName("tags")]
     public TagsModel Tags { get; set; } = new();

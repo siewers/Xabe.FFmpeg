@@ -14,7 +14,7 @@ public interface IMediaInfo
     /// <summary>
     ///     Source info
     /// </summary>
-    FileInfo Path { get; }
+    Uri Location { get; }
 
     /// <summary>
     ///     Date and Time when the media was created

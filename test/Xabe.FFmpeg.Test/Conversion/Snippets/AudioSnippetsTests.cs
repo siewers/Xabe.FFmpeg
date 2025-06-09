@@ -72,7 +72,7 @@ public class AudioSnippetsTests : IClassFixture<StorageFixture>
         var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.aac);
-        _ = await (await FFmpeg.Conversions.FromSnippet.VisualiseAudio(Resources.Mp4WithAudio, output, size, pixelFormat, mode, amplitudeScale, frequencyScale))
+        _ = await (await FFmpeg.Conversions.FromSnippet.VisualizeAudio(Resources.Mp4WithAudio, output, size, pixelFormat, mode, amplitudeScale, frequencyScale))
             .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);

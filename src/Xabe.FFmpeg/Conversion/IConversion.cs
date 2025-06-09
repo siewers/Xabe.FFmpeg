@@ -11,6 +11,7 @@ using Exceptions;
 /// <summary>
 ///     Allows to prepare and start IConversion.
 /// </summary>
+[PublicAPI]
 public interface IConversion
 {
     /// <summary>
@@ -250,7 +251,7 @@ public interface IConversion
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Conversion result</returns>
-    /// <exception cref="ConversionException">Occurs when FFmpeg process return error.</exception>
+    /// <exception cref="ConversionExceptionBase">Occurs when FFmpeg process return error.</exception>
     /// <exception cref="ArgumentException">Occurs when no FFmpeg executables were found.</exception>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>
@@ -262,7 +263,7 @@ public interface IConversion
     /// </summary>
     /// <param name="parameters">FFmpeg parameters eg. "-i sample.mp4 -v 0 -vcodec mpeg4 -f mpegts udp://127.0.0.1:23000"</param>
     /// <returns>Conversion result</returns>
-    /// <exception cref="ConversionException">Occurs when FFmpeg process return error.</exception>
+    /// <exception cref="ConversionExceptionBase">Occurs when FFmpeg process return error.</exception>
     /// <exception cref="ArgumentException">Occurs when no FFmpeg executables were found.</exception>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>
@@ -274,7 +275,7 @@ public interface IConversion
     /// <param name="parameters">FFmpeg parameters eg. "-i sample.mp4 -v 0 -vcodec mpeg4 -f mpegts udp://127.0.0.1:23000"</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Conversion result</returns>
-    /// <exception cref="ConversionException">Occurs when FFmpeg process return error.</exception>
+    /// <exception cref="ConversionExceptionBase">Occurs when FFmpeg process return error.</exception>
     /// <exception cref="ArgumentException">Occurs when no FFmpeg executables were found.</exception>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>
@@ -292,16 +293,16 @@ public interface IConversion
     /// <summary>
     ///     Add streams to output file
     /// </summary>
-    /// <param name="streams">Streams to add</param>
+    /// <param name="stream">The stream to add</param>
     /// <returns>IConversion object</returns>
-    IConversion AddStream<T>(params T?[] streams) where T : IStream;
+    IConversion AddStream<T>(T? stream) where T : IStream;
 
     /// <summary>
     ///     Add streams to output file
     /// </summary>
     /// <param name="streams">Streams to add</param>
     /// <returns>IConversion object</returns>
-    IConversion AddStream(IEnumerable<IStream> streams);
+    IConversion AddStreams(IEnumerable<IStream?> streams);
 
     /// <summary>
     ///     Use hardware acceleration. This option set -threads to 1 for compatibility reasons. This should be use with proper

@@ -1,31 +1,27 @@
-﻿namespace Xabe.FFmpeg.Test;
+﻿using FluentAssertions;
+
+namespace Xabe.FFmpeg.Test;
 
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Fixtures;
 using Xunit;
 
-public class SubtitleTests : IClassFixture<StorageFixture>
+public class SubtitleTests(StorageFixture storageFixture)
+    : IClassFixture<StorageFixture>
 {
-    private readonly StorageFixture _storageFixture;
-
-    public SubtitleTests(StorageFixture storageFixture)
-    {
-        _storageFixture = storageFixture;
-    }
-
     [Theory]
     [InlineData(Format.ass, ".ass", "ass")]
     [InlineData(Format.webvtt, ".vtt", "webvtt")]
     [InlineData(Format.srt, ".srt", "subrip")]
     public async Task ConvertTest(Format format, string extension, string expectedFormat)
     {
-        var outputPath = _storageFixture.GetTempFileName(extension);
+        var outputPath = storageFixture.GetTempFileName(extension);
 
         var info = await FFmpeg.GetMediaInfo(Resources.SubtitleSrt);
 
         var subtitleStream = info.SubtitleStreams.FirstOrDefault();
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(subtitleStream)
                         .SetOutput(outputPath)
                         .SetOutputFormat(format)
@@ -34,7 +30,7 @@ public class SubtitleTests : IClassFixture<StorageFixture>
         var resultInfo = await FFmpeg.GetMediaInfo(outputPath);
         Assert.Single(resultInfo.SubtitleStreams);
         var resultSteam = resultInfo.SubtitleStreams.First();
-        Assert.Equal(expectedFormat, resultSteam.Codec.ToLower());
+        resultSteam.Codec.Should().NotBeNull().And.Subject.ToLower().Should().Be(expectedFormat);
     }
 
     [Theory]
@@ -43,13 +39,13 @@ public class SubtitleTests : IClassFixture<StorageFixture>
     [InlineData(".srt", "subrip", false)]
     public async Task ExtractSubtitles(string extension, string expectedFormat, bool checkOutputLanguage)
     {
-        var outputPath = _storageFixture.GetTempFileName(extension);
+        var outputPath = storageFixture.GetTempFileName(extension);
         var info = await FFmpeg.GetMediaInfo(Resources.MultipleStream);
 
         var subtitleStream = info.SubtitleStreams.FirstOrDefault(x => x.Language == "spa");
         Assert.NotNull(subtitleStream);
 
-        await FFmpeg.Conversions.New()
+        await FFmpeg.Conversions.Create()
                     .AddStream(subtitleStream)
                     .SetOutput(outputPath)
                     .Start();
@@ -65,7 +61,7 @@ public class SubtitleTests : IClassFixture<StorageFixture>
             Assert.Equal("spa", resultInfo.SubtitleStreams.First().Language);
         }
 
-        Assert.False(resultInfo.SubtitleStreams.First().IsDefault.Value);
-        Assert.False(resultInfo.SubtitleStreams.First().IsForced.Value);
+        resultInfo.SubtitleStreams.First().IsDefault.Should().BeFalse();
+        resultInfo.SubtitleStreams.First().IsForced.Should().BeFalse();
     }
 }

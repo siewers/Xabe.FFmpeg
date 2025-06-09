@@ -1,7 +1,7 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿namespace Xabe.FFmpeg.Probe;
 
-namespace Xabe.FFmpeg;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <inheritdoc />
 public class Probe : IProbe

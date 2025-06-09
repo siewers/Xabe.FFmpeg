@@ -1,8 +1,12 @@
 ﻿namespace Xabe.FFmpeg;
 
+using NetEscapades.EnumGenerators;
+
 /// <summary>
 ///     Preset of conversion. Faster speed causes worse optimization and quality.
 /// </summary>
+[PublicAPI]
+[EnumExtensions]
 public enum ConversionPreset
 {
     /// <summary>
@@ -48,5 +52,5 @@ public enum ConversionPreset
     /// <summary>
     ///     Ultra fast
     /// </summary>
-    UltraFast
+    UltraFast,
 }

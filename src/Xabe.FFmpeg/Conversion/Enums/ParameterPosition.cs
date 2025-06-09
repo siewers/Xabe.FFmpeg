@@ -3,6 +3,7 @@
 /// <summary>
 ///     Position of input parameter
 /// </summary>
+[PublicAPI]
 public enum ParameterPosition
 {
     /// <summary>

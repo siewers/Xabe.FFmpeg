@@ -1,4 +1,4 @@
-﻿namespace Xabe.FFmpeg;
+﻿namespace Xabe.FFmpeg.Probe.Models;
 
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ internal sealed class FormatModel : Dictionary<string, object>
                     Duration = entry.Value.GetTimeSpan()!.Value;
                     break;
                 case "tags":
-                    Tags = TagsModel.Create(entry.Value);
+                    Tags = new TagsModel(entry.Value);
                     break;
                 default:
                     Add(entry.Name, entry.Value);

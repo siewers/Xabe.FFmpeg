@@ -1,4 +1,4 @@
-namespace Xabe.FFmpeg;
+namespace Xabe.FFmpeg.Probe.Models;
 
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Text.Json;
 
 internal sealed class StreamDispositionModel : Dictionary<string, bool>
 {
-    private StreamDispositionModel(JsonElement jsonDisposition)
+    public StreamDispositionModel(JsonElement jsonDisposition)
         : base(StringComparer.OrdinalIgnoreCase)
     {
         foreach (var entry in jsonDisposition.EnumerateObject())
@@ -29,9 +29,4 @@ internal sealed class StreamDispositionModel : Dictionary<string, bool>
     public bool? IsDefault { get; }
 
     public bool? IsForced { get; }
-
-    public static StreamDispositionModel CreateInstance(JsonElement jsonDisposition)
-    {
-        return new StreamDispositionModel(jsonDisposition);
-    }
 }

@@ -1,4 +1,4 @@
-﻿namespace Xabe.FFmpeg;
+﻿namespace Xabe.FFmpeg.Probe;
 
 using System;
 using System.Text.Json;
@@ -37,7 +37,7 @@ internal static class JsonDeserializer
         }
     }
 
-    public static T? Deserialize<T>(string json)
+    public static T? Deserialize<[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature, ImplicitUseTargetFlags.WithMembers)] T>(string json)
     {
         return JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
     }

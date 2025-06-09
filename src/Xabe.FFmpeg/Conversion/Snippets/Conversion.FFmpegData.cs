@@ -27,7 +27,7 @@ public partial class Conversion
             format = Format.avfoundation;
         }
 
-        var conversion = New().AddParameter($"-list_devices true -f {format} -i dummy");
+        var conversion = Create().AddParameter($"-list_devices true -f {format} -i dummy");
         var text = new StringBuilder();
         conversion.OnDataReceived += (_, e) => text.AppendLine(e.Data);
         await conversion.Start();

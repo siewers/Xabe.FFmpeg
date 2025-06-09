@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg;
+using System.Linq;
+using System.Threading.Tasks;
 
 public partial class Conversion
 {
@@ -18,9 +18,8 @@ public partial class Conversion
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.h264);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.aac);
 
-        return New()
-               .AddStream(videoStream, audioStream)
-               .SetOutput(outputPath);
+        return Create().AddStreams([videoStream, audioStream])
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -36,9 +35,8 @@ public partial class Conversion
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.mpeg2video);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.mp2);
 
-        return New()
-               .AddStream(videoStream, audioStream)
-               .SetOutput(outputPath);
+        return Create().AddStreams([videoStream, audioStream])
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -54,9 +52,8 @@ public partial class Conversion
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.theora);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.libvorbis);
 
-        return New()
-               .AddStream(videoStream, audioStream)
-               .SetOutput(outputPath);
+        return Create().AddStreams([videoStream, audioStream])
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -72,9 +69,8 @@ public partial class Conversion
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.vp8);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.libvorbis);
 
-        return New()
-               .AddStream(videoStream, audioStream)
-               .SetOutput(outputPath);
+        return Create().AddStreams([videoStream, audioStream])
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -91,8 +87,7 @@ public partial class Conversion
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetLoop(loop, delay);
 
-        return New()
-               .AddStream(videoStream)
-               .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .SetOutput(outputPath);
     }
 }

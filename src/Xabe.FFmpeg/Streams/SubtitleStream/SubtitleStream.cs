@@ -1,53 +1,30 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Streams;
-using Streams.SubtitleStream;
+using Probe.Models;
 
-/// <inheritdoc />
 [PublicAPI]
-public sealed class SubtitleStream : ISubtitleStream
+public sealed class SubtitleStream : StreamBase, ISubtitleStream
 {
     private readonly ConversionParameters _parameters = [];
 
-    internal SubtitleStream()
+    internal SubtitleStream(StreamModelBase streamModel, FormatModel formatModel)
+        : base(streamModel, formatModel)
     {
     }
 
     /// <inheritdoc />
-    public string Codec { get; internal set; }
+    public override StreamType StreamType => StreamType.Subtitle;
 
     /// <inheritdoc />
-    public string Path { get; internal set; }
-
-    /// <inheritdoc />
-    public string BuildParameters(ParameterPosition forPosition)
+    public override string BuildParameters(ParameterPosition forPosition)
     {
         var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
         return parameters.Length > 0
             ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
             : string.Empty;
     }
-
-    /// <inheritdoc />
-    public int Index { get; internal set; }
-
-    /// <inheritdoc />
-    public string Language { get; internal set; }
-
-    /// <inheritdoc />
-    public bool? IsDefault { get; internal set; }
-
-    /// <inheritdoc />
-    public bool? IsForced { get; internal set; }
-
-    /// <inheritdoc />
-    public string? Title { get; internal set; }
-
-    /// <inheritdoc />
-    public StreamType StreamType => StreamType.Subtitle;
 
     /// <inheritdoc />
     public ISubtitleStream SetLanguage(string? lang)
@@ -65,15 +42,9 @@ public sealed class SubtitleStream : ISubtitleStream
     }
 
     /// <inheritdoc />
-    public IEnumerable<string> GetSource()
-    {
-        return [Path];
-    }
-
-    /// <inheritdoc />
     public ISubtitleStream SetCodec(SubtitleCodec codec)
     {
-        return SetCodec(codec.ToString());
+        return SetCodec(codec.ToStringFast());
     }
 
     /// <inheritdoc />

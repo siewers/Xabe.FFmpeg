@@ -1,12 +1,16 @@
+// ReSharper disable InconsistentNaming
+
 namespace Xabe.FFmpeg;
 
 using System;
 using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
 
 /// <summary>
 ///     Flags for Vidoes (-flags option)
 /// </summary>
 [PublicAPI]
+[EnumExtensions]
 public enum Flag
 {
     /// <summary>

@@ -2,7 +2,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Streams.SubtitleStream;
 
 public partial class Conversion
 {
@@ -20,10 +19,9 @@ public partial class Conversion
         var videoStream = info.VideoStreams.FirstOrDefault()
                               ?.AddSubtitles(subtitlesPath);
 
-        return New()
-               .AddStream(videoStream)
-               .AddStream(info.AudioStreams.FirstOrDefault())
-               .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .AddStream(info.AudioStreams.FirstOrDefault())
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -43,11 +41,10 @@ public partial class Conversion
         var subtitleStream = subtitleInfo.SubtitleStreams.First()
                                          .SetLanguage(language);
 
-        return New()
-               .AddStream(mediaInfo.VideoStreams)
-               .AddStream(mediaInfo.AudioStreams)
-               .AddStream(subtitleStream.SetCodec(SubtitleCodec.copy))
-               .SetOutput(outputPath);
+        return Create().AddStreams(mediaInfo.VideoStreams)
+                       .AddStreams(mediaInfo.AudioStreams)
+                       .AddStream(subtitleStream.SetCodec(SubtitleCodec.copy))
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -68,10 +65,9 @@ public partial class Conversion
         var subtitleStream = subtitleInfo.SubtitleStreams.First()
                                          .SetLanguage(language);
 
-        return New()
-               .AddStream(mediaInfo.VideoStreams)
-               .AddStream(mediaInfo.AudioStreams)
-               .AddStream(subtitleStream.SetCodec(subtitleCodec))
-               .SetOutput(outputPath);
+        return Create().AddStreams(mediaInfo.VideoStreams)
+                       .AddStreams(mediaInfo.AudioStreams)
+                       .AddStream(subtitleStream.SetCodec(subtitleCodec))
+                       .SetOutput(outputPath);
     }
 }

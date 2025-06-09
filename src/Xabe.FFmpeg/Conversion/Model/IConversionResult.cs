@@ -1,6 +1,6 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg;
+using System;
 
 /// <summary>
 ///     Information about conversion
@@ -26,4 +26,6 @@ public interface IConversionResult
     ///     Arguments passed to ffmpeg
     /// </summary>
     string Arguments { get; }
+
+    string OutputLog { get; }
 }

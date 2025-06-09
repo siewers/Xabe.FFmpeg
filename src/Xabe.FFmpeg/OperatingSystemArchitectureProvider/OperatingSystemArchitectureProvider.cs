@@ -13,7 +13,7 @@ internal sealed class OperatingSystemArchitectureProvider : IOperatingSystemArch
             Architecture.Arm64 => OperatingSystemArchitecture.Arm64,
             Architecture.X64 => OperatingSystemArchitecture.X64,
             Architecture.X86 => OperatingSystemArchitecture.X86,
-            _ => throw new NotImplementedException(),
+            _ => throw new NotSupportedException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}"),
         };
     }
 }

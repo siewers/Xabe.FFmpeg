@@ -17,9 +17,10 @@ public partial class Conversion
 
         var audioStream = info.AudioStreams.FirstOrDefault();
 
-        return New().AddStream(audioStream)
-                    .SetAudioBitrate(audioStream.Bitrate)
-                    .SetOutput(outputPath);
+        return Create()
+               .AddStream(audioStream)
+               .SetAudioBitrate(audioStream.Bitrate)
+               .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -32,14 +33,13 @@ public partial class Conversion
     internal async static Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath)
     {
         var videoInfo = await FFmpeg.GetMediaInfo(videoPath);
-
         var audioInfo = await FFmpeg.GetMediaInfo(audioPath);
 
-        return New()
-               .AddStream(videoInfo.VideoStreams.FirstOrDefault())
-               .AddStream(audioInfo.AudioStreams.FirstOrDefault())
-               .AddStream(videoInfo.SubtitleStreams.ToArray())
-               .SetOutput(outputPath);
+        return Create()
+                   .AddStream(videoInfo.VideoStreams.FirstOrDefault())
+                   .AddStream(audioInfo.AudioStreams.FirstOrDefault())
+                   .AddStreams(videoInfo.SubtitleStreams)
+                   .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public partial class Conversion
     /// <param name="amplitudeScale">The frequency scale (default is lin)</param>
     /// <param name="frequencyScale">The amplitude scale (default is log)</param>
     /// <returns>IConversion object</returns>
-    internal async static Task<IConversion> VisualiseAudio
+    internal async static Task<IConversion> VisualizeAudio
     (
         string inputPath, string outputPath, VideoSize size,
         PixelFormat pixelFormat = PixelFormat.yuv420p,
@@ -66,13 +66,13 @@ public partial class Conversion
         var audioStream = inputInfo.AudioStreams.FirstOrDefault();
         var videoStream = inputInfo.VideoStreams.FirstOrDefault();
 
-        var filter = $"\"[0:a]showfreqs=mode={mode}:fscale={frequencyScale}:ascale={amplitudeScale},format={pixelFormat},scale={size.ToFFmpegFormat()} [v]\"";
+        var filter = $"\"[0:a]showfreqs=mode={mode.ToStringFast()}:fscale={frequencyScale.ToStringFast()}:ascale={amplitudeScale.ToStringFast()},format={pixelFormat.ToStringFast()},scale={size.ToFFmpegFormat()} [v]\"";
 
-        return New()
-               .AddStream(audioStream)
-               .AddParameter($"-filter_complex {filter}")
-               .AddParameter("-map [v]")
-               .SetFrameRate(videoStream != null ? videoStream.Framerate : 30) // Pin framerate at the original rate or 30 fps to stop dropped or duplicated frames
-               .SetOutput(outputPath);
+        return Create()
+                   .AddStream(audioStream)
+                   .AddParameter($"-filter_complex {filter}")
+                   .AddParameter("-map [v]")
+                   .SetFrameRate(videoStream?.Framerate ?? 30) // Pin frame rate at the original rate or 30 fps to stop dropped or duplicated frames
+                   .SetOutput(outputPath);
     }
 }

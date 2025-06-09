@@ -8,5 +8,5 @@ internal enum OperatingSystem
     Linux64,
     Linux32,
     LinuxArmhf,
-    LinuxArm64
+    LinuxArm64,
 }

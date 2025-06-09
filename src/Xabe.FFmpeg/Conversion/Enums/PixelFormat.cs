@@ -2,9 +2,13 @@
 
 namespace Xabe.FFmpeg;
 
+using NetEscapades.EnumGenerators;
+
 /// <summary>
 ///     Pixel Format ("ffmpeg -pix_fmts")
 /// </summary>
+[PublicAPI]
+[EnumExtensions]
 public enum PixelFormat
 {
     ///<summary>

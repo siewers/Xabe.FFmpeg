@@ -1,6 +1,9 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
 
 /// <summary>
 ///     A bitstream filter operates on the encoded stream data, and performs bitstream level modifications without
@@ -8,6 +11,7 @@ using JetBrains.Annotations;
 ///     https://www.ffmpeg.org/ffmpeg-bitstream-filters.html
 /// </summary>
 [PublicAPI]
+[EnumExtensions]
 public enum BitstreamFilter
 {
     /// <summary>

@@ -41,7 +41,7 @@ public class ConversionToFormatTests : IClassFixture<StorageFixture>
                                                      {
                                                          new object[] {Resources.MkvWithAudio, Resources.Mp4WithAudio, 23, 1280, 720, "16:9"},
                                                          new object[] {Resources.MkvWithAudio, Resources.MkvWithAudio, 19, 320, 240, "4:3"},
-                                                         new object[] {Resources.MkvWithAudio, Resources.Mp4, 23, 1280, 720, "16:9" }
+                                                         new object[] {Resources.MkvWithAudio, Resources.Mp4, 23, 1280, 720, "16:9" },
                                                      };
 
     [Fact]

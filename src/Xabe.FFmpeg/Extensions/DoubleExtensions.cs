@@ -1,10 +1,8 @@
-﻿namespace Xabe.FFmpeg.Extensions;
+﻿namespace Xabe.FFmpeg;
 
 using System.Globalization;
-using JetBrains.Annotations;
 
-[PublicAPI]
-public static class DoubleExtensions
+internal static class DoubleExtensions
 {
     public static string ToFFmpegFormat(this double number, int decimalPlaces = 1)
     {

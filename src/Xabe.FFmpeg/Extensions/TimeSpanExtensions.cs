@@ -1,13 +1,11 @@
 ﻿namespace Xabe.FFmpeg;
 
 using System;
-using JetBrains.Annotations;
 
 /// <summary>
 ///     Extension methods
 /// </summary>
-[PublicAPI]
-public static class TimeSpanExtensions
+internal static class TimeSpanExtensions
 {
     /// <summary>
     ///     Return FFmpeg formatted time

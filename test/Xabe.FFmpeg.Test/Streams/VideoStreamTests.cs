@@ -27,7 +27,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First().Rotate(rotateDegrees))
                         .SetOutput(outputPath)
                         .Start();
@@ -47,7 +47,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var videoStream = inputFile.VideoStreams.First();
         videoStream.Pad(480, 640);
 
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(videoStream)
                         .SetOutput(outputPath)
                         .Start();
@@ -68,7 +68,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var originalFramerate = videoStream.Framerate;
         Assert.Equal(25, originalFramerate);
         videoStream.SetFramerate(24);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(videoStream)
                         .SetOutput(outputPath)
                         .Start();
@@ -89,7 +89,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var originalBitrate = videoStream.Bitrate;
         Assert.Equal(860233, originalBitrate);
         videoStream.SetBitrate(860237);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(videoStream)
                         .SetOutput(outputPath)
                         .Start();
@@ -111,7 +111,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         originalBitrate.Should().Be(860233);
 
         videoStream.SetBitrate(6000, 6000, 6000);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(videoStream)
                         .SetOutput(outputPath)
                         .Start();
@@ -138,7 +138,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags("ilme", "ildct");
 
-        var result = await FFmpeg.Conversions.New()
+        var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath)
                                  .Start();
@@ -160,7 +160,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags("ilme", "ildct");
 
-        var result = await FFmpeg.Conversions.New()
+        var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath)
                                  .Start();
@@ -182,7 +182,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags(Flag.ilme, Flag.ildct);
 
-        var result = await FFmpeg.Conversions.New()
+        var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath)
                                  .Start();
@@ -204,7 +204,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags("+ilme+ildct");
 
-        var result = await FFmpeg.Conversions.New()
+        var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath)
                                  .Start();
@@ -224,7 +224,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First().SetCodec(VideoCodec.h264).ChangeSpeed(speed))
                         .SetPreset(ConversionPreset.UltraFast)
                         .SetOutput(outputPath)
@@ -248,7 +248,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await FFmpeg.Conversions.New()
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await FFmpeg.Conversions.Create()
                                                                                       .AddStream(inputFile.VideoStreams.First()
                                                                                                           .SetCodec(VideoCodec.h264)
                                                                                                           .ChangeSpeed(multiplier)
@@ -264,7 +264,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        await FFmpeg.Conversions.New()
+        await FFmpeg.Conversions.Create()
                     .AddStream(inputFile.VideoStreams.First().AddSubtitles(Resources.SubtitleSrt))
                     .SetOutput(outputPath)
                     .Start();
@@ -281,7 +281,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var conversion = FFmpeg.Conversions.New()
+        var conversion = FFmpeg.Conversions.Create()
                                .AddStream(inputFile.VideoStreams.First()
                                                    .AddSubtitles(Resources.SubtitleSrt, VideoSize.Xga, "UTF-8", "Fontsize=20,PrimaryColour=&H00ffff&,MarginV=30")
                                          )
@@ -301,7 +301,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetOutputFramesCount(50)
                                   )
@@ -323,7 +323,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
 
         var act = async () =>
                   {
-                      await FFmpeg.Conversions.New()
+                      await FFmpeg.Conversions.Create()
                                   .AddStream(inputFile.VideoStreams.First()
                                                       .SetCodec(VideoCodec.h264)
                                                       .Reverse()
@@ -333,8 +333,8 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
                                   .Start();
                   };
 
-        (await act.Should().ThrowExactlyAsync<ConversionException>())
-            .Which.Should().Satisfy<ConversionException>(ex =>
+        (await act.Should().ThrowExactlyAsync<ConversionExceptionBase>())
+            .Which.Should().Satisfy<ConversionExceptionBase>(ex =>
                                                          {
                                                              ex.InputParameters.Should().ContainAll("-c:v copy", "-vf reverse");
                                                              ex.Message.Should().Contain("Filtergraph 'reverse' was specified, but codec copy was selected. Filtering and streamcopy cannot be used together.");
@@ -347,7 +347,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Gif);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetLoop(1)
                                   )
@@ -375,7 +375,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetCodec(VideoCodec.h264)
                                             .Reverse()
@@ -396,7 +396,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var conversion = FFmpeg.Conversions.New()
+        var conversion = FFmpeg.Conversions.Create()
                                .AddStream(inputFile.VideoStreams.First())
                                .SetOutput(outputPath)
                                .SetSeek(TimeSpan.FromSeconds(2));
@@ -421,7 +421,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First())
                         .SetOutput(outputPath)
                         .Start();
@@ -437,7 +437,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetCodec(VideoCodec.hevc)
                                   )
@@ -455,7 +455,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetSize(640, 480)
                                   )
@@ -475,7 +475,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetSize(VideoSize.Sntsc)
                                   )
@@ -495,7 +495,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Ts);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetCodec(VideoCodec.mpeg2video)
                                   )
@@ -513,8 +513,8 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
-        Assert.True(inputFile.VideoStreams.First().IsDefault.Value);
-        Assert.False(inputFile.VideoStreams.First().IsForced.Value);
+        inputFile.VideoStreams.First().IsDefault.Should().BeTrue();
+        inputFile.VideoStreams.First().IsForced.Should().BeFalse();
     }
 
     [Fact]
@@ -524,7 +524,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
 
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First().SetCodec(VideoCodec.h264).ChangeSpeed(0.5))
                         .SetPreset(ConversionPreset.UltraFast)
                         .SetOutput(outputPath)
@@ -542,7 +542,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter(BitstreamFilter.h264_mp4toannexb))
                         .SetOutput(outputPath)
                         .Start();
@@ -559,14 +559,14 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.New()
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter(BitstreamFilter.aac_adtstoasc))
                                                                             .SetOutput(outputPath)
                                                                             .Start()
                                                    );
 
         Assert.NotNull(exception);
-        Assert.IsType<ConversionException>(exception);
+        Assert.IsType<ConversionExceptionBase>(exception);
         Assert.IsType<InvalidBitstreamFilterException>(exception.InnerException);
     }
 
@@ -575,7 +575,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter("h264_mp4toannexb"))
                         .SetOutput(outputPath)
                         .Start();
@@ -592,14 +592,14 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.New()
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter("aac_adtstoasc"))
                                                                             .SetOutput(outputPath)
                                                                             .Start()
                                                    );
 
         Assert.NotNull(exception);
-        Assert.IsType<ConversionException>(exception);
+        Assert.IsType<ConversionExceptionBase>(exception);
         Assert.IsType<InvalidBitstreamFilterException>(exception.InnerException);
     }
 
@@ -612,7 +612,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var args = FFmpeg.Conversions.New()
+        var args = FFmpeg.Conversions.Create()
                          .AddStream(inputFile.VideoStreams.First()
                                              .SetCodec(videoCodec)
                                    )
@@ -628,14 +628,14 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.New()
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.VideoStreams.First().SetCodec("notExisting"))
                                                                             .SetOutput(outputPath)
                                                                             .Start()
                                                    );
 
         Assert.NotNull(exception);
-        Assert.IsType<ConversionException>(exception);
+        Assert.IsType<ConversionExceptionBase>(exception);
     }
 
     [Fact]
@@ -643,7 +643,7 @@ public class VideoStreamTests : IClassFixture<StorageFixture>
     {
         var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var outputPath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.New()
+        _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetSize(1920, 1080)
                                             .SetSize(640, 480)

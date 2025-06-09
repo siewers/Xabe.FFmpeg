@@ -16,12 +16,7 @@ public class StorageFixture : IDisposable
 
     public string GetTempFileName(string extension = null)
     {
-        if (extension != null)
-        {
-            return Path.Combine(TempDirPath, $"{Guid.NewGuid()}{extension}");
-        }
-
-        return Path.Combine(TempDirPath, $"{Guid.NewGuid()}");
+        return Path.Combine(TempDirPath, extension != null ? $"{Guid.NewGuid()}{extension}" : $"{Guid.NewGuid()}");
     }
 
     public string GetTempDirectory()

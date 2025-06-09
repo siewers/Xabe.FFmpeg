@@ -1,18 +1,12 @@
-﻿namespace Xabe.FFmpeg;
+﻿namespace Xabe.FFmpeg.Probe.Models;
 
 using System.Text.Json.Serialization;
 
-internal class ProbeModel
+internal class ProbeModel(FormatModel format, StreamModelBase[] streams)
 {
-    public ProbeModel(FormatModel format, StreamModelBase[] streams)
-    {
-        Format = format;
-        Streams = streams;
-    }
-
     [JsonPropertyName("format")]
-    public FormatModel Format { get; }
+    public FormatModel Format { get; } = format;
 
     [JsonPropertyName("streams")]
-    public StreamModelBase[] Streams { get; }
+    public StreamModelBase[] Streams { get; } = streams;
 }

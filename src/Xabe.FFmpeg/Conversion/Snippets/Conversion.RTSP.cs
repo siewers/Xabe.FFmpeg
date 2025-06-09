@@ -1,8 +1,8 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg;
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-namespace Xabe.FFmpeg;
 
 /// <inheritdoc />
 public partial class Conversion
@@ -38,8 +38,8 @@ public partial class Conversion
             streams.Add(stream);
         }
 
-        var conversion = New();
-        conversion.AddStream(streams);
+        var conversion = Create();
+        conversion.AddStreams(streams);
         conversion.SetPixelFormat(PixelFormat.yuv420p);
         conversion.SetPreset(ConversionPreset.UltraFast);
         conversion.SetOutputFormat(Format.rtsp);
@@ -49,13 +49,13 @@ public partial class Conversion
     }
 
     /// <summary>
-    ///     Send your dekstop to rtsp server with some default parameters like: -re, -preset ultrafast
+    ///     Send your desktop to rtsp server with some default parameters like: -re, -preset ultrafast
     /// </summary>
     /// <param name="rtspServerUri">Uri of RTSP Server in format: rtsp://127.0.0.1:8554/name</param>
     /// <returns>IConversion object</returns>
     internal static IConversion SendDesktopToRtspServer(Uri rtspServerUri)
     {
-        var conversion = FFmpeg.Conversions.New()
+        var conversion = FFmpeg.Conversions.Create()
                                .AddDesktopStream("800x600", 30, 0, 0)
                                .AddParameter("-tune zerolatency")
                                .SetOutputFormat(Format.rtsp)

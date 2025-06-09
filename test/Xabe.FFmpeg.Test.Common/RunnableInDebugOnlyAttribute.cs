@@ -2,7 +2,7 @@
 
 namespace Xabe.FFmpeg.Test.Common;
 
-public class RunnableInDebugOnlyAttribute : FactAttribute
+public sealed class RunnableInDebugOnlyAttribute : FactAttribute
 {
     public RunnableInDebugOnlyAttribute()
     {

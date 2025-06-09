@@ -1,6 +1,7 @@
 ﻿namespace Xabe.FFmpeg.Test.Extensions;
 
 using System;
+using Probe;
 using Xunit;
 
 public sealed class TimeSpanParserTests

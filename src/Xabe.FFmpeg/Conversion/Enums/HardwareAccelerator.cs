@@ -2,9 +2,13 @@
 
 namespace Xabe.FFmpeg;
 
+using NetEscapades.EnumGenerators;
+
 /// <summary>
 ///     Hardware accelerators ("ffmpeg -hwaccels")
 /// </summary>
+[PublicAPI]
+[EnumExtensions]
 public enum HardwareAccelerator
 {
     /// <summary>
@@ -45,5 +49,5 @@ public enum HardwareAccelerator
     /// <summary>
     ///
     /// </summary>
-    libmfx
+    libmfx,
 }

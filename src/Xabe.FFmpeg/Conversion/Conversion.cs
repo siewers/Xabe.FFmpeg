@@ -10,10 +10,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Events;
-using Extensions;
-using Streams;
+using JetBrains.Annotations;
 
 /// <inheritdoc />
+[PublicAPI]
 public partial class Conversion : IConversion
 {
     private readonly Lock _builderLock = new();
@@ -67,13 +67,13 @@ public partial class Conversion : IConversion
     }
 
     /// <inheritdoc />
-    public event ConversionProgressEventHandler OnProgress;
+    public event ConversionProgressEventHandler? OnProgress;
 
     /// <inheritdoc />
-    public event DataReceivedEventHandler OnDataReceived;
+    public event DataReceivedEventHandler? OnDataReceived;
 
     /// <inheritdoc />
-    public event VideoDataEventHandler OnVideoDataReceived;
+    public event VideoDataEventHandler? OnVideoDataReceived;
 
     /// <inheritdoc />
     public string OutputFilePath { get; private set; }
@@ -100,12 +100,10 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public async Task<IConversionResult> Start(string parameters, CancellationToken cancellationToken)
     {
-        if (_ffmpeg != null)
+        if (_ffmpeg is not null)
         {
-            throw new InvalidOperationException("Conversion has already been started. ");
+            throw new InvalidOperationException("Conversion has already been started.");
         }
-
-        var startTime = DateTime.Now;
 
         _ffmpeg = new FFmpegWrapper();
 
@@ -115,7 +113,18 @@ public partial class Conversion : IConversion
             _ffmpeg.OnDataReceived += OnDataReceived;
             _ffmpeg.OnVideoDataReceived += OnVideoDataReceived;
             CreateOutputDirectoryIfNotExists();
-            await _ffmpeg.RunProcess(parameters, cancellationToken, _priority);
+            var startTime = Stopwatch.GetTimestamp();
+            await _ffmpeg.RunProcess(parameters, _priority, cancellationToken);
+            var endTime = Stopwatch.GetTimestamp();
+
+            return new ConversionResult
+                   {
+                       StartTime = new DateTime(startTime),
+                       EndTime = new DateTime(endTime),
+                       Duration = Stopwatch.GetElapsedTime(startTime, endTime),
+                       Arguments = parameters,
+                       OutputLog = string.Join(Environment.NewLine, _ffmpeg.OutputLog),
+                   };
         }
         finally
         {
@@ -124,13 +133,6 @@ public partial class Conversion : IConversion
             _ffmpeg.OnVideoDataReceived -= OnVideoDataReceived;
             _ffmpeg = null;
         }
-
-        return new ConversionResult
-               {
-                   StartTime = startTime,
-                   EndTime = DateTime.Now,
-                   Arguments = parameters,
-               };
     }
 
     /// <inheritdoc />
@@ -141,21 +143,18 @@ public partial class Conversion : IConversion
     }
 
     /// <inheritdoc />
-    public IConversion AddStream<T>(params T?[] streams) where T : IStream
+    public IConversion AddStream<T>(T? stream) where T : IStream
     {
-        foreach (var stream in streams)
+        if (stream is not null)
         {
-            if (stream is not null)
-            {
-                _streams.Add(stream);
-            }
+            _streams.Add(stream);
         }
 
         return this;
     }
 
     /// <inheritdoc />
-    public IConversion AddStream(IEnumerable<IStream> streams)
+    public IConversion AddStreams(IEnumerable<IStream?> streams)
     {
         foreach (var stream in streams)
         {
@@ -172,7 +171,7 @@ public partial class Conversion : IConversion
         {
             Hash.SHA512_256 => "SHA512/256",
             Hash.SHA512_224 => "SHA512/224",
-            _ => hashFormat.ToString(),
+            _ => hashFormat.ToStringFast(),
         };
 
         SetOutputFormat(Format.hash);
@@ -252,7 +251,7 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion PipeOutput(PipeDescriptor descriptor = PipeDescriptor.stdout)
     {
-        SetOutput($"pipe:{descriptor}");
+        SetOutput($"pipe:{descriptor.ToStringFast()}");
         OutputPipeDescriptor = descriptor;
         return this;
     }
@@ -359,7 +358,7 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion UseHardwareAcceleration(HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0)
     {
-        return UseHardwareAcceleration($"{hardwareAccelerator}", decoder.ToString(), encoder.ToString(), device);
+        return UseHardwareAcceleration(hardwareAccelerator.ToStringFast(), decoder.ToStringFast(), encoder.ToStringFast(), device);
     }
 
     /// <inheritdoc />
@@ -405,7 +404,7 @@ public partial class Conversion : IConversion
             Format._3g2 => "3g2",
             Format._3gp => "3gp",
             Format._4xm => "4xm",
-            _ => inputFormat.ToString(),
+            _ => inputFormat.ToStringFast(),
         };
 
         return SetInputFormat(format);
@@ -425,23 +424,14 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetOutputFormat(Format outputFormat)
     {
-        var format = outputFormat.ToString();
-
-        switch (outputFormat)
+        var format = outputFormat switch
         {
-            case Format._3dostr:
-                format = "3dostr";
-                break;
-            case Format._3g2:
-                format = "3g2";
-                break;
-            case Format._3gp:
-                format = "3gp";
-                break;
-            case Format._4xm:
-                format = "4xm";
-                break;
-        }
+            Format._3dostr => "3dostr",
+            Format._3g2 => "3g2",
+            Format._3gp => "3gp",
+            Format._4xm => "4xm",
+            _ => outputFormat.ToStringFast(),
+        };
 
         return SetOutputFormat(format);
     }
@@ -460,17 +450,12 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetPixelFormat(PixelFormat pixelFormat)
     {
-        var format = pixelFormat.ToString();
-
-        switch (pixelFormat)
+        var format = pixelFormat switch
         {
-            case PixelFormat._0bgr:
-                format = "0bgr";
-                break;
-            case PixelFormat._0rgb:
-                format = "0rgb";
-                break;
-        }
+            PixelFormat._0bgr => "0bgr",
+            PixelFormat._0rgb => "0rgb",
+            _ => pixelFormat.ToStringFast(),
+        };
 
         return SetPixelFormat(format);
     }
@@ -495,7 +480,7 @@ public partial class Conversion : IConversion
         }
         else
         {
-            _parameters.Add("vsync", method.ToString(), ParameterPosition.PostInput);
+            _parameters.Add("vsync", method.ToStringFast(), ParameterPosition.PostInput);
         }
 
         return this;
@@ -504,10 +489,12 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion AddDesktopStream(string? videoSize = null, double framerate = 30, int xOffset = 0, int yOffset = 0)
     {
-        var stream = new VideoStream
-                     {
-                         Index = _streams.Count != 0 ? _streams.Max(x => x.Index) + 1 : 0,
-                     };
+        var (path, format) = GetPathAndFormat();
+        var index = _streams.Count != 0 ? _streams.Max(x => x.Index) + 1 : 0;
+
+        var stream = new VideoStream(path, index);
+
+        stream.SetInputFormat(format);
 
         stream.Parameters.Add("framerate", framerate.ToFFmpegFormat(4), ParameterPosition.PreInput);
         stream.Parameters.Add("offset_x", xOffset, ParameterPosition.PreInput);
@@ -518,24 +505,29 @@ public partial class Conversion : IConversion
             stream.Parameters.Add("video_size", videoSize, ParameterPosition.PreInput);
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            stream.SetInputFormat(Format.gdigrab);
-            stream.Path = "desktop";
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            stream.SetInputFormat(Format.avfoundation);
-            stream.Path = "1:1";
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            stream.SetInputFormat(Format.x11grab);
-            stream.Path = ":0.0+0,0";
-        }
+        AddStream(stream);
 
-        _streams.Add(stream);
         return this;
+
+        (string Path, Format Format) GetPathAndFormat()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return (Path: "desktop", Format: Format.gdigrab);
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return (Path: "1:1", Format: Format.avfoundation);
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return (Path: ":0.0+0,0", Format: Format.x11grab);
+            }
+
+            throw new PlatformNotSupportedException();
+        }
     }
 
     /// <inheritdoc />
@@ -592,13 +584,7 @@ public partial class Conversion : IConversion
         var builder = new StringBuilder();
         var configurations = new List<IFilterConfiguration>();
 
-        foreach (var stream in _streams)
-        {
-            if (stream is IFilterable filterable)
-            {
-                configurations.AddRange(filterable.GetFilters());
-            }
-        }
+        configurations.AddRange(_streams.OfType<IFilterable>().SelectMany(filterable => filterable.GetFilters()));
 
         var filterGroups = configurations.GroupBy(configuration => configuration.FilterType);
 
@@ -689,25 +675,11 @@ public partial class Conversion : IConversion
 
     private bool HasH264Stream()
     {
-        foreach (var stream in _streams)
-        {
-            if (stream is IVideoStream s)
-            {
-                if (s.Codec == "libx264" ||
-                    s.Codec == VideoCodec.h264.ToString())
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return _streams.Any(stream => stream is IVideoStream { Codec: nameof(VideoCodec.libx264) or nameof(VideoCodec.h264) });
     }
 
-    internal static IConversion New()
+    internal static IConversion Create()
     {
-        var conversion = new Conversion();
-        return conversion
-            .SetOverwriteOutput(false);
+        return new Conversion().SetOverwriteOutput(false);
     }
 }

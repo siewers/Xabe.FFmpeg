@@ -17,18 +17,18 @@
     <RepositoryUrl>https://github.com/tomaszzmuda/Xabe.FFmpeg</RepositoryUrl>
     <RepositoryType>Dependency</RepositoryType>
     <PackageTags>media converter audio ffmpeg wrapper core video encode decode</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageIconUrl>https://xabe.net/assets/new_xabe_logo-100x100.png</PackageIconUrl>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <DefineConstants>$(DefineConstants);NETESCAPADES_ENUMGENERATORS_EMBED_ATTRIBUTES</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-  </PropertyGroup>
+<!--  <PropertyGroup>-->
+<!--    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>-->
+<!--    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>-->
+<!--  </PropertyGroup>-->
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>full</DebugType>
@@ -36,7 +36,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.1.0-eap1" PrivateAssets="all" />
+    <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta13" PrivateAssets="all" ExcludeAssets="compile;runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="JetBrains.Annotations" />
   </ItemGroup>
 
 </Project>

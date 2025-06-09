@@ -3,20 +3,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Extensions;
 using JetBrains.Annotations;
-using Streams;
+using Probe.Models;
 
 /// <inheritdoc cref="IAudioStream" />
 [PublicAPI]
-public sealed class AudioStream : IAudioStream, IFilterable
+public sealed class AudioStream : StreamBase, IAudioStream, IFilterable
 {
     private readonly Dictionary<string, string> _audioFilters = [];
     private readonly ConversionParameters _parameters = [];
 
-    internal AudioStream()
+    internal AudioStream(AudioStreamModel streamModel, FormatModel formatModel)
+        : base(streamModel, formatModel)
     {
+        Channels = streamModel.Channels;
+        ChannelLayout = streamModel.ChannelLayout;
+        SampleRate = streamModel.SampleRate;
     }
+
+    /// <inheritdoc />
+    public int Channels { get; }
+
+    /// <inheritdoc />
+    public string? ChannelLayout { get; }
+
+    /// <inheritdoc />
+    public int SampleRate { get; }
+
+    /// <inheritdoc />
+    public override StreamType StreamType => StreamType.Audio;
 
     /// <inheritdoc />
     public IAudioStream Reverse()
@@ -26,7 +41,7 @@ public sealed class AudioStream : IAudioStream, IFilterable
     }
 
     /// <inheritdoc />
-    public string BuildParameters(ParameterPosition forPosition)
+    public override string BuildParameters(ParameterPosition forPosition)
     {
         var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
         return parameters.Length > 0
@@ -49,9 +64,6 @@ public sealed class AudioStream : IAudioStream, IFilterable
     }
 
     /// <inheritdoc />
-    public StreamType StreamType => StreamType.Audio;
-
-    /// <inheritdoc />
     public IAudioStream SetChannels(int channels)
     {
         _parameters.Add($"ac:{Index}", channels);
@@ -61,7 +73,7 @@ public sealed class AudioStream : IAudioStream, IFilterable
     /// <inheritdoc />
     public IAudioStream SetBitstreamFilter(BitstreamFilter filter)
     {
-        return SetBitstreamFilter($"{filter}");
+        return SetBitstreamFilter(filter.ToStringFast());
     }
 
     /// <inheritdoc />
@@ -109,7 +121,7 @@ public sealed class AudioStream : IAudioStream, IFilterable
             AudioCodec._4gv => "4gv",
             AudioCodec._8svx_exp => "8svx_exp",
             AudioCodec._8svx_fib => "8svx_fib",
-            _ => codec.ToString(),
+            _ => codec.ToStringFast(),
         };
 
         return SetCodec(codecString);
@@ -121,48 +133,6 @@ public sealed class AudioStream : IAudioStream, IFilterable
         _parameters.Add("c:a", codec);
         return this;
     }
-
-    /// <inheritdoc />
-    public int Index { get; internal set; }
-
-    /// <inheritdoc />
-    public TimeSpan Duration { get; internal set; }
-
-    /// <inheritdoc />
-    public string Codec { get; internal set; }
-
-    /// <inheritdoc />
-    public long Bitrate { get; internal set; }
-
-    /// <inheritdoc />
-    public int Channels { get; internal set; }
-
-    /// <inheritdoc />
-    public string? ChannelLayout { get; internal set; }
-
-    /// <inheritdoc />
-    public int SampleRate { get; internal set; }
-
-    /// <inheritdoc />
-    public string Language { get; internal set; }
-
-    /// <inheritdoc />
-    public string? Title { get; internal set; }
-
-    /// <inheritdoc />
-    public bool? IsDefault { get; internal set; }
-
-    /// <inheritdoc />
-    public bool? IsForced { get; internal set; }
-
-    /// <inheritdoc />
-    public IEnumerable<string> GetSource()
-    {
-        return [Path];
-    }
-
-    /// <inheritdoc />
-    public string Path { get; set; }
 
     /// <inheritdoc />
     public IAudioStream SetSeek(TimeSpan seek)
@@ -181,7 +151,7 @@ public sealed class AudioStream : IAudioStream, IFilterable
     /// <inheritdoc />
     public IAudioStream SetInputFormat(Format inputFormat)
     {
-        return SetInputFormat(inputFormat.ToString());
+        return SetInputFormat(inputFormat.ToStringFast());
     }
 
     /// <inheritdoc />

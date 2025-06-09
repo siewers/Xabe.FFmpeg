@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Streams.SubtitleStream;
+using Probe;
 
 /// <inheritdoc />
 public partial class Conversion
@@ -23,9 +23,9 @@ public partial class Conversion
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetWatermark(inputImage, position);
 
-        return New().AddStream(videoStream)
-                    .AddStream(info.AudioStreams.ToArray())
-                    .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .AddStreams(info.AudioStreams.ToArray())
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -40,8 +40,8 @@ public partial class Conversion
 
         var videoStream = info.VideoStreams.FirstOrDefault();
 
-        return New().AddStream(videoStream)
-                    .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -57,8 +57,8 @@ public partial class Conversion
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetOutputFramesCount(1).SetSeek(captureTime);
 
-        return New().AddStream(videoStream)
-                    .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -75,10 +75,10 @@ public partial class Conversion
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetSize(width, height);
 
-        return New().AddStream(videoStream)
-                    .AddStream(info.AudioStreams.ToArray())
-                    .AddStream(info.SubtitleStreams.ToArray())
-                    .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .AddStreams(info.AudioStreams.ToArray())
+                       .AddStreams(info.SubtitleStreams.ToArray())
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -94,10 +94,10 @@ public partial class Conversion
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetSize(size);
 
-        return New().AddStream(videoStream)
-                    .AddStream(info.AudioStreams.ToArray())
-                    .AddStream(info.SubtitleStreams.ToArray())
-                    .SetOutput(outputPath);
+        return Create().AddStream(videoStream)
+                       .AddStreams(info.AudioStreams.ToArray())
+                       .AddStreams(info.SubtitleStreams.ToArray())
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -115,8 +115,8 @@ public partial class Conversion
         var streams = info.VideoStreams.Select(stream => stream.Split(startTime, duration)).Cast<IStream>().ToList();
         streams.AddRange(info.AudioStreams.Select(stream => stream.Split(startTime, duration)));
 
-        return New().AddStream(streams)
-                    .SetOutput(outputPath);
+        return Create().AddStreams(streams)
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -129,9 +129,9 @@ public partial class Conversion
     internal async static Task<IConversion> SaveM3U8StreamAsync(Uri uri, string outputPath, TimeSpan? duration = null)
     {
         var mediaInfo = await FFmpeg.GetMediaInfo(uri.ToString());
-        return New().AddStream(mediaInfo.Streams)
-                    .SetInputTime(duration)
-                    .SetOutput(outputPath);
+        return Create().AddStreams(mediaInfo.Streams)
+                       .SetInputTime(duration)
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -149,7 +149,7 @@ public partial class Conversion
 
         var mediaInfos = new List<IMediaInfo>();
 
-        var conversion = New();
+        var conversion = Create();
 
         foreach (var inputVideo in inputVideos)
         {
@@ -192,14 +192,14 @@ public partial class Conversion
     {
         var info = await FFmpeg.GetMediaInfo(inputFilePath);
 
-        var conversion = New().SetOutput(outputFilePath);
+        var conversion = Create().SetOutput(outputFilePath);
 
         foreach (var stream in info.Streams)
         {
             switch (stream)
             {
                 case IVideoStream videoStream:
-                    // PR #268 We have to force the framerate here due to an FFmpeg bug with videos > 100fps from android devices
+                    // PR #268 We have to force the frame rate here due to an FFmpeg bug with videos > 100fps from android devices
                     conversion.AddStream(videoStream.SetFramerate(videoStream.Framerate));
                     break;
                 case IAudioStream audioStream:
@@ -228,7 +228,7 @@ public partial class Conversion
     {
         var info = await FFmpeg.GetMediaInfo(inputFilePath);
 
-        var conversion = New().SetOutput(outputFilePath);
+        var conversion = Create().SetOutput(outputFilePath);
 
         foreach (var stream in info.Streams)
         {

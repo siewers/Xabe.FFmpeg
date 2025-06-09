@@ -1,17 +1,12 @@
-namespace Xabe.FFmpeg;
+namespace Xabe.FFmpeg.Probe.Models;
 
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
-internal sealed class TagsModel : Dictionary<string, string?>
+internal sealed class TagsModel() : Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
 {
-    public TagsModel()
-        : base(StringComparer.OrdinalIgnoreCase)
-    {
-    }
-
-    private TagsModel(JsonElement tags)
+    public TagsModel(JsonElement tags)
         : this()
     {
         foreach (var entry in tags.EnumerateObject())
@@ -46,7 +41,7 @@ internal sealed class TagsModel : Dictionary<string, string?>
         }
     }
 
-    public string Language { get; } = "und";
+    public string? Language { get; } = "und";
 
     public int? StreamCount { get; }
 
@@ -59,9 +54,4 @@ internal sealed class TagsModel : Dictionary<string, string?>
     public long? BitRate { get; }
 
     public TimeSpan? Duration { get; }
-
-    public static TagsModel Create(JsonElement tags)
-    {
-        return new TagsModel(tags);
-    }
 }

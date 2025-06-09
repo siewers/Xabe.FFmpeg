@@ -2,6 +2,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Probe;
 using Xunit;
 
 public class ProbeTests

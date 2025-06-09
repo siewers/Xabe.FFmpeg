@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg;
+using System.Threading.Tasks;
 
 public partial class Conversion
 {

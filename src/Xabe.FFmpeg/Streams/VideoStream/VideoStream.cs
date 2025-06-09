@@ -3,41 +3,54 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Extensions;
 using JetBrains.Annotations;
-using Streams;
+using Probe.Models;
 
 /// <inheritdoc cref="IVideoStream" />
 [PublicAPI]
-public sealed class VideoStream : IVideoStream, IFilterable
+public sealed class VideoStream : StreamBase, IVideoStream, IFilterable
 {
     private readonly Dictionary<string, string> _videoFilters = [];
-    private string _watermarkSource;
+    private string? _watermarkSource;
 
-    public VideoStream()
+    internal VideoStream(string path, int index)
+        : base(path, index)
     {
     }
 
     internal VideoStream(VideoStreamModel model, FormatModel formatModel)
+        : base(model, formatModel)
     {
-        var duration = model.Duration ?? model.Tags.Duration ?? formatModel.Duration;
-
-        Codec = model.CodecName;
-        Duration = duration;
         Width = model.Width;
         Height = model.Height;
-        Framerate = GetVideoFrameRate(model, duration);
-        Ratio = GetVideoAspectRatio(model.Width, model.Height);
-        Path = formatModel.FileName;
-        Index = model.Index;
-        Bitrate = Math.Abs(model.Tags.BitRate ?? formatModel.BitRate ?? 0);
-        PixelFormat = model.pix_fmt;
-        IsDefault = model.Disposition.IsDefault;
-        IsForced = model.Disposition.IsForced;
+        Framerate = GetVideoFrameRate(model, Duration);
+        Ratio = GetVideoAspectRatio(Width, Height);
+        PixelFormat = model.PixelFormat;
         Rotation = model.Tags.Rotation;
     }
 
     internal ConversionParameters Parameters { get; } = [];
+
+    /// <inheritdoc />
+    public int Width { get; }
+
+    /// <inheritdoc />
+    public int Height { get; }
+
+    /// <inheritdoc />
+    public double Framerate { get; }
+
+    /// <inheritdoc />
+    public string? Ratio { get; }
+
+    /// <inheritdoc />
+    public string? PixelFormat { get; }
+
+    /// <inheritdoc />
+    public int? Rotation { get; }
+
+    /// <inheritdoc />
+    public override StreamType StreamType => StreamType.Video;
 
     /// <inheritdoc />
     public IEnumerable<IFilterConfiguration> GetFilters()
@@ -53,48 +66,12 @@ public sealed class VideoStream : IVideoStream, IFilterable
         }
     }
 
-    /// <inheritdoc />
-    public int Width { get; internal set; }
-
-    /// <inheritdoc />
-    public int Height { get; internal set; }
-
-    /// <inheritdoc />
-    public double Framerate { get; internal set; }
-
-    /// <inheritdoc />
-    public string Ratio { get; internal set; }
-
-    /// <inheritdoc />
-    public TimeSpan Duration { get; internal set; }
-
-    /// <inheritdoc />
-    public string Codec { get; internal set; }
-
-    /// <inheritdoc />
-    public int Index { get; internal set; }
-
-    /// <inheritdoc />
-    public string Path { get; internal set; }
-
-    /// <inheritdoc />
-    public bool? IsDefault { get; internal set; }
-
-    /// <inheritdoc />
-    public bool? IsForced { get; internal set; }
-
-    /// <inheritdoc />
-    public string PixelFormat { get; internal set; }
-
-    /// <inheritdoc />
-    public int? Rotation { get; internal set; }
-
     /// <summary>
     ///     Create parameters string
     /// </summary>
     /// <param name="forPosition">Position for parameters</param>
     /// <returns>Parameters</returns>
-    public string BuildParameters(ParameterPosition forPosition)
+    public override string BuildParameters(ParameterPosition forPosition)
     {
         var parameters = Parameters.Where(x => x.Position == forPosition).ToArray();
         return parameters.Length > 0
@@ -112,7 +89,9 @@ public sealed class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream Rotate(RotateDegrees rotateDegrees)
     {
-        var rotate = rotateDegrees == RotateDegrees.Invert ? "\"transpose=2,transpose=2\" " : $"\"transpose={(int)rotateDegrees}\" ";
+        var rotate = rotateDegrees == RotateDegrees.Invert
+            ? "\"transpose=2,transpose=2\" "
+            : $"\"transpose={(int)rotateDegrees}\" ";
         Parameters.Add("vf", rotate);
         return this;
     }
@@ -124,12 +103,6 @@ public sealed class VideoStream : IVideoStream, IFilterable
         Parameters.Add("vf", parameter);
         return this;
     }
-
-    /// <inheritdoc />
-    public StreamType StreamType => StreamType.Video;
-
-    /// <inheritdoc />
-    public long Bitrate { get; internal set; }
 
     /// <inheritdoc />
     public IVideoStream CopyStream()
@@ -187,7 +160,7 @@ public sealed class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream SetFlags(params Flag[] flags)
     {
-        return SetFlags(flags.Select(x => x.ToString()).ToArray());
+        return SetFlags(flags.Select(x => x.ToStringFast()).ToArray());
     }
 
     /// <inheritdoc />
@@ -233,7 +206,7 @@ public sealed class VideoStream : IVideoStream, IFilterable
             VideoCodec._8bps => "8bps",
             VideoCodec._4xm => "4xm",
             VideoCodec._012v => "012v",
-            _ => codec.ToString(),
+            _ => codec.ToStringFast(),
         };
 
         return SetCodec(codecString);
@@ -249,7 +222,7 @@ public sealed class VideoStream : IVideoStream, IFilterable
     /// <inheritdoc />
     public IVideoStream SetBitstreamFilter(BitstreamFilter filter)
     {
-        return SetBitstreamFilter($"{filter}");
+        return SetBitstreamFilter(filter.ToStringFast());
     }
 
     /// <inheritdoc />
@@ -311,7 +284,7 @@ public sealed class VideoStream : IVideoStream, IFilterable
     }
 
     /// <inheritdoc />
-    public IEnumerable<string> GetSource()
+    public override IEnumerable<string> GetSource()
     {
         return string.IsNullOrWhiteSpace(_watermarkSource)
             ? [Path]
@@ -327,7 +300,7 @@ public sealed class VideoStream : IVideoStream, IFilterable
             Format._3g2 => "3g2",
             Format._3gp => "3gp",
             Format._4xm => "4xm",
-            _ => inputFormat.ToString(),
+            _ => inputFormat.ToStringFast(),
         };
 
         return SetInputFormat(format);
@@ -383,7 +356,7 @@ public sealed class VideoStream : IVideoStream, IFilterable
             filter += $":force_style=\'{style}\'";
         }
 
-        if (originalSize != null)
+        if (originalSize.HasValue)
         {
             filter += $":original_size={originalSize.Value.ToFFmpegFormat()}";
         }
@@ -401,19 +374,19 @@ public sealed class VideoStream : IVideoStream, IFilterable
     private static double GetVideoFrameRate(VideoStreamModel videoStream, TimeSpan duration)
     {
         var frameCount = GetFrameCount(videoStream);
-        var fr = videoStream.r_frame_rate.Split('/');
+        var frameRate = videoStream.RawFrameRate.Split('/');
 
         if (frameCount > 0)
         {
             return Math.Round(frameCount / duration.TotalSeconds, 3);
         }
 
-        return Math.Round(double.Parse(fr[0]) / double.Parse(fr[1]), 3);
+        return Math.Round(double.Parse(frameRate[0]) / double.Parse(frameRate[1]), 3);
     }
 
     private static long GetFrameCount(StreamModelBase videoStream)
     {
-        return long.TryParse(videoStream.nb_frames, out var frameCount) ? frameCount : 0;
+        return long.TryParse(videoStream.NumberOfFrames, out var frameCount) ? frameCount : 0;
     }
 
     private static string GetVideoAspectRatio(int width, int height)

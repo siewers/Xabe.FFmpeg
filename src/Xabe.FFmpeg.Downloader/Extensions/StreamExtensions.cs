@@ -1,4 +1,4 @@
-﻿namespace Xabe.FFmpeg.Extensions;
+﻿namespace Xabe.FFmpeg.Downloader.Extensions;
 
 using System;
 using System.IO;

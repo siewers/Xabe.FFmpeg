@@ -1,84 +1,16 @@
-﻿namespace Xabe.FFmpeg;
+﻿namespace Xabe.FFmpeg.Probe;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Models;
 
 /// <summary>
 ///     Get information about media file
 /// </summary>
-// ReSharper disable once InheritdocConsiderUsage
 internal sealed class FFprobeWrapper : FFmpeg
 {
-    private async Task<ProbeModel?> GetProbeData(string videoFilePath, CancellationToken cancellationToken)
-    {
-        var arguments = $"-v panic -print_format json -show_format -show_streams {videoFilePath}";
-        var result = await Start(arguments, cancellationToken);
-
-        if (string.IsNullOrWhiteSpace(result))
-        {
-            return null;
-        }
-
-        var probeModel = JsonDeserializer.Deserialize<ProbeModel>(result);
-        return probeModel;
-    }
-
-    private static double GetVideoFrameRate(VideoStreamModel videoStream, TimeSpan duration)
-    {
-        var frameCount = GetFrameCount(videoStream);
-        var fr = videoStream.r_frame_rate.Split('/');
-
-        if (frameCount > 0)
-        {
-            return Math.Round(frameCount / duration.TotalSeconds, 3);
-        }
-
-        return Math.Round(double.Parse(fr[0]) / double.Parse(fr[1]), 3);
-    }
-
-    private static long GetFrameCount(StreamModelBase videoStream)
-    {
-        return long.TryParse(videoStream.nb_frames, out var frameCount) ? frameCount : 0;
-    }
-
-    private static string GetVideoAspectRatio(int width, int height)
-    {
-        var cd = GetGcd(width, height);
-
-        if (cd <= 0)
-        {
-            return "0:0";
-        }
-
-        return width / cd + ":" + height / cd;
-    }
-
-    private static TimeSpan GetStreamDuration(StreamModelBase streamModel, FormatModel formatModel)
-    {
-        return streamModel.Duration ?? streamModel.Tags.Duration ?? formatModel.Duration;
-    }
-
-    private static int GetGcd(int width, int height)
-    {
-        while (width != 0 &&
-               height != 0)
-        {
-            if (width > height)
-            {
-                width -= height;
-            }
-            else
-            {
-                height -= width;
-            }
-        }
-
-        return width == 0 ? height : width;
-    }
-
     public Task<string> Start(string args, CancellationToken cancellationToken)
     {
         return RunProcess(args, cancellationToken);
@@ -95,8 +27,7 @@ internal sealed class FFprobeWrapper : FFmpeg
                                                                               {
                                                                                   try
                                                                                   {
-                                                                                      if (!processExited &&
-                                                                                          !process.HasExited)
+                                                                                      if (!processExited && !process.HasExited)
                                                                                       {
                                                                                           process.CloseMainWindow();
                                                                                           process.Kill();
@@ -104,6 +35,7 @@ internal sealed class FFprobeWrapper : FFmpeg
                                                                                   }
                                                                                   catch
                                                                                   {
+                                                                                      // ignored
                                                                                   }
                                                                               }
                                                                              );
@@ -120,91 +52,33 @@ internal sealed class FFprobeWrapper : FFmpeg
                                           );
     }
 
-    /// <summary>
-    ///     Get properties from media file
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <param name="mediaInfo">Empty media info</param>
-    /// <returns>Properties</returns>
-    public async Task<MediaInfo> SetProperties(MediaInfo mediaInfo, CancellationToken cancellationToken)
+    public async Task<ProbeModel> GetProbeModel(FileInfo mediaFile, CancellationToken cancellationToken)
     {
-        var path = mediaInfo.Path.Escape();
+        var arguments = $"-v panic -print_format json -show_format -show_streams {mediaFile.FullName}";
+        var probeResult = await Start(arguments, cancellationToken);
 
-        var probeResult = await GetProbeData(path, cancellationToken);
-
-        if (probeResult is null)
+        if (string.IsNullOrWhiteSpace(probeResult))
         {
-            throw new ArgumentException($"Invalid file. Cannot load file {path}");
+            throw new ArgumentException($"Invalid file. Cannot load file {mediaFile.FullName}.");
         }
 
-        if (probeResult.Format is null)
+        var probeData = JsonDeserializer.Deserialize<ProbeModel>(probeResult);
+
+        if (probeData is null)
         {
-            throw new ArgumentException($"Invalid file. No format found {path}");
+            throw new ArgumentException($"Invalid file. Cannot deserialize probe data {mediaFile.FullName}.");
         }
 
-        if (probeResult.Streams is null || probeResult.Streams.Length == 0)
+        if (probeData.Format is null)
         {
-            throw new ArgumentException($"Invalid file. No streams found {path}");
+            throw new ArgumentException($"Invalid file. No format found {mediaFile.FullName}.");
         }
 
-        mediaInfo.Size = probeResult.Format.Size;
-        mediaInfo.CreationTime = probeResult.Format.Tags.CreationTime?.UtcDateTime;
-        mediaInfo.VideoStreams = PrepareVideoStreams(probeResult);
-        mediaInfo.AudioStreams = PrepareAudioStreams(probeResult);
-        mediaInfo.SubtitleStreams = PrepareSubtitleStreams(probeResult);
-        mediaInfo.Duration = CalculateDuration(probeResult);
-        return mediaInfo;
-    }
+        if (probeData.Streams is null || probeData.Streams.Length == 0)
+        {
+            throw new ArgumentException($"Invalid file. No streams found {mediaFile.FullName}.");
+        }
 
-    private static TimeSpan CalculateDuration(ProbeModel probeModel)
-    {
-        var audioMax = probeModel.Streams.OfType<AudioStreamModel>().Max(stream => stream.Duration);
-        var videoMax = probeModel.Streams.OfType<VideoStreamModel>().Max(stream => stream.Duration);
-
-        return (audioMax > videoMax ? audioMax : videoMax) ?? probeModel.Format.Duration;
-    }
-
-    private static IEnumerable<IVideoStream> PrepareVideoStreams(ProbeModel probeModel)
-    {
-        return probeModel.Streams.OfType<VideoStreamModel>().Select(model => new VideoStream(model, probeModel.Format));
-    }
-
-    private static IEnumerable<IAudioStream> PrepareAudioStreams(ProbeModel probeModel)
-    {
-        return probeModel.Streams
-                         .OfType<AudioStreamModel>()
-                         .Select(model => new AudioStream
-                                          {
-                                              Codec = model.CodecName,
-                                              Duration = GetStreamDuration(model, probeModel.Format),
-                                              Path = probeModel.Format.FileName,
-                                              Index = model.Index,
-                                              Bitrate = Math.Abs(model.BitRate ?? model.Tags.BitRate ?? 0),
-                                              Channels = model.Channels,
-                                              ChannelLayout = model.ChannelLayout,
-                                              SampleRate = model.SampleRate,
-                                              Language = model.Tags.Language,
-                                              IsDefault = model.Disposition.IsDefault,
-                                              Title = model.Tags.Title,
-                                              IsForced = model.Disposition.IsForced,
-                                          }
-                                );
-    }
-
-    private static IEnumerable<ISubtitleStream> PrepareSubtitleStreams(ProbeModel probeModel)
-    {
-        return probeModel.Streams
-                         .OfType<SubtitleStreamModel>()
-                         .Select(model => new SubtitleStream
-                                          {
-                                              Codec = model.CodecName,
-                                              Path = probeModel.Format.FileName,
-                                              Index = model.Index,
-                                              Language = model.Tags.Language,
-                                              Title = model.Tags.Title,
-                                              IsDefault = model.Disposition.IsDefault,
-                                              IsForced = model.Disposition.IsForced,
-                                          }
-                                );
+        return probeData;
     }
 }

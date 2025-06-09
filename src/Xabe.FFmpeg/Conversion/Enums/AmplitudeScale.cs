@@ -3,8 +3,10 @@
 namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
 
 [PublicAPI]
+[EnumExtensions]
 public enum AmplitudeScale
 {
     lin,

@@ -1,14 +1,16 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
-namespace Xabe.FFmpeg.Streams.SubtitleStream;
+namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
 
 /// <summary>
 ///     Subtitle codec ("ffmpeg -codecs")
 /// </summary>
 [PublicAPI]
+[EnumExtensions]
 public enum SubtitleCodec
 {
     /// <summary>

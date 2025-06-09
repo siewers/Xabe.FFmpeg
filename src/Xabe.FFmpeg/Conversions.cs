@@ -1,16 +1,8 @@
 ﻿namespace Xabe.FFmpeg;
 
-using JetBrains.Annotations;
-
 [PublicAPI]
-public class Conversions
+public sealed class Conversions
 {
-    /// <summary>
-    ///     Get new instance of Conversion
-    /// </summary>
-    /// <returns>IConversion object</returns>
-    public readonly Snippets FromSnippet = new();
-
     internal Conversions()
     {
     }
@@ -18,9 +10,14 @@ public class Conversions
     /// <summary>
     ///     Get new instance of Conversion
     /// </summary>
+    public Snippets FromSnippet { get; } = new();
+
+    /// <summary>
+    ///     Get new instance of Conversion
+    /// </summary>
     /// <returns>IConversion object</returns>
-    public IConversion New()
+    public IConversion Create()
     {
-        return Conversion.New();
+        return Conversion.Create();
     }
 }

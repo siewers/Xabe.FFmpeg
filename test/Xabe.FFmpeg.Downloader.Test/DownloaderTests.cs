@@ -56,7 +56,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
             var fFbinariesVersionInfo = new FFbinariesVersionInfo
                                         {
-                                            Version = new Version().ToString() // "0.0"
+                                            Version = new Version().ToString(), // "0.0"
                                         };
             downloader.SaveVersion(fFbinariesVersionInfo, FFmpeg.ExecutablesPath);
 
@@ -125,7 +125,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
             var fFbinariesVersionInfo = new FFbinariesVersionInfo
                                         {
-                                            Version = new Version().ToString() // "0.0"
+                                            Version = new Version().ToString(), // "0.0"
                                         };
             downloader.SaveVersion(fFbinariesVersionInfo, FFmpeg.ExecutablesPath);
 
@@ -196,7 +196,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
             var fFbinariesVersionInfo = new FFbinariesVersionInfo
                                         {
-                                            Version = new Version().ToString() // "0.0"
+                                            Version = new Version().ToString(), // "0.0"
                                         };
             downloader.SaveVersion(fFbinariesVersionInfo, FFmpeg.ExecutablesPath);
 
@@ -270,7 +270,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
             var fFbinariesVersionInfo = new FFbinariesVersionInfo
                                         {
-                                            Version = new Version().ToString() // "0.0"
+                                            Version = new Version().ToString(), // "0.0"
                                         };
             downloader.SaveVersion(fFbinariesVersionInfo, FFmpeg.ExecutablesPath);
 

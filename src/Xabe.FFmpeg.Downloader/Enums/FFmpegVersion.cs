@@ -23,5 +23,5 @@ public enum FFmpegVersion
     /// <summary>
     /// The Android Release Based on Mobile-FFmpeg
     /// </summary>
-    Android = 4
+    Android = 4,
 }

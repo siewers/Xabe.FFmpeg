@@ -1,4 +1,4 @@
-﻿namespace Xabe.FFmpeg.Streams;
+﻿namespace Xabe.FFmpeg;
 
 using System;
 using System.Collections;
@@ -18,7 +18,7 @@ internal sealed class ConversionParameters : IEnumerable<ConversionParameter>
         return GetEnumerator();
     }
 
-    internal void Add(ConversionParameter item)
+    private void Add(ConversionParameter item)
     {
         _items.Remove(item);
         _items.Add(item);

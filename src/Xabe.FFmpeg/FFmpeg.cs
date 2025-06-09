@@ -3,12 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Exceptions;
-using JetBrains.Annotations;
 
 /// <summary>
 ///     Wrapper for FFmpeg
@@ -16,13 +16,15 @@ using JetBrains.Annotations;
 [PublicAPI]
 public abstract partial class FFmpeg
 {
-    private static string _ffmpegPath;
-    private static string _ffprobePath;
-    private static string _lastExecutablePath = Guid.NewGuid().ToString();
-    private static readonly Lock _ffmpegPathLock = new();
-    private static readonly Lock _ffprobePathLock = new();
+    private static readonly Lock FFmpegPathLock = new();
+    private static readonly Lock FFprobePathLock = new();
+
     private static string _ffmpegExecutableName = "ffmpeg";
     private static string _ffprobeExecutableName = "ffprobe";
+
+    private static string? _ffmpegPath;
+    private static string? _ffprobePath;
+    private static string _lastExecutablePath = Guid.NewGuid().ToString();
 
     /// <summary>
     ///     Initalize new FFmpeg. Search FFmpeg and FFprobe in PATH
@@ -33,20 +35,20 @@ public abstract partial class FFmpeg
     }
 
     /// <summary>
-    ///     FilePath to FFmpeg
+    ///     Filepath to FFmpeg
     /// </summary>
-    protected string FFmpegPath
+    protected string? FFmpegPath
     {
         get
         {
-            lock (_ffmpegPathLock)
+            lock (FFmpegPathLock)
             {
                 return _ffmpegPath;
             }
         }
         private set
         {
-            lock (_ffmpegPathLock)
+            lock (FFmpegPathLock)
             {
                 _ffmpegPath = value;
             }
@@ -54,30 +56,31 @@ public abstract partial class FFmpeg
     }
 
     /// <summary>
-    ///     FilePath to FFprobe
+    ///     Filepath to FFprobe
     /// </summary>
-    protected string FFprobePath
+    protected string? FFprobePath
     {
         get
         {
-            lock (_ffprobePathLock)
+            lock (FFprobePathLock)
             {
                 return _ffprobePath;
             }
         }
         private set
         {
-            lock (_ffprobePathLock)
+            lock (FFprobePathLock)
             {
                 _ffprobePath = value;
             }
         }
     }
 
+    [MemberNotNull(nameof(FFmpegPath))]
+    [MemberNotNull(nameof(FFprobePath))]
     private void FindAndValidateExecutables()
     {
-        if (!string.IsNullOrWhiteSpace(FFprobePath) &&
-            !string.IsNullOrWhiteSpace(FFmpegPath) && _lastExecutablePath.Equals(ExecutablesPath))
+        if (IsPathsSet() && _lastExecutablePath.Equals(ExecutablesPath))
         {
             return;
         }
@@ -85,23 +88,14 @@ public abstract partial class FFmpeg
         if (!string.IsNullOrWhiteSpace(ExecutablesPath))
         {
             var files = new DirectoryInfo(ExecutablesPath).GetFiles();
-            Func<string, string, IFormatProvider, bool> compareMethod;
 
-            switch (FilterMethod)
+            Func<string, string, IFormatProvider, bool> compareMethod = FilterMethod switch
             {
-                case FileNameFilterMethod.Contains:
-                    compareMethod = (path, exec, provider) => path.ToString(provider).Contains(exec);
-                    break;
-                case FileNameFilterMethod.Exact:
-                    compareMethod = (path, exec, provider) => path.ToString(provider).Equals(exec);
-                    break;
-                case FileNameFilterMethod.StartWith:
-                    compareMethod = (path, exec, provider) => path.ToString(provider).StartsWith(exec);
-                    break;
-                default:
-                    compareMethod = (path, exec, provider) => path.ToString(provider).Contains(exec);
-                    break;
-            }
+                FileNameFilterMethod.Contains => (path, exec, provider) => path.ToString(provider).Contains(exec),
+                FileNameFilterMethod.Exact => (path, exec, provider) => path.ToString(provider).Equals(exec),
+                FileNameFilterMethod.StartWith => (path, exec, provider) => path.ToString(provider).StartsWith(exec),
+                _ => (path, exec, provider) => path.ToString(provider).Contains(exec),
+            };
 
             FFprobePath = files.FirstOrDefault(x => compareMethod(x.Name, _ffprobeExecutableName, FormatProvider) && IsExecutable(x.FullName))?.FullName;
             FFmpegPath = files.FirstOrDefault(x => compareMethod(x.Name, _ffmpegExecutableName, FormatProvider) && IsExecutable(x.FullName))?.FullName;
@@ -115,26 +109,23 @@ public abstract partial class FFmpeg
 
         if (entryAssembly != null)
         {
-            var workingDirectory = Path.GetDirectoryName(entryAssembly.Location);
+            var workingDirectory = Path.GetDirectoryName(entryAssembly.Location)!;
 
             FindProgramsFromPath(workingDirectory);
 
-            if (FFmpegPath != null &&
-                FFprobePath != null)
+            if (IsPathsSet())
             {
                 return;
             }
         }
 
-        var paths = Environment.GetEnvironmentVariable("PATH")
-                               .Split(Path.PathSeparator);
+        var paths = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator) ?? [];
 
         foreach (var path in paths)
         {
             FindProgramsFromPath(path);
 
-            if (FFmpegPath != null &&
-                FFprobePath != null)
+            if (IsPathsSet())
             {
                 break;
             }
@@ -143,50 +134,50 @@ public abstract partial class FFmpeg
         ValidateExecutables();
     }
 
+    [MemberNotNull(nameof(FFmpegPath))]
+    [MemberNotNull(nameof(FFprobePath))]
     private void ValidateExecutables()
     {
-        if (FFmpegPath != null &&
-            FFprobePath != null)
+        if (IsPathsSet())
         {
             return;
         }
 
         var ffmpegDir = string.IsNullOrWhiteSpace(ExecutablesPath) ? string.Empty : string.Format(ExecutablesPath + " or ");
-        var exceptionMessage =
-            $"Cannot find FFmpeg in {ffmpegDir}PATH. This package needs installed FFmpeg. Please add it to your PATH variable or specify path to DIRECTORY with FFmpeg executables in {nameof(FFmpeg)}.{nameof(ExecutablesPath)}";
+        var exceptionMessage = $"Cannot find FFmpeg in {ffmpegDir}PATH. This package needs installed FFmpeg. Please add it to your PATH variable or specify path to DIRECTORY with FFmpeg executables in {nameof(FFmpeg)}.{nameof(ExecutablesPath)}";
 
         throw new FFmpegNotFoundException(exceptionMessage);
     }
 
-    private bool IsExecutable(string file, OperatingSystemProvider systemProvider = null, OperatingSystemArchitectureProvider architectureProvider = null)
+    private static bool IsExecutable(string file, OperatingSystemProvider? systemProvider = null, OperatingSystemArchitectureProvider? architectureProvider = null)
     {
+        systemProvider ??= new OperatingSystemProvider();
+        architectureProvider ??= new OperatingSystemArchitectureProvider();
+
         try
         {
-            using (var fileStream = File.OpenRead(file))
+            using var fileStream = File.OpenRead(file);
+
+            var magicNumber = new byte[4];
+            var appMagicNumber = new byte[4];
+            fileStream.ReadExactly(magicNumber, 0, 4);
+
+            switch (systemProvider.GetOperatingSystem())
             {
-                var magicNumber = new byte[4];
-                var appMagicNumber = new byte[4];
-                fileStream.Read(magicNumber, 0, 4);
-                var sysProvider = systemProvider ?? new OperatingSystemProvider();
-                var archProvider = architectureProvider ?? new OperatingSystemArchitectureProvider();
-                var architecture = archProvider.GetArchitecture();
+                case OperatingSystem.Windows:
+                    return magicNumber[0] == 0x4D && magicNumber[1] == 0x5A;
+                case OperatingSystem.Osx:
+                    return magicNumber[0] == 0xCE && magicNumber[1] == 0xFA && magicNumber[2] == 0xED && magicNumber[3] == 0xFE;
+                case OperatingSystem.Linux:
+                    var architecture = architectureProvider.GetArchitecture();
+                    if (architecture is OperatingSystemArchitecture.X86 or OperatingSystemArchitecture.X64)
+                    {
+                        return magicNumber[0] == 0x7F && magicNumber[1] == 0x45 && magicNumber[2] == 0x4C && magicNumber[3] == 0x46;
+                    }
 
-                switch (sysProvider.GetOperatingSystem())
-                {
-                    case OperatingSystem.Windows:
-                        return magicNumber[0] == 0x4D && magicNumber[1] == 0x5A;
-                    case OperatingSystem.Osx:
-                        return magicNumber[0] == 0xCE && magicNumber[1] == 0xFA && magicNumber[2] == 0xED && magicNumber[3] == 0xFE;
-                    case OperatingSystem.Linux:
-                        if (architecture == OperatingSystemArchitecture.X86 || architecture == OperatingSystemArchitecture.X64)
-                        {
-                            return magicNumber[0] == 0x7F && magicNumber[1] == 0x45 && magicNumber[2] == 0x4C && magicNumber[3] == 0x46;
-                        }
-
-                        fileStream.Seek(0x30, SeekOrigin.Begin);
-                        fileStream.Read(appMagicNumber, 0, 4);
-                        return appMagicNumber[0] == 0x50 && appMagicNumber[1] == 0x4B && appMagicNumber[2] == 0x03 && appMagicNumber[3] == 0x04;
-                }
+                    fileStream.Seek(0x30, SeekOrigin.Begin);
+                    fileStream.ReadExactly(appMagicNumber, 0, 4);
+                    return appMagicNumber[0] == 0x50 && appMagicNumber[1] == 0x4B && appMagicNumber[2] == 0x03 && appMagicNumber[3] == 0x04;
             }
         }
         catch (Exception)
@@ -195,6 +186,12 @@ public abstract partial class FFmpeg
         }
 
         return false;
+    }
+
+    [MemberNotNullWhen(true, nameof(FFmpegPath), nameof(FFprobePath))]
+    private bool IsPathsSet()
+    {
+        return !string.IsNullOrWhiteSpace(FFmpegPath) && !string.IsNullOrWhiteSpace(FFprobePath);
     }
 
     private void FindProgramsFromPath(string path)
@@ -210,12 +207,9 @@ public abstract partial class FFmpeg
         FFmpegPath = GetFullName(files, _ffmpegExecutableName);
     }
 
-    internal static string GetFullName(IEnumerable<FileInfo> files, string fileName)
+    internal static string? GetFullName(IEnumerable<FileInfo> files, string fileName)
     {
-        return files.FirstOrDefault(x => x.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)
-                                         || x.Name.Equals($"{fileName}.exe", StringComparison.InvariantCultureIgnoreCase)
-                                   )
-                    ?.FullName;
+        return files.FirstOrDefault(x => x.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase) || x.Name.Equals($"{fileName}.exe", StringComparison.InvariantCultureIgnoreCase))?.FullName;
     }
 
     /// <summary>
@@ -262,6 +256,7 @@ public abstract partial class FFmpeg
         }
         catch (Exception)
         {
+            // ignored
         }
 
         return process;

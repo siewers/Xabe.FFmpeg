@@ -10,11 +10,6 @@ using JetBrains.Annotations;
 public interface IVideoStream : IStream
 {
     /// <summary>
-    ///     Duration
-    /// </summary>
-    TimeSpan Duration { get; }
-
-    /// <summary>
     ///     Width
     /// </summary>
     int Width { get; }
@@ -32,27 +27,12 @@ public interface IVideoStream : IStream
     /// <summary>
     ///     Screen ratio
     /// </summary>
-    string Ratio { get; }
-
-    /// <summary>
-    ///     Video bitrate
-    /// </summary>
-    long Bitrate { get; }
-
-    /// <summary>
-    ///     Default
-    /// </summary>
-    bool? IsDefault { get; }
-
-    /// <summary>
-    ///     Forced
-    /// </summary>
-    bool? IsForced { get; }
+    string? Ratio { get; }
 
     /// <summary>
     ///     Pixel Format
     /// </summary>
-    string PixelFormat { get; }
+    string? PixelFormat { get; }
 
     /// <summary>
     ///     Rotation angle

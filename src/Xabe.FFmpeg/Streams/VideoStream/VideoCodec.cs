@@ -1,11 +1,15 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
 
 /// <summary>
 ///     Video codec ("ffmpeg -codecs")
 /// </summary>
 [PublicAPI]
+[EnumExtensions]
 public enum VideoCodec
 {
     /// <summary>

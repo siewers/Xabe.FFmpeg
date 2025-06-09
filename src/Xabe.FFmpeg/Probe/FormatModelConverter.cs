@@ -1,8 +1,9 @@
-namespace Xabe.FFmpeg;
+namespace Xabe.FFmpeg.Probe;
 
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Models;
 
 internal sealed class FormatModelConverter : JsonConverter<FormatModel>
 {

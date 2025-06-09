@@ -2,13 +2,11 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 
-[PublicAPI]
-public static class StringExtensions
+internal static class StringExtensions
 {
     [return: NotNullIfNotNull(nameof(output))]
-    public static string? Escape([NotNullIfNotNull(nameof(output))] this string? output)
+    public static string? Escape(this string? output)
     {
         if (output == null)
         {

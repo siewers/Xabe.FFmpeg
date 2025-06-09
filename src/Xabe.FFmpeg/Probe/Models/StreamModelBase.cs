@@ -1,4 +1,4 @@
-namespace Xabe.FFmpeg;
+namespace Xabe.FFmpeg.Probe.Models;
 
 using System;
 using System.Text.Json.Serialization;
@@ -14,23 +14,26 @@ internal class StreamModelBase
     public int Index { get; set; }
 
     [JsonPropertyName("codec_name")]
-    public string CodecName { get; set; }
+    public required string CodecName { get; set; }
 
     [JsonPropertyName("codec_long_name")]
-    public string CodecLongName { get; set; }
+    public string? CodecLongName { get; set; }
 
-    public string r_frame_rate { get; set; }
+    [JsonPropertyName("r_frame_rate")]
+    public required string RawFrameRate { get; set; }
 
     [JsonPropertyName("duration")]
     public TimeSpan? Duration { get; set; }
 
-    public string pix_fmt { get; set; }
+    [JsonPropertyName("pix_fmt")]
+    public required string PixelFormat { get; set; }
 
     [JsonPropertyName("tags")]
     public TagsModel Tags { get; set; } = new();
 
-    public string nb_frames { get; set; }
+    [JsonPropertyName("nb_frames")]
+    public string? NumberOfFrames { get; set; }
 
     [JsonPropertyName("disposition")]
-    public StreamDispositionModel Disposition { get; set; }
+    public required StreamDispositionModel Disposition { get; set; }
 }

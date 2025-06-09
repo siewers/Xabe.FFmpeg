@@ -1,7 +1,6 @@
 ﻿namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
-using Streams.SubtitleStream;
 
 /// <summary>
 ///     Subtitle stream
@@ -9,26 +8,6 @@ using Streams.SubtitleStream;
 [PublicAPI]
 public interface ISubtitleStream : IStream
 {
-    /// <summary>
-    ///     Subtitle language
-    /// </summary>
-    string Language { get; }
-
-    /// <summary>
-    ///     Default
-    /// </summary>
-    bool? IsDefault { get; }
-
-    /// <summary>
-    ///     Forced
-    /// </summary>
-    bool? IsForced { get; }
-
-    /// <summary>
-    ///     Title
-    /// </summary>
-    string? Title { get; }
-
     /// <summary>
     ///     Set subtitle language
     /// </summary>

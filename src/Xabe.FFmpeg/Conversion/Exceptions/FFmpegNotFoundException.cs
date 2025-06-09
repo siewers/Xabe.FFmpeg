@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿namespace Xabe.FFmpeg.Exceptions;
 
-namespace Xabe.FFmpeg.Exceptions;
+using System.IO;
 
 /// <inheritdoc />
 /// <summary>
 ///     The exception that is thrown when a FFmpeg process return error.
 /// </summary>
-public class FFmpegNotFoundException : FileNotFoundException
+[PublicAPI]
+public sealed class FFmpegNotFoundException : FileNotFoundException
 {
     /// <inheritdoc />
     /// <summary>

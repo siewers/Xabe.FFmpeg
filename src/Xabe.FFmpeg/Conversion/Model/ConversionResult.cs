@@ -1,19 +1,21 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg;
 
-namespace Xabe.FFmpeg;
+using System;
 
 /// <inheritdoc />
 internal class ConversionResult : IConversionResult
 {
     /// <inheritdoc />
-    public DateTime StartTime { get; internal set; }
+    public required DateTime StartTime { get; init; }
 
     /// <inheritdoc />
-    public DateTime EndTime { get; internal set; }
+    public required DateTime EndTime { get; init; }
 
     /// <inheritdoc />
-    public TimeSpan Duration => EndTime - StartTime;
+    public required TimeSpan Duration { get; init; }
 
     /// <inheritdoc />
-    public string Arguments { get; internal set; }
+    public required string Arguments { get; init; }
+
+    public required string OutputLog { get; init; }
 }

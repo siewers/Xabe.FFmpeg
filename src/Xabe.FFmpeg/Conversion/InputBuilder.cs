@@ -1,61 +1,51 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-
-namespace Xabe.FFmpeg;
 
 /// <summary>
 /// Default Implementation of the IInputBuilder Interface
 /// </summary>
-public class InputBuilder : IInputBuilder
+[PublicAPI]
+public sealed class InputBuilder : IInputBuilder
 {
     /// <inheritdoc />
-    public List<FileInfo> FileList { get; }
-
-    /// <inheritdoc />
-    public InputBuilder()
-    {
-        FileList = new List<FileInfo>();
-    }
+    public List<FileInfo> FileList { get; } = [];
 
     /// <inheritdoc />
     public Func<string, string> PrepareInputFiles(List<string> files, out string directory)
     {
         var directoryGuid = Guid.NewGuid();
+        var directoryInfo = new DirectoryInfo(Path.Combine(Path.GetTempPath(), directoryGuid.ToString()));
+        directory = directoryInfo.FullName;
 
         for (var i = 0; i < files.Count; i++)
         {
-            var destinationPath = Path.Combine(Path.GetTempPath(), directoryGuid.ToString(), BuildFileName(i + 1, Path.GetExtension(files[i])));
+            var destinationPath = Path.Combine(directory, BuildFileName(i + 1, Path.GetExtension(files[i])));
 
-            if (!Directory.Exists(Path.Combine(Path.GetTempPath(), directoryGuid.ToString())))
+            if (!Directory.Exists(directory))
             {
-                Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), directoryGuid.ToString()));
+                Directory.CreateDirectory(directory);
             }
 
             File.Copy(files[i], destinationPath);
             FileList.Add(new FileInfo(destinationPath));
         }
 
-        directory = Path.Combine(Path.GetTempPath(), directoryGuid.ToString());
-        return (number) => { return $" -i {Path.Combine(FileList[0].DirectoryName, "img" + number + FileList[0].Extension)} "; };
+        return number => $" -i {Path.Combine(directoryInfo.FullName, "img" + number + FileList[0].Extension)} ";
     }
 
-    private string BuildFileName(int fileIndex, string extension)
+    private static string BuildFileName(int fileIndex, string extension)
     {
-        var name = $"img_";
+        var name = "img_";
 
-        if (fileIndex < 10)
+        name += fileIndex switch
         {
-            name += $"00{fileIndex}" + extension;
-        }
-        else if (fileIndex < 100)
-        {
-            name += $"0{fileIndex}" + extension;
-        }
-        else
-        {
-            name += $"{fileIndex}" + extension;
-        }
+            < 10 => $"00{fileIndex}" + extension,
+            < 100 => $"0{fileIndex}" + extension,
+            _ => $"{fileIndex}" + extension,
+        };
 
         return name;
     }

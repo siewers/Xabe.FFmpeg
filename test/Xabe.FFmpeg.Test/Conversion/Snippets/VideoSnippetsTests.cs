@@ -1,4 +1,6 @@
-﻿namespace Xabe.FFmpeg.Test;
+﻿using FluentAssertions;
+
+namespace Xabe.FFmpeg.Test;
 
 using System;
 using System.Collections.Generic;
@@ -6,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Fixtures;
-using Streams.SubtitleStream;
+using FluentAssertions.Extensions;
 using Xunit;
 
 public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<RtspServerFixture>
@@ -56,7 +58,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
         Assert.Single(mediaInfo.VideoStreams);
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
+        videoStream.Should().NotBeNull();
         Assert.Equal(640, videoStream.Width);
         Assert.Equal(360, videoStream.Height);
     }
@@ -70,19 +72,17 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
         Assert.Single(mediaInfo.VideoStreams);
-        Assert.Empty(mediaInfo.AudioStreams);
+        mediaInfo.AudioStreams.Should().BeEmpty();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.Equal("h264", videoStream.Codec);
+        videoStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be("h264");
     }
 
     [Fact]
     public async Task SnapshotInvalidArgumentTest()
     {
         var output = _storageFixture.GetTempFileName(FileExtensions.Png);
-        await Assert.ThrowsAsync<ArgumentException>(async () => await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output, TimeSpan.FromSeconds(999)))
-                                                        .Start()
-                                                   );
+        await Assert.ThrowsAsync<ArgumentException>(async () => await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output, TimeSpan.FromSeconds(999))).Start());
     }
 
     [Theory]
@@ -94,7 +94,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         _ = await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output, TimeSpan.FromSeconds(0)))
             .Start();
 
-        Assert.True(File.Exists(output));
+        File.Exists(output).Should().BeTrue();
         // It does not has to be the same
         Assert.Equal(expectedLength / 10, (await File.ReadAllBytesAsync(output)).LongLength / 10);
     }
@@ -111,10 +111,10 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal("aac", audioStream.Codec);
-        Assert.Equal("h264", videoStream.Codec);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        audioStream.Codec.Should().Be("aac");
+        videoStream.Codec.Should().Be("h264");
         Assert.Equal(TimeSpan.FromSeconds(8), audioStream.Duration);
         Assert.Equal(TimeSpan.FromSeconds(8), videoStream.Duration);
         Assert.Equal(TimeSpan.FromSeconds(8), mediaInfo.Duration);
@@ -127,17 +127,17 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         var result = await (await FFmpeg.Conversions.FromSnippet.SetWatermark(Resources.Mp4WithAudio, output, Resources.PngSample, Position.Center))
             .Start();
 
-        Assert.Contains("overlay=", result.Arguments);
-        Assert.Contains(Resources.Mp4WithAudio, result.Arguments);
+        result.Arguments.Should().Contain("overlay=");
+        result.Arguments.Should().Contain(Resources.Mp4WithAudio);
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal("aac", audioStream.Codec);
-        Assert.Equal("h264", videoStream.Codec);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        audioStream.Codec.Should().Be("aac");
+        videoStream.Codec.Should().Be("h264");
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
                                                         .Start()
                                                    );
 
-        Assert.Null(exception);
+        exception.Should().BeNull();
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
                                                         .Start()
                                                    );
 
-        Assert.Null(exception);
+        exception.Should().BeNull();
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
                                                         .Start()
                                                    );
 
-        Assert.NotNull(exception);
+        exception.Should().NotBeNull();
     }
 
     [Fact]
@@ -191,11 +191,11 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal("h264", videoStream.Codec);
-        Assert.Equal("aac", audioStream.Codec);
-        Assert.Empty(mediaInfo.SubtitleStreams);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be("h264");
+        audioStream.Codec.Should().Be("aac");
+        mediaInfo.SubtitleStreams.Should().BeEmpty();
         Assert.Equal(25, videoStream.Framerate);
     }
 
@@ -211,11 +211,11 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal("h264", videoStream.Codec);
-        Assert.Equal("aac", audioStream.Codec);
-        Assert.Empty(mediaInfo.SubtitleStreams);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be("h264");
+        audioStream.Codec.Should().Be("aac");
+        mediaInfo.SubtitleStreams.Should().BeEmpty();
         Assert.Equal(25, videoStream.Framerate);
     }
 
@@ -232,10 +232,10 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Equal(2, mediaInfo.SubtitleStreams.Count());
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal("h264", videoStream.Codec);
-        Assert.Equal("aac", audioStream.Codec);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be("h264");
+        audioStream.Codec.Should().Be("aac");
         Assert.Equal(25, videoStream.Framerate);
     }
 
@@ -254,10 +254,10 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Equal(2, mediaInfo.SubtitleStreams.Count());
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal(videoCodec.ToString(), videoStream.Codec);
-        Assert.Equal(audioCodec.ToString(), audioStream.Codec);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be(videoCodec.ToStringFast());
+        audioStream.Codec.Should().Be(audioCodec.ToStringFast());
         Assert.Equal(25, videoStream.Framerate);
     }
 
@@ -273,13 +273,13 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
-        Assert.Empty(mediaInfo.SubtitleStreams);
+        mediaInfo.SubtitleStreams.Should().BeEmpty();
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal(videoCodec.ToString(), videoStream.Codec);
-        Assert.Equal(audioCodec.ToString(), audioStream.Codec);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be(videoCodec.ToStringFast());
+        audioStream.Codec.Should().Be(audioCodec.ToStringFast());
         Assert.Equal(25, videoStream.Framerate);
     }
 
@@ -295,13 +295,13 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
-        Assert.Empty(mediaInfo.SubtitleStreams);
+        mediaInfo.SubtitleStreams.Should().BeEmpty();
         var audioStream = mediaInfo.AudioStreams.First();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.NotNull(audioStream);
-        Assert.Equal(videoCodec.ToString(), videoStream.Codec);
-        Assert.Equal(audioCodec.ToString(), audioStream.Codec);
+        videoStream.Should().NotBeNull();
+        audioStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be(videoCodec.ToStringFast());
+        audioStream.Codec.Should().Be(audioCodec.ToStringFast());
         Assert.Equal(25, videoStream.Framerate);
     }
 
@@ -315,9 +315,9 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Equal(3, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
-        Assert.Equal("h264", videoStream.Codec);
-        Assert.Empty(mediaInfo.SubtitleStreams);
+        videoStream.Should().NotBeNull();
+        videoStream.Codec.Should().Be("h264");
+        mediaInfo.SubtitleStreams.Should().BeEmpty();
         // It does not has to be the same
         Assert.Equal(116, (int)videoStream.Framerate);
     }
@@ -332,9 +332,9 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
         Assert.Equal(46, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Equal(2, mediaInfo.AudioStreams.Count());
-        Assert.Empty(mediaInfo.SubtitleStreams);
+        mediaInfo.SubtitleStreams.Should().BeEmpty();
         var videoStream = mediaInfo.VideoStreams.First();
-        Assert.NotNull(videoStream);
+        videoStream.Should().NotBeNull();
         Assert.Equal(24, videoStream.Framerate);
     }
 
@@ -347,17 +347,17 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
 
         var mediaInfo = await FFmpeg.GetMediaInfo("rtsp://127.0.0.1:8554/bunny");
 
-        await FFmpeg.Conversions.New().AddStream(mediaInfo.Streams).SetInputTime(TimeSpan.FromSeconds(3)).SetOutput(output).Start();
+        await FFmpeg.Conversions.Create().AddStreams(mediaInfo.Streams).SetInputTime(TimeSpan.FromSeconds(3)).SetOutput(output).Start();
 
         var result = await FFmpeg.GetMediaInfo(output);
-        Assert.True(result.Duration > TimeSpan.FromSeconds(0));
+        result.Duration.Should().BeGreaterThan(0.Seconds());
         Assert.Single(result.VideoStreams);
         Assert.Single(result.AudioStreams);
-        Assert.Empty(result.SubtitleStreams);
-        Assert.Equal("h264", result.VideoStreams.First().Codec);
+        result.SubtitleStreams.Should().BeEmpty();
+        result.VideoStreams.First().Codec.Should().Be("h264");
         Assert.Equal(23, (int)result.VideoStreams.First().Framerate);
         Assert.Equal(640, result.VideoStreams.First().Width);
         Assert.Equal(360, result.VideoStreams.First().Height);
-        Assert.Equal("aac", result.AudioStreams.First().Codec);
+        result.AudioStreams.First().Codec.Should().Be("aac");
     }
 }

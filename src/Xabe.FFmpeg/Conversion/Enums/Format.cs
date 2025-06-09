@@ -2,9 +2,14 @@
 
 namespace Xabe.FFmpeg;
 
+using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
+
 /// <summary>
 ///     Video format ("ffmpeg -formats")
 /// </summary>
+[PublicAPI]
+[EnumExtensions]
 public enum Format
 {
     /// <summary>

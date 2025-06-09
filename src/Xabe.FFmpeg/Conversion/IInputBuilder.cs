@@ -1,12 +1,13 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-
-namespace Xabe.FFmpeg;
 
 /// <summary>
 /// Interface for building a list of input files intended to be used with the BuildVideoFromImages Function
 /// </summary>
+[PublicAPI]
 public interface IInputBuilder
 {
     /// <summary>

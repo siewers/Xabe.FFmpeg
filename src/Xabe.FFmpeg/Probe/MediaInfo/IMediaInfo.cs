@@ -1,7 +1,8 @@
-﻿namespace Xabe.FFmpeg;
+﻿namespace Xabe.FFmpeg.Probe;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using JetBrains.Annotations;
 
 /// <summary>
@@ -13,7 +14,7 @@ public interface IMediaInfo
     /// <summary>
     ///     Source info
     /// </summary>
-    string Path { get; }
+    FileInfo Path { get; }
 
     /// <summary>
     ///     Date and Time when the media was created

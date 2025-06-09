@@ -1,8 +1,9 @@
-namespace Xabe.FFmpeg;
+namespace Xabe.FFmpeg.Probe;
 
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Models;
 
 internal sealed class StreamDispositionModelConverter : JsonConverter<StreamDispositionModel>
 {
@@ -10,7 +11,7 @@ internal sealed class StreamDispositionModelConverter : JsonConverter<StreamDisp
     public override StreamDispositionModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var jsonDisposition = JsonElement.ParseValue(ref reader);
-        return StreamDispositionModel.CreateInstance(jsonDisposition);
+        return new StreamDispositionModel(jsonDisposition);
     }
 
     /// <inheritdoc />

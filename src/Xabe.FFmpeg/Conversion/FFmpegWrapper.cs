@@ -12,44 +12,35 @@ using Events;
 using Exceptions;
 using Microsoft.Win32.SafeHandles;
 
-// ReSharper disable once InconsistentNaming
 /// <inheritdoc />
 /// <summary>
 ///     Wrapper for FFmpeg
 /// </summary>
-internal class FFmpegWrapper : FFmpeg
+internal partial class FFmpegWrapper : FFmpeg
 {
-    private const string TIME_FORMAT_PATTERN = @"\w\w:\w\w:\w\w";
-    private static readonly Regex TimeFormatRegex = new(TIME_FORMAT_PATTERN, RegexOptions.Compiled);
-    private List<string> _outputLog = [];
+    internal List<string> OutputLog { get; } = [];
     private TimeSpan _totalTime;
     private bool _wasKilled;
 
     /// <summary>
     ///     Fires when FFmpeg progress changes
     /// </summary>
-    internal event ConversionProgressEventHandler OnProgress;
+    internal event ConversionProgressEventHandler? OnProgress;
 
     /// <summary>
     ///     Fires when FFmpeg process print something
     /// </summary>
-    internal event DataReceivedEventHandler OnDataReceived;
+    internal event DataReceivedEventHandler? OnDataReceived;
 
     /// <summary>
     ///     Fires when FFmpeg process writes video data to stdout
     /// </summary>
-    internal event VideoDataEventHandler OnVideoDataReceived;
+    internal event VideoDataEventHandler? OnVideoDataReceived;
 
-    internal Task<bool> RunProcess
-    (
-        string args,
-        CancellationToken cancellationToken,
-        ProcessPriorityClass? priority
-    )
+    internal Task<bool> RunProcess(string args, ProcessPriorityClass? priority, CancellationToken cancellationToken)
     {
         return Task.Factory.StartNew(() =>
                                      {
-                                         _outputLog = new List<string>();
                                          var pipedOutput = OnVideoDataReceived != null;
                                          var process = RunProcess(args, FFmpegPath, priority, true, pipedOutput, true);
                                          var processId = process.Id;
@@ -64,25 +55,29 @@ internal class FFmpegWrapper : FFmpeg
                                                  Task.Run(() => ProcessVideoData(process, cancellationToken), cancellationToken);
                                              }
 
-                                             var ctr = cancellationToken.Register(async () =>
+                                             var ctr = cancellationToken.Register(async void () =>
                                                                                   {
-                                                                                      if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+                                                                                      if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                                                                                       {
-                                                                                          try
-                                                                                          {
-                                                                                              process.StandardInput.Write("q");
-                                                                                              await Task.Delay(1000 * 5);
+                                                                                          return;
+                                                                                      }
 
-                                                                                              if (!process.HasExited)
-                                                                                              {
-                                                                                                  process.CloseMainWindow();
-                                                                                                  process.Kill();
-                                                                                                  _wasKilled = true;
-                                                                                              }
-                                                                                          }
-                                                                                          catch (InvalidOperationException)
+                                                                                      try
+                                                                                      {
+                                                                                          await process.StandardInput.WriteAsync("q");
+                                                                                          await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+
+                                                                                          if (process.HasExited)
                                                                                           {
+                                                                                              return;
                                                                                           }
+
+                                                                                          process.CloseMainWindow();
+                                                                                          process.Kill();
+                                                                                          _wasKilled = true;
+                                                                                      }
+                                                                                      catch (InvalidOperationException)
+                                                                                      {
                                                                                       }
                                                                                   }
                                                                                  );
@@ -92,20 +87,23 @@ internal class FFmpegWrapper : FFmpeg
                                                  using (var processEnded = new ManualResetEvent(false))
                                                  {
                                                      processEnded.SetSafeWaitHandle(new SafeWaitHandle(process.Handle, false));
-                                                     var index = WaitHandle.WaitAny(new[] { processEnded, cancellationToken.WaitHandle });
+                                                     var index = WaitHandle.WaitAny([processEnded, cancellationToken.WaitHandle]);
 
-                                                     // If the signal came from the caller cancellation token close the window
-                                                     if (index == 1
-                                                         && !process.HasExited)
+                                                     if (!process.HasExited)
                                                      {
-                                                         process.CloseMainWindow();
-                                                         process.Kill();
-                                                         _wasKilled = true;
-                                                     }
-                                                     else if (index == 0 && !process.HasExited)
-                                                     {
-                                                         // Workaround for linux: https://github.com/dotnet/corefx/issues/35544
-                                                         process.WaitForExit();
+                                                         switch (index)
+                                                         {
+                                                             case 0:
+                                                                 // Workaround for linux: https://github.com/dotnet/corefx/issues/35544
+                                                                 process.WaitForExit();
+                                                                 break;
+                                                             case 1:
+                                                                 // If the signal came from the caller cancellation token close the window
+                                                                 process.CloseMainWindow();
+                                                                 process.Kill();
+                                                                 _wasKilled = true;
+                                                                 break;
+                                                         }
                                                      }
                                                  }
 
@@ -113,7 +111,7 @@ internal class FFmpegWrapper : FFmpeg
 
                                                  if (_wasKilled)
                                                  {
-                                                     throw new ConversionException("Cannot stop process. Killed it.", args);
+                                                     throw new ConversionExceptionBase("Cannot stop process. Killed it.", args);
                                                  }
 
                                                  if (cancellationToken.IsCancellationRequested)
@@ -121,13 +119,12 @@ internal class FFmpegWrapper : FFmpeg
                                                      return false;
                                                  }
 
-                                                 var output = string.Join(Environment.NewLine, _outputLog.ToArray());
-                                                 var exceptionsCatcher = new FFmpegExceptionCatcher();
-                                                 exceptionsCatcher.CatchFFmpegErrors(output, args);
+                                                 var output = string.Join(Environment.NewLine, OutputLog);
+                                                 FFmpegExceptionCatcher.CatchFFmpegErrors(output, args);
 
-                                                 if (process.ExitCode != 0 && _outputLog.Any() && !_outputLog.Last().Contains("dummy"))
+                                                 if (process.ExitCode != 0 && OutputLog.Count != 0 && !OutputLog.Last().Contains("dummy"))
                                                  {
-                                                     throw new ConversionException(output, args);
+                                                     throw new ConversionExceptionBase(output, args);
                                                  }
                                              }
                                          }
@@ -147,9 +144,9 @@ internal class FFmpegWrapper : FFmpeg
             return;
         }
 
-        OnDataReceived(this, e);
+        OnDataReceived?.Invoke(this, e);
 
-        _outputLog.Add(e.Data);
+        OutputLog.Add(e.Data);
 
         CalculateTime(e, args, processId);
     }
@@ -170,28 +167,35 @@ internal class FFmpegWrapper : FFmpeg
 
     private void CalculateTime(DataReceivedEventArgs e, string args, int processId)
     {
-        if (e.Data.Contains("Duration: N/A"))
+        var data = e.Data;
+
+        if (string.IsNullOrWhiteSpace(data))
         {
             return;
         }
 
-        if (e.Data.Contains("Duration"))
+        if (data.Contains("Duration: N/A"))
         {
-            GetDuration(e, TimeFormatRegex, args);
+            return;
         }
-        else if (e.Data.Contains("size"))
+
+        if (data.Contains("Duration"))
         {
-            var match = TimeFormatRegex.Match(e.Data);
+            GetDuration(e, args);
+        }
+        else if (data.Contains("size"))
+        {
+            var match = TimeFormatRegex().Match(data);
             var ts = GetTimeSpanValue(match);
 
             if (ts.TotalMilliseconds > 0)
             {
-                OnProgress(this, new ConversionProgressEventArgs(ts, _totalTime, processId));
+                OnProgress?.Invoke(this, new ConversionProgressEventArgs(ts, _totalTime, processId));
             }
         }
     }
 
-    private void GetDuration(DataReceivedEventArgs e, Regex regex, string args)
+    private void GetDuration(DataReceivedEventArgs e, string args)
     {
         var t = GetArgumentValue("-t", args);
 
@@ -201,7 +205,12 @@ internal class FFmpegWrapper : FFmpeg
             return;
         }
 
-        var match = regex.Match(e.Data);
+        if (e.Data is null)
+        {
+            return;
+        }
+
+        var match = TimeFormatRegex().Match(e.Data);
 
         if (!match.Success)
         {
@@ -218,35 +227,31 @@ internal class FFmpegWrapper : FFmpeg
         }
     }
 
-    private string GetArgumentValue(string option, string args)
+    private static string GetArgumentValue(string option, string args)
     {
-        var words = args.Split(' ')
-                        .ToList();
-
+        var words = args.Split(' ').ToList();
         var index = words.IndexOf(option);
-
-        if (index >= 0)
-        {
-            return words[index + 1];
-        }
-
-        return string.Empty;
+        return index >= 0 ? words[index + 1] : string.Empty;
     }
 
-    private TimeSpan GetTimeSpanValue(Match match)
+    private static TimeSpan GetTimeSpanValue(Match match)
     {
-        if (match.Success)
+        while (true)
         {
-            var ists = TimeSpan.TryParse(match.Value, out var outts);
-
-            if (ists)
+            if (!match.Success)
             {
-                return outts;
+                return TimeSpan.Zero;
             }
 
-            return GetTimeSpanValue(match.NextMatch());
-        }
+            if (TimeSpan.TryParse(match.Value, out var timeSpanValue))
+            {
+                return timeSpanValue;
+            }
 
-        return new TimeSpan(0, 0, 0);
+            match = match.NextMatch();
+        }
     }
+
+    [GeneratedRegex(@"\w\w:\w\w:\w\w", RegexOptions.Compiled)]
+    private static partial Regex TimeFormatRegex();
 }

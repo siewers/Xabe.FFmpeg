@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Xabe.FFmpeg.Streams.SubtitleStream;
 using Xabe.FFmpeg.Test.Common.Fixtures;
 using Xunit;
 

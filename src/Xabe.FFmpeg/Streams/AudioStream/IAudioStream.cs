@@ -10,16 +10,6 @@ using JetBrains.Annotations;
 public interface IAudioStream : IStream
 {
     /// <summary>
-    ///     Duration
-    /// </summary>
-    TimeSpan Duration { get; }
-
-    /// <summary>
-    ///     Bitrate
-    /// </summary>
-    long Bitrate { get; }
-
-    /// <summary>
     ///     Sample Rate
     /// </summary>
     int SampleRate { get; }
@@ -32,27 +22,7 @@ public interface IAudioStream : IStream
     /// <summary>
     ///     Channel layout
     /// </summary>
-    string ChannelLayout { get; }
-
-    /// <summary>
-    ///     Language
-    /// </summary>
-    string Language { get; }
-
-    /// <summary>
-    ///     Title
-    /// </summary>
-    string? Title { get; }
-
-    /// <summary>
-    ///     Default
-    /// </summary>
-    bool? IsDefault { get; }
-
-    /// <summary>
-    ///     Forced
-    /// </summary>
-    bool? IsForced { get; }
+    string? ChannelLayout { get; }
 
     /// <summary>
     ///     Set stream to copy with orginal codec

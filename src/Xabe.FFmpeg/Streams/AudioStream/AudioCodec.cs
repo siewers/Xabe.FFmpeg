@@ -1,11 +1,15 @@
-﻿namespace Xabe.FFmpeg;
+﻿// ReSharper disable InconsistentNaming
+
+namespace Xabe.FFmpeg;
 
 using JetBrains.Annotations;
+using NetEscapades.EnumGenerators;
 
 /// <summary>
 ///     Audio codec ("ffmpeg -codecs")
 /// </summary>
 [PublicAPI]
+[EnumExtensions]
 public enum AudioCodec
 {
     ///<summary>
@@ -911,5 +915,5 @@ public enum AudioCodec
     ///<summary>
     ///     Opus (Opus Interactive Audio Codec) (decoders: opus libopus ) (encoders: opus libopus )
     ///</summary>
-    libopus
+    libopus,
 }

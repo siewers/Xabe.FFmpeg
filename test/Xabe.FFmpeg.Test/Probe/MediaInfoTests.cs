@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 using Common.Fixtures;
 using Xunit;
 
-public class MediaInfoTests(StorageFixture storageFixture, RtspServerFixture rtspServer)
-    : IClassFixture<StorageFixture>, IClassFixture<RtspServerFixture>
+public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture rtspServer)
+    : IClassFixture<StorageFixture>, IClassFixture<MediaMtxServerFixture>
 {
     [Fact]
     public async Task AudioPropertiesTest()

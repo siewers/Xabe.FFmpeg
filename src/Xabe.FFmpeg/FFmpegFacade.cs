@@ -44,12 +44,24 @@ public abstract partial class FFmpeg
     /// <exception cref="TaskCanceledException">Operation takes too long</exception>
     public async static Task<IMediaInfo> GetMediaInfo(string location, CancellationToken cancellationToken = default)
     {
+        location = location.Trim('"');
+
         if (!Uri.TryCreate(location, UriKind.Absolute, out var mediaLocation))
         {
             throw new ArgumentException($"Invalid location: {location}", nameof(location));
         }
 
         return await MediaInfo.Get(mediaLocation, cancellationToken);
+    }
+
+    public static Task<IMediaInfo> GetMediaInfo(Uri location, CancellationToken cancellationToken = default)
+    {
+        if (!location.IsAbsoluteUri)
+        {
+            throw new ArgumentException($"Invalid location: {location}", nameof(location));
+        }
+
+        return MediaInfo.Get(location, cancellationToken);
     }
 
     /// <summary>

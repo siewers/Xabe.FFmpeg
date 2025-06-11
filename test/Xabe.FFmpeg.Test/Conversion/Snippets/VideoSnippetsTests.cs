@@ -1,33 +1,23 @@
-﻿using FluentAssertions;
-
-namespace Xabe.FFmpeg.Test;
+﻿namespace Xabe.FFmpeg.Test;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Fixtures;
+using FluentAssertions;
 using FluentAssertions.Extensions;
 using Xunit;
 
-public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<RtspServerFixture>
+public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFixture rtspServer)
+    : IClassFixture<StorageFixture>, IClassFixture<MediaMtxServerFixture>
 {
-    private readonly RtspServerFixture _rtspServer;
-    private readonly StorageFixture _storageFixture;
-
-    public VideoSnippetsTests(StorageFixture storageFixture, RtspServerFixture rtspServer)
-    {
-        _storageFixture = storageFixture;
-        _rtspServer = rtspServer;
-    }
-
-    public static IEnumerable<object[]> JoinFiles => new[]
-                                                     {
-                                                         new object[] { Resources.MkvWithAudio, Resources.Mp4WithAudio, 23, 1280, 720, "16:9" },
-                                                         new object[] { Resources.MkvWithAudio, Resources.MkvWithAudio, 19, 320, 240, "4:3" },
-                                                         new object[] { Resources.MkvWithAudio, Resources.Mp4, 23, 1280, 720, "16:9" },
-                                                     };
+    public static TheoryData<string, string, int, int, int, string> JoinFiles => new()
+                                                                                 {
+                                                                                     { Resources.MkvWithAudio, Resources.Mp4WithAudio, 23, 1280, 720, "16:9" },
+                                                                                     { Resources.MkvWithAudio, Resources.MkvWithAudio, 19, 320, 240, "4:3" },
+                                                                                     { Resources.MkvWithAudio, Resources.Mp4, 23, 1280, 720, "16:9" },
+                                                                                 };
 
     [Theory]
     [MemberData(nameof(JoinFiles))]
@@ -81,7 +71,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task SnapshotInvalidArgumentTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Png);
+        var output = storageFixture.GetTempFileName(FileExtensions.Png);
         await Assert.ThrowsAsync<ArgumentException>(async () => await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output, TimeSpan.FromSeconds(999))).Start());
     }
 
@@ -90,7 +80,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [InlineData(FileExtensions.Jpg, 84461)]
     public async Task SnapshotTest(string extension, long expectedLength)
     {
-        var output = _storageFixture.GetTempFileName(extension);
+        var output = storageFixture.GetTempFileName(extension);
         _ = await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output, TimeSpan.FromSeconds(0)))
             .Start();
 
@@ -182,7 +172,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task BasicConversion_InputFileWithSubtitles_SkipSubtitles()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -202,7 +192,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task BasicConversion_InputFileWithSubtitles_SkipSubtitlesWithParameter()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output, false)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -222,7 +212,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task BasicConversion_InputFileWithSubtitles_KeepSubtitles()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output, true)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -244,7 +234,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [InlineData(VideoCodec.h264, AudioCodec.aac, SubtitleCodec.mov_text)]
     public async Task BasicTranscode_InputFileWithSubtitles_KeepSubtitles(VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Transcode(Resources.MkvWithSubtitles, output, videoCodec, audioCodec, subtitleCodec, true)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -266,7 +256,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [InlineData(VideoCodec.h264, AudioCodec.aac, SubtitleCodec.copy)]
     public async Task BasicTranscode_InputFileWithSubtitles_SkipSubtitles(VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Transcode(Resources.MkvWithSubtitles, output, videoCodec, audioCodec, subtitleCodec)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -288,7 +278,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [InlineData(VideoCodec.h264, AudioCodec.aac, SubtitleCodec.copy)]
     public async Task BasicTranscode_InputFileWithSubtitles_SkipSubtitlesWithParameter(VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Transcode(Resources.MkvWithSubtitles, output, videoCodec, audioCodec, subtitleCodec, false)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -308,7 +298,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task BasicConversion_SloMoVideo_CorrectFramerate()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.SloMoMp4, output)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -325,7 +315,7 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task BasicConversion_InputFileWithMultipleStreams_CorrectResult()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MultipleStream, output)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -341,11 +331,11 @@ public class VideoSnippetsTests : IClassFixture<StorageFixture>, IClassFixture<R
     [Fact]
     public async Task Rtsp_GotTwoStreams_SaveEverything()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        await _rtspServer.Publish(Resources.BunnyMp4, "bunny");
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        await rtspServer.Publish(Resources.BunnyMp4, "bunny");
         await Task.Delay(2000);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo("rtsp://127.0.0.1:8554/bunny");
+        var mediaInfo = await FFmpeg.GetMediaInfo(rtspServer.Container.GetResourceUri("bunny"));
 
         await FFmpeg.Conversions.Create().AddStreams(mediaInfo.Streams).SetInputTime(TimeSpan.FromSeconds(3)).SetOutput(output).Start();
 

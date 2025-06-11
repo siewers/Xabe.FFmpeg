@@ -12,15 +12,9 @@ using FluentAssertions.Extensions;
 using Probe;
 using Xunit;
 
-public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<RtspServerFixture>
+public sealed class ConversionTests(StorageFixture storageFixture)
+    : IClassFixture<StorageFixture>, IClassFixture<MediaMtxServerFixture>
 {
-    private readonly StorageFixture _storageFixture;
-
-    public ConversionTests(StorageFixture storageFixture)
-    {
-        _storageFixture = storageFixture;
-    }
-
     [Theory]
     [InlineData(Position.UpperRight)]
     [InlineData(Position.BottomRight)]
@@ -55,7 +49,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task PipedOutputTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -76,7 +70,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetOutputFormatTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
         _ = await FFmpeg.Conversions.Create()
@@ -97,7 +91,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(Format.matroska, "matroska")]
     public async Task SetOutputFormat_ValuesFromEnum_CorrectParams(Format format, string expectedFormat)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -113,7 +107,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetOutputFormat_ValueAsString_CorrectParams()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -129,7 +123,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetOutputFormat_NotExistingFormat_ThrowConversionException()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -152,7 +146,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(Format.matroska, "matroska")]
     public async Task SetFormat_ValuesFromEnum_CorrectParams(Format format, string expectedFormat)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -168,7 +162,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetFormat_ValueAsString_CorrectParams()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -184,7 +178,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetFormat_NotExistingFormat_ThrowConversionException()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -202,7 +196,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetInputAndOutputFormatTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Avi);
+        var output = storageFixture.GetTempFileName(FileExtensions.Avi);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
         _ = await FFmpeg.Conversions.Create()
@@ -220,7 +214,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetOutputPixelFormatTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
         _ = await FFmpeg.Conversions.Create()
@@ -259,7 +253,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         }
 
         //string output = _storageFixture.GetTempFileName(fileExtension);
-        var output = _storageFixture.GetTempFileName(fileExtension);
+        var output = storageFixture.GetTempFileName(fileExtension);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.copy);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.copy);
@@ -281,7 +275,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     {
         var fileExtension = FileExtensions.Txt;
 
-        var output = _storageFixture.GetTempFileName(fileExtension);
+        var output = storageFixture.GetTempFileName(fileExtension);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.copy);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.copy);
@@ -302,7 +296,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [RunnableInDebugOnly]
     public async Task GetScreenCaptureTest_UseVideoSize_EverythingIsCorrect()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .AddDesktopStream(VideoSize.Qcif, 29.833, 10, 10)
                         .SetInputTime(TimeSpan.FromSeconds(3))
@@ -320,7 +314,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [RunnableInDebugOnly]
     public async Task GetScreenCaptureTest_UseVideoSizeAsString_EverythingIsCorrect()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .AddDesktopStream("176x144", 30, 10, 10)
                         .SetInputTime(TimeSpan.FromSeconds(3))
@@ -338,7 +332,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetVideoCodecTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
         _ = await FFmpeg.Conversions.Create()
@@ -353,7 +347,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetAudioCodecTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.ac3);
         _ = await FFmpeg.Conversions.Create()
@@ -368,7 +362,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetInputTimeTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First();
         var videoStream = info.VideoStreams.First();
@@ -387,7 +381,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetOutputTimeTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First();
         var videoStream = info.VideoStreams.First();
@@ -407,7 +401,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     public async Task SetAudioBitrateTest()
     {
         const long targetBitrate = 128000;
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.ac3);
         var result = await FFmpeg.Conversions.Create()
@@ -426,7 +420,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetLibH264VideoBitrateTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.libx264);
         _ = await FFmpeg.Conversions.Create()
@@ -444,7 +438,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetH264VideoBitrateTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.h264);
         _ = await FFmpeg.Conversions.Create()
@@ -463,7 +457,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetNonH264VideoBitrateTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
         _ = await FFmpeg.Conversions.Create()
@@ -485,7 +479,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(FileExtensions.Jpg)]
     public async Task ExtractEveryNthFrameTest(string extension)
     {
-        var tempPath = _storageFixture.GetTempDirectory();
+        var tempPath = storageFixture.GetTempDirectory();
 
         string OutputBuilder(string number)
         {
@@ -511,7 +505,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(FileExtensions.Jpg)]
     public async Task ExtractNthFrameTest(string extension)
     {
-        var tempPath = _storageFixture.GetTempDirectory();
+        var tempPath = storageFixture.GetTempDirectory();
 
         string OutputBuilder(string number)
         {
@@ -537,7 +531,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         var files = Directory.EnumerateFiles(Resources.Images).ToList();
         var builder = new InputBuilder();
         var inputBuilder = builder.PrepareInputFiles(files, out var preparedFilesDir);
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .SetInputFrameRate(1)
                         .BuildVideoFromImages(1, inputBuilder)
@@ -564,7 +558,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         var audioStream = audioInfo.AudioStreams.First();
         var inputBuilder = builder.PrepareInputFiles(files, out var preparedFilesDir);
 
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .SetInputFrameRate(1)
                         .BuildVideoFromImages(1, inputBuilder)
@@ -590,7 +584,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(PixelFormat.yuv410p, "yuv410p")]
     public void SetPixelFormat_DataFromEnum_CorrectArgs(PixelFormat pixelFormat, string expectedPixelFormat)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var args = FFmpeg.Conversions.Create()
                          .SetPixelFormat(pixelFormat)
@@ -603,7 +597,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public void SetPixelFormat_DataFromString_CorrectArgs()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var args = FFmpeg.Conversions.Create()
                          .SetPixelFormat("testFormat")
@@ -616,7 +610,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task SetPixelFormat_NotExistingFormat_ThrowConversionException()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .SetPixelFormat("notExistingFormat")
@@ -632,7 +626,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     public async Task BuildVideoFromImagesListTest()
     {
         var files = Directory.EnumerateFiles(Resources.Images).ToList();
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .SetInputFrameRate(1)
                         .BuildVideoFromImages(files)
@@ -653,7 +647,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
         var files = Directory.EnumerateFiles(Resources.Images).ToList();
         var audioInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = audioInfo.AudioStreams.First();
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .SetInputFrameRate(1)
                         .BuildVideoFromImages(files)
@@ -673,7 +667,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task OverwriteFilesTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.ac3);
 
@@ -697,7 +691,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task OverwriteFilesExceptionTest()
     {
-        var outputFilePath = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var outputFilePath = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.ac3);
 
@@ -715,7 +709,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [RunnableInDebugOnly]
     public async Task UseHardwareAcceleration()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithAudio, output)).UseHardwareAcceleration(HardwareAccelerator.auto, VideoCodec.h264_cuvid, VideoCodec.h264_nvenc, 0).Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);
@@ -726,7 +720,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData("a16f0cb5c0354b6197e9f3bc3108c017")]
     public async Task MissingHardwareAccelerator(string hardwareAccelerator)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var exception = await Record.ExceptionAsync(async () => { await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithAudio, output)).UseHardwareAcceleration(hardwareAccelerator, "h264_cuvid", "h264_nvenc").Start(); });
@@ -738,7 +732,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [RunnableInDebugOnly]
     public async Task UnknownDecoderException()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         info.VideoStreams.First().SetCodec(VideoCodec.mpeg4);
 
@@ -759,7 +753,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_CancellationOccurs_ExeptionWasThrown()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.WebM);
+        var output = storageFixture.GetTempFileName(FileExtensions.WebM);
 
         var cancellationTokenSource = new CancellationTokenSource();
         var conversion = await Conversion.ToWebM(Resources.Mp4WithAudio, output);
@@ -776,7 +770,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(0)]
     public async Task UseMultithreadTest(int expectedThreadsCount)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
@@ -793,7 +787,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task UseMultithreadTest_WithoutThreadCount_AllThreads()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
@@ -810,7 +804,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task UseMultithreadTest_WithoutMultithread_OneThreadOnly()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
@@ -827,7 +821,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task AddPreParameterTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
@@ -846,7 +840,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
 
         try
         {
-            FFmpeg.SetExecutablesPath(_storageFixture.TempDirPath);
+            FFmpeg.SetExecutablesPath(storageFixture.TempDirPath);
 
             var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo(Resources.MkvWithAudio));
 
@@ -861,7 +855,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task ConvertSloMoTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.SloMoMp4);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.h264);
         _ = await FFmpeg.Conversions.Create()
@@ -887,7 +881,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData(VideoSyncMethod.vfr)]
     public async Task AddVsync_CorrectValues_VsyncMethodIsSet(VideoSyncMethod vsyncMethod)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
@@ -902,7 +896,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task AddVsync_AutoMethod_VsyncMethodIsSetCorrectly()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
@@ -961,7 +955,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [RunnableInDebugOnly]
     public async Task GetScreenCaptureTest_UseNewAddDesktopStream_EverythingIsCorrect()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .AddDesktopStream(VideoSize.Cga, 29.833, 0, 0)
                         .SetInputTime(TimeSpan.FromSeconds(3))
@@ -985,7 +979,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_MillisecondsInTimeSpan_WorksCorrectly()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First();
         var videoStream = info.VideoStreams.First();
@@ -1004,7 +998,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_SpacesInOutputPath_WorksCorrectly()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var nameWithSpaces = new FileInfo(output).Name.Replace("-", " ");
         output = output.Replace(nameWithSpaces.Replace(" ", "-"), nameWithSpaces);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
@@ -1023,7 +1017,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData("\"")]
     public async Task Conversion_OutputPathEscaped_WorksCorrectly(string escapeCharacter)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var nameWithSpaces = new FileInfo(output).Name.Replace("-", " ");
         output = output.Replace(nameWithSpaces.Replace(" ", "-"), nameWithSpaces);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
@@ -1041,7 +1035,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [InlineData("Crime d'Amour.mp4")]
     public async Task Conversion_SpecialCharactersInName_WorksCorrectly(string outputFileName)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var name = new FileInfo(output).Name;
         output = output.Replace(name, outputFileName);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
@@ -1060,7 +1054,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task ExtractEveryNthFrame_OutputDirectoryNotExists_OutputDirectoryIsCreated()
     {
-        var tempPath = Path.Combine(_storageFixture.GetTempDirectory(), Guid.NewGuid().ToString());
+        var tempPath = Path.Combine(storageFixture.GetTempDirectory(), Guid.NewGuid().ToString());
 
         string OutputBuilder(string number)
         {
@@ -1083,7 +1077,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_OutputDirectoryNotExists_OutputDirectoryIsCreated()
     {
-        var tempPath = _storageFixture.GetTempDirectory();
+        var tempPath = storageFixture.GetTempDirectory();
         var output = Path.Combine(tempPath, Guid.NewGuid().ToString(), Guid.NewGuid() + FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.h264);
@@ -1100,7 +1094,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_DoubleNestedNotExistingDirectory_OutputDirectoryIsCreated()
     {
-        var tempPath = _storageFixture.GetTempDirectory();
+        var tempPath = storageFixture.GetTempDirectory();
         var output = Path.Combine(tempPath, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid() + FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.Mp4);
         var videoStream = info.VideoStreams.First().SetCodec(VideoCodec.h264);
@@ -1117,7 +1111,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_RunItSecondTime_ItWorks()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.ac3);
 
@@ -1127,7 +1121,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
 
         await conversion.Start();
 
-        var secondOutput = _storageFixture.GetTempFileName(FileExtensions.Mkv);
+        var secondOutput = storageFixture.GetTempFileName(FileExtensions.Mkv);
         var exception = await Record.ExceptionAsync(async () => await conversion.SetOutput(secondOutput).Start());
 
         Assert.Null(exception);
@@ -1136,7 +1130,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_EverythingIsPassedAsAdditionalParameter_EverythingWorks()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var conversionResult = await FFmpeg.Conversions.Create()
                                            .AddParameter($"-ss 00:00:01 -t 00:00:03 -i {Resources.Mp4} -ss 00:00:05 -t 00:00:03 -i {Resources.Mp4}", ParameterPosition.PreInput)
@@ -1150,7 +1144,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_EverythingIsPassedAsAdditionalParameters_EverythingWorks()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var conversionResult = await FFmpeg.Conversions.Create()
                                            .AddParameter("-ss 00:00:01", ParameterPosition.PreInput)
@@ -1169,7 +1163,7 @@ public class ConversionTests : IClassFixture<StorageFixture>, IClassFixture<Rtsp
     [Fact]
     public async Task Conversion_FileNameWithoutDirectory_NewFileIsCreatedInCurrentDirectory()
     {
-        var tempPath = _storageFixture.GetTempDirectory();
+        var tempPath = storageFixture.GetTempDirectory();
         Directory.SetCurrentDirectory(tempPath);
         var tempName = Guid.NewGuid().ToString();
 

@@ -53,7 +53,7 @@ public sealed class MediaInfo : IMediaInfo
     {
         if (mediaLocation.IsFile && !File.Exists(mediaLocation.OriginalString))
         {
-            throw new InvalidInputException($"Input file {mediaLocation.LocalPath} doesn't exists.");
+            throw new InvalidInputException($"Input file {mediaLocation.LocalPath} doesn't exist.");
         }
 
         using var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));

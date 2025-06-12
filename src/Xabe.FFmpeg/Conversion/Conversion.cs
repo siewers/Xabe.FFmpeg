@@ -241,10 +241,10 @@ public partial class Conversion : IConversion
     }
 
     /// <inheritdoc />
-    public IConversion SetOutput(string outputPath)
+    public IConversion SetOutput(string outputFilePath)
     {
-        OutputFilePath = new FileInfo(outputPath).FullName;
-        _output = outputPath.Escape();
+        OutputFilePath = new FileInfo(outputFilePath).FullName;
+        _output = outputFilePath.Escape();
         return this;
     }
 

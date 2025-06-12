@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CHANGELOG.md = CHANGELOG.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Directory.Build.props = Directory.Build.props
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xabe.FFmpeg", "src\Xabe.FFmpeg\Xabe.FFmpeg.csproj", "{276976D0-A3A0-4289-9956-9E2B48E07C39}"
@@ -22,6 +24,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xabe.FFmpeg.Downloader.Test", "test\Xabe.FFmpeg.Downloader.Test\Xabe.FFmpeg.Downloader.Test.csproj", "{065AFF3A-A7D8-44E4-9B7D-638AC32BD55D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E016EDB9-607A-4397-923F-7165C099D05D}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xabe.FFmpeg.Test.Common", "test\Xabe.FFmpeg.Test.Common\Xabe.FFmpeg.Test.Common.csproj", "{0D7AA7C6-9EAD-4C85-AA1C-0156AADC02E3}"
 EndProject

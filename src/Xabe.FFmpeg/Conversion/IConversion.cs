@@ -153,11 +153,11 @@ public interface IConversion
     IConversion UseMultiThread(bool multiThread);
 
     /// <summary>
-    ///     Set output path
+    ///     Sets the output media file path.
     /// </summary>
-    /// <param name="outputPath">Output media file</param>
+    /// <param name="outputFilePath">The output media file path</param>
     /// <returns>IConversion object</returns>
-    IConversion SetOutput(string outputPath);
+    IConversion SetOutput(string outputFilePath);
 
     /// <summary>
     ///     Set piped output file descriptor

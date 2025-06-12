@@ -1,44 +1,40 @@
-﻿using System;
-using System.IO;
-using System.Threading;
+﻿namespace Xabe.FFmpeg.Test.Common.Fixtures;
 
-namespace Xabe.FFmpeg.Test.Common.Fixtures;
-
-public class StorageFixture : IDisposable
+public sealed class StorageFixture : IAsyncLifetime
 {
-    public string TempDirPath { get; private set; }
+    public DirectoryInfo TempDirectory { get; private set; } = null!;
 
-    public StorageFixture()
+    public FileInfo GetTempFileName(string? extension = null)
     {
-        TempDirPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(TempDirPath);
-    }
-
-    public string GetTempFileName(string extension = null)
-    {
-        return Path.Combine(TempDirPath, extension != null ? $"{Guid.NewGuid()}{extension}" : $"{Guid.NewGuid()}");
+        var fileName = Path.ChangeExtension(Path.GetRandomFileName(), extension);
+        return new FileInfo(Path.Combine(TempDirectory.FullName, fileName));
     }
 
     public string GetTempDirectory()
     {
-        var path = Path.Combine(TempDirPath, $"{Guid.NewGuid()}");
+        var path = Path.Combine(TempDirectory.FullName, Path.GetRandomFileName());
         Directory.CreateDirectory(path);
         return path;
     }
 
-    public void Dispose()
+    public ValueTask InitializeAsync()
     {
-        GC.SuppressFinalize(this);
-        for (var i = 0; i < 10; i++)
+        TempDirectory = Directory.CreateTempSubdirectory("FFmpegTests_");
+        return ValueTask.CompletedTask;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        while (TempDirectory.Exists)
         {
             try
             {
-                new DirectoryInfo(TempDirPath).Delete(true);
+                TempDirectory.Delete(recursive: true);
                 break;
             }
             catch
             {
-                Thread.Sleep(500 * i * i);
+                await Task.Delay(500.Milliseconds());
             }
         }
     }

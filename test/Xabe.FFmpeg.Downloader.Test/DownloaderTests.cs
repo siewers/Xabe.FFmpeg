@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NSubstitute;
 using Xabe.FFmpeg.Downloader.Android;
 using Xabe.FFmpeg.Test.Common;
@@ -316,6 +312,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [InlineData(OperatingSystem.Linux32)]
     internal async Task DownloadLatestVersionTest(OperatingSystem os)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
         operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
@@ -323,7 +320,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo, cancellationToken));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             await downloader.DownloadLatestVersion(currentVersion, FFmpeg.ExecutablesPath);
@@ -347,6 +344,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [InlineData(OperatingSystem.Linux32)]
     internal async Task DownloadLatestVersionWithRetriesTest(OperatingSystem os)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
         operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
@@ -354,7 +352,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo, cancellationToken));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             await downloader.DownloadLatestVersion(currentVersion, FFmpeg.ExecutablesPath, null, 3);
@@ -378,6 +376,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [InlineData(OperatingSystem.Linux32)]
     internal async Task DownloadLatestVersionWithProgressTest(OperatingSystem os)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
         operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
@@ -385,7 +384,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo, cancellationToken));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             IProgress<ProgressInfo> progress = new Progress<ProgressInfo>();
@@ -410,6 +409,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
     [InlineData(OperatingSystem.Linux32)]
     internal async Task DownloadLatestVersionWithProgressAndRetriesTest(OperatingSystem os)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var operatingSystemProvider = Substitute.For<IOperatingSystemProvider>();
         operatingSystemProvider.GetOperatingSystem().Returns(_ => os);
 
@@ -417,7 +417,7 @@ public class DownloaderTests : IClassFixture<StorageFixture>
 
         try
         {
-            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo));
+            var currentVersion = JsonConvert.DeserializeObject<FFbinariesVersionInfo>(await File.ReadAllTextAsync(Resources.FFbinariesInfo, cancellationToken));
             FFmpeg.SetExecutablesPath(_storageFixture.GetTempDirectory());
             var downloader = new OfficialFFmpegDownloader(operatingSystemProvider);
             IProgress<ProgressInfo> progress = new Progress<ProgressInfo>();

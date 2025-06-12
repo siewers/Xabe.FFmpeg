@@ -22,7 +22,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp3);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.AudioStreams.First().ChangeSpeed(speed))
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -44,7 +44,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         audioStream.SetBitrate(expectedBitrate);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(audioStream)
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -64,7 +64,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         audioStream.SetBitrate(32000, 32000, 8000);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(audioStream)
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -86,7 +86,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         audioStream.SetChannels(1);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(audioStream)
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -108,7 +108,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         audioStream.SetSampleRate(44100);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(audioStream)
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -128,7 +128,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
                                .AddStream(inputFile.AudioStreams.First()
                                                    .SetSeek(TimeSpan.FromSeconds(2))
                                          )
-                               .SetOutput(outputPath);
+                               .SetOutput(outputPath.FullName);
 
         var currentProgress = TimeSpan.Zero;
         var videoLength = TimeSpan.Zero;
@@ -164,7 +164,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp3);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.AudioStreams.First().ChangeSpeed(0.5))
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -181,7 +181,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.AudioStreams.First().SetBitstreamFilter(BitstreamFilter.aac_adtstoasc))
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -199,7 +199,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.AudioStreams.First().SetBitstreamFilter(BitstreamFilter.h264_mp4toannexb))
-                                                                            .SetOutput(outputPath)
+                                                                            .SetOutput(outputPath.FullName)
                                                                             .Start()
                                                    );
 
@@ -215,7 +215,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.AudioStreams.First().SetBitstreamFilter("aac_adtstoasc"))
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -233,7 +233,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.AudioStreams.First().SetBitstreamFilter("h264_mp4toannexb"))
-                                                                            .SetOutput(outputPath)
+                                                                            .SetOutput(outputPath.FullName)
                                                                             .Start()
                                                    );
 
@@ -257,7 +257,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
 
         var args = FFmpeg.Conversions.Create()
                          .AddStream(audioStream)
-                         .SetOutput(outputPath)
+                         .SetOutput(outputPath.FullName)
                          .Build();
 
         Assert.Contains($"-c:a {expectedCodec}", args);
@@ -273,7 +273,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
         audioStream.SetCodec("mp3");
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(audioStream)
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -294,7 +294,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(audioStream)
-                                                                            .SetOutput(outputPath)
+                                                                            .SetOutput(outputPath.FullName)
                                                                             .Start()
                                                    );
 
@@ -314,7 +314,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
 
         var conversionResult = await FFmpeg.Conversions.Create()
                                            .AddStream(audioStream)
-                                           .SetOutput(outputPath)
+                                           .SetOutput(outputPath.FullName)
                                            .Start();
 
         var actualMediaInfo = await FFmpeg.GetMediaInfo(outputPath);
@@ -338,7 +338,7 @@ public class AudioStreamTests(StorageFixture storageFixture)
 
         var result = await FFmpeg.Conversions.Create()
                                  .AddStream(audioStream)
-                                 .SetOutput(outputPath)
+                                 .SetOutput(outputPath.FullName)
                                  .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);

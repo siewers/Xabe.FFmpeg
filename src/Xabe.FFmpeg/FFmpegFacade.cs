@@ -35,6 +35,11 @@ public abstract partial class FFmpeg
     /// </summary>
     public static IFormatProvider FormatProvider { get; private set; } = CultureInfo.InvariantCulture;
 
+    public static Task<IMediaInfo> GetMediaInfo(FileInfo file, CancellationToken cancellationToken = default)
+    {
+        return GetMediaInfo(file.FullName, cancellationToken);
+    }
+
     /// <summary>
     ///     Get MediaInfo from file
     /// </summary>

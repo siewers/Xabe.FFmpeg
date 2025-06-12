@@ -2,6 +2,7 @@
 
 using System.IO;
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 
 public class InputBuilderTests
@@ -15,7 +16,7 @@ public class InputBuilderTests
         builder.PrepareInputFiles(files, out var directory);
         var preparedFiles = Directory.EnumerateFiles(directory).ToList();
 
-        Assert.Equal(12, builder.FileList.Count);
-        Assert.Equal(builder.FileList.Count, preparedFiles.Count);
+        builder.FileList.Should().HaveCount(12);
+        preparedFiles.Should().HaveCount(builder.FileList.Count);
     }
 }

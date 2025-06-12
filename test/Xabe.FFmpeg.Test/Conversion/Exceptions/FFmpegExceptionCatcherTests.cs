@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
-
-namespace Xabe.FFmpeg.Test;
+﻿namespace Xabe.FFmpeg.Test;
 
 using Exceptions;
 

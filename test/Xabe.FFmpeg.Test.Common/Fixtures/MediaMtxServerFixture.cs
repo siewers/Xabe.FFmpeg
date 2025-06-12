@@ -3,7 +3,7 @@
 using System.Threading.Tasks;
 using TestContainers;
 using Testcontainers.Xunit;
-using Xunit.Abstractions;
+using Xunit.Sdk;
 
 public sealed class MediaMtxServerFixture(IMessageSink messageSink)
     : ContainerFixture<MediaMtxServerBuilder, MediaMtxServerContainer>(messageSink)

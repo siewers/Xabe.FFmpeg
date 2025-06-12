@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Xabe.FFmpeg.Test.Common.Fixtures;
-using Xunit;
+﻿using Xabe.FFmpeg.Test.Common.Fixtures;
 
 namespace Xabe.FFmpeg.Test;
 

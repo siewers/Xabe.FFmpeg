@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-
-namespace Xabe.FFmpeg.Test;
+﻿namespace Xabe.FFmpeg.Test;
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +21,7 @@ public class SubtitleTests(StorageFixture storageFixture)
         var subtitleStream = info.SubtitleStreams.FirstOrDefault();
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(subtitleStream)
-                        .SetOutput(outputPath)
+                        .SetOutput(outputPath.FullName)
                         .SetOutputFormat(format)
                         .Start();
 
@@ -47,7 +45,7 @@ public class SubtitleTests(StorageFixture storageFixture)
 
         await FFmpeg.Conversions.Create()
                     .AddStream(subtitleStream)
-                    .SetOutput(outputPath)
+                    .SetOutput(outputPath.FullName)
                     .Start();
 
         var resultInfo = await FFmpeg.GetMediaInfo(outputPath);

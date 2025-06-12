@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-
-namespace Xabe.FFmpeg.Test;
+﻿namespace Xabe.FFmpeg.Test;
 
 using System;
 using System.IO;
@@ -8,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Fixtures;
+using FluentAssertions.Extensions;
 using Xunit;
 
 public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture rtspServer)
@@ -16,42 +15,44 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task AudioPropertiesTest()
     {
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp3);
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp3, cancellationToken);
 
         var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
         mediaFile.Exists.Should().BeTrue();
         mediaFile.Extension.Should().Be(FileExtensions.Mp3);
         mediaFile.Name.Should().Be("audio.mp3");
 
-        Assert.Single(mediaInfo.AudioStreams);
-        var audioStream = mediaInfo.AudioStreams.First();
+        var audioStream = mediaInfo.AudioStreams.Should().ContainSingle().Subject;
         audioStream.Should().NotBeNull();
         audioStream.Codec.Should().Be("mp3");
-        Assert.Equal(13, audioStream.Duration.Seconds);
+        audioStream.Duration.Should().Be(13.Seconds().And(536.Milliseconds()));
 
         mediaInfo.VideoStreams.Should().BeEmpty();
 
-        Assert.Equal(13, mediaInfo.Duration.Seconds);
-        Assert.Equal(216916, mediaInfo.Size);
+        mediaInfo.Duration.Should().Be(audioStream.Duration);
+        mediaInfo.Size.Should().Be(216916);
     }
 
     [Fact]
     public async Task GetMultipleStreamsTest()
     {
-        var videoInfo = await FFmpeg.GetMediaInfo(Resources.MultipleStream);
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MultipleStream, cancellationToken);
 
-        Assert.Single(videoInfo.VideoStreams);
-        Assert.Equal(2, videoInfo.AudioStreams.Count());
-        Assert.Equal(8, videoInfo.SubtitleStreams.Count());
+        mediaInfo.VideoStreams.Should().ContainSingle();
+        mediaInfo.AudioStreams.Should().HaveCount(2);
+        mediaInfo.SubtitleStreams.Should().HaveCount(8);
     }
 
     [Fact]
     public async Task GetVideoBitrateTest()
     {
-        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        var videoStream = info.VideoStreams.First();
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, cancellationToken);
 
-        Assert.Equal(860233, videoStream.Bitrate);
+        mediaInfo.VideoStreams.Should().ContainSingle()
+                 .Which.Bitrate.Should().Be(860233);
     }
 
     [Fact]
@@ -78,26 +79,33 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
         mediaFile.Extension.Should().Be(FileExtensions.Mkv);
         mediaFile.Name.Should().Be("SampleVideo_360x240_1mb.mkv");
 
-        Assert.Single(mediaInfo.AudioStreams);
-        var audioStream = mediaInfo.AudioStreams.First();
-        audioStream.Should().NotBeNull();
-        audioStream.Codec.Should().Be("aac");
-        Assert.Equal(1, audioStream.Index);
-        Assert.Equal(9, audioStream.Duration.Seconds);
+        var expectedDuration = 9.Seconds().And(818.Milliseconds());
+        mediaInfo.AudioStreams.Should().ContainSingle()
+                 .Which.Should().Satisfy<IAudioStream>(stream =>
+                                                       {
+                                                           stream.Should().NotBeNull();
+                                                           stream.Codec.Should().Be("aac");
+                                                           stream.Index.Should().Be(1);
+                                                           stream.Duration.Should().Be(expectedDuration);
+                                                       }
+                                                      );
 
-        Assert.Single(mediaInfo.VideoStreams);
-        var videoStream = mediaInfo.VideoStreams.First();
-        videoStream.Should().NotBeNull();
-        Assert.Equal(0, videoStream.Index);
-        Assert.Equal(25, videoStream.Framerate);
-        Assert.Equal(240, videoStream.Height);
-        Assert.Equal(320, videoStream.Width);
-        Assert.Equal("4:3", videoStream.Ratio);
-        videoStream.Codec.Should().Be("h264");
-        Assert.Equal(9, videoStream.Duration.Seconds);
+        mediaInfo.VideoStreams.Should().ContainSingle()
+                 .Which.Should().Satisfy<IVideoStream>(stream =>
+                                                       {
+                                                              stream.Should().NotBeNull();
+                                                              stream.Codec.Should().Be("h264");
+                                                              stream.Index.Should().Be(0);
+                                                              stream.Framerate.Should().Be(25);
+                                                              stream.Height.Should().Be(240);
+                                                              stream.Width.Should().Be(320);
+                                                              stream.Ratio.Should().Be("4:3");
+                                                              stream.Duration.Should().Be(expectedDuration);
+                                                       }
+                                                      );
 
-        Assert.Equal(9, mediaInfo.Duration.Seconds);
-        Assert.Equal(1055721, mediaInfo.Size);
+        mediaInfo.Duration.Should().Be(expectedDuration);
+        mediaInfo.Size.Should().Be(1055721);
     }
 
     [Fact]
@@ -139,7 +147,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     public async Task GetMediaInfo_NonUTF8CharactersInPath(string path)
     {
         var output = storageFixture.GetTempFileName($"{path}{FileExtensions.Mp4}");
-        File.Copy(Resources.Mp4WithAudio, output, true);
+        File.Copy(Resources.Mp4WithAudio, output.FullName, true);
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
 
@@ -181,14 +189,13 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     public async Task MediaInfo_SpecialCharactersInName_WorksCorrectly()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var nameWithSpaces = new FileInfo(output).Name;
-        output = output.Replace(nameWithSpaces, "Crime d'Amour" + ".mp4");
+        output = output.Replace(output.Name, "Crime d'Amour" + ".mp4");
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
 
         var conversionResult = await FFmpeg.Conversions.Create()
                                            .AddStream(info.VideoStreams.First())
                                            .AddParameter("-re", ParameterPosition.PreInput)
-                                           .SetOutput(output)
+                                           .SetOutput(output.FullName)
                                            .Start();
 
         var outputMediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -200,13 +207,13 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     public async Task MediaInfo_NameWithSpaces_WorksCorrectly()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var nameWithSpaces = new FileInfo(output).Name.Replace("-", " ");
+        var nameWithSpaces = output.Name.Replace("-", " ");
         output = output.Replace(nameWithSpaces.Replace(" ", "-"), nameWithSpaces);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(info.VideoStreams.First())
                         .AddParameter("-re", ParameterPosition.PreInput)
-                        .SetOutput(output)
+                        .SetOutput(output.FullName)
                         .Start();
 
         var outputMediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -217,13 +224,13 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     public async Task MediaInfo_EscapedString_WorksCorrectly()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var nameWithSpaces = new FileInfo(output).Name.Replace("-", " ");
+        var nameWithSpaces = output.Name.Replace("-", " ");
         output = output.Replace(nameWithSpaces.Replace(" ", "-"), nameWithSpaces);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(info.VideoStreams.First())
                         .AddParameter("-re", ParameterPosition.PreInput)
-                        .SetOutput(output)
+                        .SetOutput(output.FullName)
                         .Start();
 
         var outputMediaInfo = await FFmpeg.GetMediaInfo($"\"{output}\"");

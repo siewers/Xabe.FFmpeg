@@ -1,38 +1,49 @@
-﻿using System;
+﻿namespace Xabe.FFmpeg.Test;
+
+using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
+using Common.Fixtures;
+using Exceptions;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using FluentAssertions.Extensions;
 
-namespace Xabe.FFmpeg.Test;
-
-public class ConversionResultTests
+public class ConversionResultTests(StorageFixture storageFixture)
+    : IClassFixture<StorageFixture>
 {
     [Theory]
     [InlineData(null)]
     [InlineData(ProcessPriorityClass.BelowNormal)]
     public async Task ConversionResultTest(ProcessPriorityClass? priority)
     {
-        var outputPath = Path.ChangeExtension(Path.GetTempFileName(), ".mp4");
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var outputPath = storageFixture.GetTempFileName(extension: ".mp4");
 
-        var result = await (await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.FlvWithAudio, outputPath))
+        var result = await (await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.FlvWithAudio, outputPath.FullName))
                            .SetPreset(ConversionPreset.UltraFast)
                            .SetPriority(priority)
-                           .Start();
+                           .Start(cancellationToken);
 
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, cancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
-        Assert.NotNull(mediaInfo);
-        Assert.True(result.StartTime != DateTime.MinValue);
-        Assert.True(result.EndTime != DateTime.MinValue);
-        Assert.Equal(5, mediaInfo.Duration.Seconds);
-        Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
+        using (new AssertionScope())
+        {
+            mediaInfo.Should().NotBeNull();
+            result.StartTime.Should().BeAfter(DateTime.MinValue);
+            result.EndTime.Should().BeAfter(DateTime.MinValue);
+            mediaInfo.Duration.Should().Be(5.Seconds().And(160.Milliseconds()));
+            mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
+        }
     }
 
     [Fact]
     public async Task ConversionWithWrongInputTest2()
     {
-        await Assert.ThrowsAsync<ArgumentException>(async () => await FFmpeg.GetMediaInfo("Z:\\test.mp4"));
+        var randomFileName = storageFixture.GetTempFileName();
+        await FluentActions.Awaiting(() => FFmpeg.GetMediaInfo(randomFileName, TestContext.Current.CancellationToken))
+                           .Should().ThrowAsync<InvalidInputException>()
+                           .WithMessage($"Input file {randomFileName} doesn't exist.");
     }
 }

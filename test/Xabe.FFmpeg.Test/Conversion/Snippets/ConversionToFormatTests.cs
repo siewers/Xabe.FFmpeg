@@ -1,27 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xabe.FFmpeg.Test.Common.Fixtures;
-using Xunit;
+﻿using Xabe.FFmpeg.Test.Common.Fixtures;
 
 namespace Xabe.FFmpeg.Test;
 
-public class ConversionToFormatTests : IClassFixture<StorageFixture>
+public class ConversionToFormatTests(StorageFixture storageFixture)
+    : IClassFixture<StorageFixture>
 {
-    private readonly StorageFixture _storageFixture;
-
-    public ConversionToFormatTests(StorageFixture storageFixture)
-    {
-        _storageFixture = storageFixture;
-    }
-
     [Theory]
     [InlineData(1, 0, 25)]
     [InlineData(1, 1, 24.889)]
     public async Task ToGifTest(int loopCount, int delay, double framerate)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Gif);
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToGif(Resources.Mp4, output, loopCount, delay))
+        var output = storageFixture.GetTempFileName(FileExtensions.Gif);
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToGif(Resources.Mp4, output.FullName, loopCount, delay))
                   .SetPreset(ConversionPreset.UltraFast)
                   .Start();
 
@@ -47,8 +37,8 @@ public class ConversionToFormatTests : IClassFixture<StorageFixture>
     [Fact]
     public async Task ToMp4Test()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.MkvWithAudio, output))
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.MkvWithAudio, output.FullName))
             .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -66,8 +56,8 @@ public class ConversionToFormatTests : IClassFixture<StorageFixture>
     [Fact]
     public async Task ToOgvTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ogv);
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToOgv(Resources.MkvWithAudio, output))
+        var output = storageFixture.GetTempFileName(FileExtensions.Ogv);
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToOgv(Resources.MkvWithAudio, output.FullName))
             .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -85,8 +75,8 @@ public class ConversionToFormatTests : IClassFixture<StorageFixture>
     [Fact]
     public async Task ToTsTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Ts);
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToTs(Resources.Mp4WithAudio, output))
+        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToTs(Resources.Mp4WithAudio, output.FullName))
             .Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
@@ -104,8 +94,8 @@ public class ConversionToFormatTests : IClassFixture<StorageFixture>
     [Fact]
     public async Task ToWebMTest()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.WebM);
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToWebM(Resources.Mp4WithAudio, output))
+        var output = storageFixture.GetTempFileName(FileExtensions.WebM);
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToWebM(Resources.Mp4WithAudio, output.FullName))
                   .SetPreset(ConversionPreset.UltraFast)
                   .Start();
 
@@ -124,8 +114,8 @@ public class ConversionToFormatTests : IClassFixture<StorageFixture>
     [Fact]
     public async Task ConversionWithoutSpecificFormat()
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await Conversion.ConvertAsync(Resources.MkvWithAudio, output)).Start();
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        _ = await (await Conversion.ConvertAsync(Resources.MkvWithAudio, output.FullName)).Start();
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output);
         Assert.Equal(9, mediaInfo.Duration.Seconds);

@@ -9,15 +9,9 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using Xunit;
 
-public class AudioSnippetsTests : IClassFixture<StorageFixture>
+public class AudioSnippetsTests(StorageFixture storageFixture)
+    : IClassFixture<StorageFixture>
 {
-    private readonly StorageFixture _storageFixture;
-
-    public AudioSnippetsTests(StorageFixture storageFixture)
-    {
-        _storageFixture = storageFixture;
-    }
-
     [Fact]
     public async Task AddAudio()
     {
@@ -69,10 +63,10 @@ public class AudioSnippetsTests : IClassFixture<StorageFixture>
     [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.line, AmplitudeScale.cbrt, FrequencyScale.log)]
     public async Task VisualiseAudioTest(VideoSize size, PixelFormat pixelFormat, VisualisationMode mode, AmplitudeScale amplitudeScale, FrequencyScale frequencyScale)
     {
-        var output = _storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
         var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.aac);
-        _ = await (await FFmpeg.Conversions.FromSnippet.VisualizeAudio(Resources.Mp4WithAudio, output, size, pixelFormat, mode, amplitudeScale, frequencyScale))
+        _ = await (await FFmpeg.Conversions.FromSnippet.VisualizeAudio(Resources.Mp4WithAudio, output.FullName, size, pixelFormat, mode, amplitudeScale, frequencyScale))
             .Start();
 
         var resultFile = await FFmpeg.GetMediaInfo(output);

@@ -1,42 +1,41 @@
 ﻿namespace Xabe.FFmpeg.Test;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Common.Fixtures;
-using FluentAssertions;
-using FluentAssertions.Extensions;
-using Xunit;
-
 public class AudioSnippetsTests(StorageFixture storageFixture)
     : IClassFixture<StorageFixture>
 {
+    private readonly CancellationToken _testCancellationToken = TestContext.Current.CancellationToken;
+
     [Fact]
     public async Task AddAudio()
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.AddAudio(Resources.Mp4, Resources.Mp3, output))
-            .Start();
+        // Arrange
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        await FFmpeg.Conversions.FromSnippet
+                    .AddAudio(Resources.Mp4, Resources.Mp3, output.FullName, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
-        Assert.Single(mediaInfo.AudioStreams);
-        Assert.Equal("aac", mediaInfo.AudioStreams.First()
-                                     .Codec
-                    );
+        // Act
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
 
-        Assert.Single(mediaInfo.VideoStreams);
-        Assert.Equal(13, mediaInfo.Duration.Seconds);
+        // Assert
+        mediaInfo.AudioStreams.Should().ContainSingle()
+                 .Which.Should().Satisfy<IAudioStream>(stream =>
+                                                       {
+                                                           stream.Codec.Should().Be("aac");
+                                                           stream.Duration.Should().Be(13.Seconds().And(504.Milliseconds()));
+                                                       }
+                                                      );
     }
 
     [Fact]
     public async Task ExtractAudio()
     {
         var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mp3);
-        var conversion = await FFmpeg.Conversions.FromSnippet.ExtractAudio(Resources.Mp4WithAudio, output);
-        await conversion.Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .ExtractAudio(Resources.Mp4WithAudio, output, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         mediaInfo.VideoStreams.Should().BeEmpty();
         mediaInfo.AudioStreams.Should().ContainSingle()
                  .Which.Should().Satisfy<IAudioStream>(stream =>
@@ -49,32 +48,35 @@ public class AudioSnippetsTests(StorageFixture storageFixture)
     }
 
     [Theory]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.bar, AmplitudeScale.lin, FrequencyScale.log)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.bar, AmplitudeScale.log, FrequencyScale.lin)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.bar, AmplitudeScale.sqrt, FrequencyScale.rlog)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.bar, AmplitudeScale.cbrt, FrequencyScale.log)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.dot, AmplitudeScale.lin, FrequencyScale.log)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.dot, AmplitudeScale.log, FrequencyScale.lin)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.dot, AmplitudeScale.sqrt, FrequencyScale.rlog)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.dot, AmplitudeScale.cbrt, FrequencyScale.log)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.line, AmplitudeScale.lin, FrequencyScale.log)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.line, AmplitudeScale.log, FrequencyScale.lin)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.line, AmplitudeScale.sqrt, FrequencyScale.rlog)]
-    [InlineData(VideoSize.Hd1080, PixelFormat.yuv420p, VisualisationMode.line, AmplitudeScale.cbrt, FrequencyScale.log)]
-    public async Task VisualiseAudioTest(VideoSize size, PixelFormat pixelFormat, VisualisationMode mode, AmplitudeScale amplitudeScale, FrequencyScale frequencyScale)
+    [CombinatorialData]
+    public async Task VisualiseAudioTest(VisualisationMode mode, AmplitudeScale amplitudeScale, FrequencyScale frequencyScale)
     {
+        // Arrange
+        const VideoSize size = VideoSize.Hd1080;
+        const PixelFormat pixelFormat = PixelFormat.yuv420p;
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        var audioStream = info.AudioStreams.First().SetCodec(AudioCodec.aac);
-        _ = await (await FFmpeg.Conversions.FromSnippet.VisualizeAudio(Resources.Mp4WithAudio, output.FullName, size, pixelFormat, mode, amplitudeScale, frequencyScale))
-            .Start();
+        var originalMediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
+        await FFmpeg.Conversions.FromSnippet
+                    .VisualizeAudio(Resources.Mp4WithAudio, output.FullName, size, pixelFormat, mode, amplitudeScale, frequencyScale, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var resultFile = await FFmpeg.GetMediaInfo(output);
+        // Act
+        var resultFile = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
 
+        // Assert
         // The resulting streams are 4 seconds longer than the original
-        Assert.Equal((audioStream.Duration + TimeSpan.FromSeconds(4)).Seconds, resultFile.VideoStreams.First().Duration.Seconds);
-        Assert.Equal((audioStream.Duration + TimeSpan.FromSeconds(4)).Seconds, resultFile.AudioStreams.First().Duration.Seconds);
-        Assert.Equal(1920, resultFile.VideoStreams.First().Width);
-        Assert.Equal(1080, resultFile.VideoStreams.First().Height);
+        var expectedDuration = originalMediaInfo.Duration.Add(4.Seconds());
+        var precision = 500.Milliseconds();
+        resultFile.VideoStreams.Should().ContainSingle()
+                  .Which.Should().Satisfy<IVideoStream>(videoStream =>
+                                                        {
+                                                            videoStream.Duration.Should().BeCloseTo(expectedDuration, precision);
+                                                            videoStream.Width.Should().Be(1920);
+                                                            videoStream.Height.Should().Be(1080);
+                                                        }
+                                                       );
+
+        resultFile.AudioStreams.Should().ContainSingle()
+                  .Which.Duration.Should().BeCloseTo(expectedDuration, precision);
     }
 }

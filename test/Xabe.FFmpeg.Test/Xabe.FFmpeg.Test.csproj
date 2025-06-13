@@ -13,6 +13,10 @@
     <ProjectReference Include="..\Xabe.FFmpeg.Test.Common\Xabe.FFmpeg.Test.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Xunit.Combinatorial" Version="2.0.24" />
+  </ItemGroup>
+
   <PropertyGroup>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>

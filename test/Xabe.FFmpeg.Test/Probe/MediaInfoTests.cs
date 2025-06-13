@@ -1,22 +1,14 @@
 ﻿namespace Xabe.FFmpeg.Test;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.Fixtures;
-using FluentAssertions.Extensions;
-using Xunit;
-
 public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture rtspServer)
     : IClassFixture<StorageFixture>, IClassFixture<MediaMtxServerFixture>
 {
+    private readonly CancellationToken _cancellationToken = TestContext.Current.CancellationToken;
+
     [Fact]
     public async Task AudioPropertiesTest()
     {
-        var cancellationToken = TestContext.Current.CancellationToken;
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp3, cancellationToken);
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp3, _cancellationToken);
 
         var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
         mediaFile.Exists.Should().BeTrue();
@@ -37,8 +29,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task GetMultipleStreamsTest()
     {
-        var cancellationToken = TestContext.Current.CancellationToken;
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MultipleStream, cancellationToken);
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MultipleStream, _cancellationToken);
 
         mediaInfo.VideoStreams.Should().ContainSingle();
         mediaInfo.AudioStreams.Should().HaveCount(2);
@@ -48,8 +39,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task GetVideoBitrateTest()
     {
-        var cancellationToken = TestContext.Current.CancellationToken;
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, cancellationToken);
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _cancellationToken);
 
         mediaInfo.VideoStreams.Should().ContainSingle()
                  .Which.Bitrate.Should().Be(860233);
@@ -58,13 +48,14 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task IncorrectFormatTest()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => FFmpeg.GetMediaInfo(Resources.Dll));
+        await FluentActions.Awaiting(() => FFmpeg.GetMediaInfo(Resources.Dll, _cancellationToken))
+                           .Should().ThrowAsync<ArgumentException>();
     }
 
     [Fact]
     public async Task Mp4PropertiesTest()
     {
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.BunnyMp4);
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.BunnyMp4, _cancellationToken);
 
         mediaInfo.Streams.Should().NotBeEmpty();
     }
@@ -72,7 +63,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task MkvPropertiesTest()
     {
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _cancellationToken);
 
         var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
         mediaFile.Exists.Should().BeTrue();
@@ -93,14 +84,14 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
         mediaInfo.VideoStreams.Should().ContainSingle()
                  .Which.Should().Satisfy<IVideoStream>(stream =>
                                                        {
-                                                              stream.Should().NotBeNull();
-                                                              stream.Codec.Should().Be("h264");
-                                                              stream.Index.Should().Be(0);
-                                                              stream.Framerate.Should().Be(25);
-                                                              stream.Height.Should().Be(240);
-                                                              stream.Width.Should().Be(320);
-                                                              stream.Ratio.Should().Be("4:3");
-                                                              stream.Duration.Should().Be(expectedDuration);
+                                                           stream.Should().NotBeNull();
+                                                           stream.Codec.Should().Be("h264");
+                                                           stream.Index.Should().Be(0);
+                                                           stream.Framerate.Should().Be(25);
+                                                           stream.Height.Should().Be(240);
+                                                           stream.Width.Should().Be(320);
+                                                           stream.Ratio.Should().Be("4:3");
+                                                           stream.Duration.Should().Be(expectedDuration);
                                                        }
                                                       );
 
@@ -111,7 +102,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task PropertiesTest()
     {
-        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp4WithAudio);
+        var mediaInfo = await FFmpeg.GetMediaInfo(Resources.Mp4WithAudio, _cancellationToken);
 
         var mediaFile = new FileInfo(mediaInfo.Location.LocalPath);
         mediaFile.Exists.Should().BeTrue();
@@ -149,7 +140,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
         var output = storageFixture.GetTempFileName($"{path}{FileExtensions.Mp4}");
         File.Copy(Resources.Mp4WithAudio, output.FullName, true);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _cancellationToken);
 
         mediaInfo.Should().NotBeNull();
         Path.GetExtension(mediaInfo.Location.LocalPath).Should().Be(FileExtensions.Mp4);
@@ -158,7 +149,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task RTSP_NotExistingStream_CanceledAfter30Seconds()
     {
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://192.168.1.123:554/"));
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://192.168.1.123:554/", _cancellationToken));
 
         exception.Should().NotBeNull();
         exception.Should().BeOfType<ArgumentException>();
@@ -167,7 +158,8 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task RTSP_NotExistingStream_CanceledAfter2Seconds()
     {
-        var cancellationTokenSource = new CancellationTokenSource(2000);
+        var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationToken, new CancellationTokenSource(2.Seconds()).Token);
+
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://192.168.1.123:554/", cancellationTokenSource.Token));
 
         exception.Should().NotBeNull();
@@ -177,7 +169,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task CalculateFramerate_SloMoVideo_CorrectFramerateIsReturned()
     {
-        var info = await FFmpeg.GetMediaInfo(Resources.SloMoMp4);
+        var info = await FFmpeg.GetMediaInfo(Resources.SloMoMp4, _cancellationToken);
         var videoStream = info.VideoStreams.First();
 
         // It does not have to be the same
@@ -190,15 +182,15 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         output = output.Replace(output.Name, "Crime d'Amour" + ".mp4");
-        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _cancellationToken);
 
         var conversionResult = await FFmpeg.Conversions.Create()
                                            .AddStream(info.VideoStreams.First())
                                            .AddParameter("-re", ParameterPosition.PreInput)
                                            .SetOutput(output.FullName)
-                                           .Start();
+                                           .Start(_cancellationToken);
 
-        var outputMediaInfo = await FFmpeg.GetMediaInfo(output);
+        var outputMediaInfo = await FFmpeg.GetMediaInfo(output, _cancellationToken);
         outputMediaInfo.Streams.Should().NotBeNull();
         conversionResult.Arguments.Should().Contain("Crime d'Amour");
     }
@@ -209,14 +201,14 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var nameWithSpaces = output.Name.Replace("-", " ");
         output = output.Replace(nameWithSpaces.Replace(" ", "-"), nameWithSpaces);
-        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(info.VideoStreams.First())
-                        .AddParameter("-re", ParameterPosition.PreInput)
-                        .SetOutput(output.FullName)
-                        .Start();
+        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _cancellationToken);
+        await FFmpeg.Conversions.Create()
+                    .AddStream(info.VideoStreams.First())
+                    .AddParameter("-re", ParameterPosition.PreInput)
+                    .SetOutput(output.FullName)
+                    .Start(_cancellationToken);
 
-        var outputMediaInfo = await FFmpeg.GetMediaInfo(output);
+        var outputMediaInfo = await FFmpeg.GetMediaInfo(output, _cancellationToken);
         outputMediaInfo.Streams.Should().NotBeNull();
     }
 
@@ -226,23 +218,23 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
         var nameWithSpaces = output.Name.Replace("-", " ");
         output = output.Replace(nameWithSpaces.Replace(" ", "-"), nameWithSpaces);
-        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(info.VideoStreams.First())
-                        .AddParameter("-re", ParameterPosition.PreInput)
-                        .SetOutput(output.FullName)
-                        .Start();
+        var info = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _cancellationToken);
+        await FFmpeg.Conversions.Create()
+                    .AddStream(info.VideoStreams.First())
+                    .AddParameter("-re", ParameterPosition.PreInput)
+                    .SetOutput(output.FullName)
+                    .Start(_cancellationToken);
 
-        var outputMediaInfo = await FFmpeg.GetMediaInfo($"\"{output}\"");
+        var outputMediaInfo = await FFmpeg.GetMediaInfo($"\"{output}\"", _cancellationToken);
         outputMediaInfo.Streams.Should().NotBeNull();
     }
 
     [Fact]
     public async Task GetMediaInfo_RTSP_CorrectDataIsShown()
     {
-        await rtspServer.Publish(Resources.BunnyMp4, "bunny2");
+        var resourceUri = await rtspServer.Publish(Resources.BunnyMp4, "bunny2");
 
-        var result = await FFmpeg.GetMediaInfo("rtsp://127.0.0.1:8554/bunny2");
+        var result = await FFmpeg.GetMediaInfo(resourceUri, _cancellationToken);
 
         Assert.Single(result.VideoStreams);
         Assert.Single(result.AudioStreams);
@@ -257,7 +249,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task GetMediaInfo_StreamDoesNotExist_ThrowException()
     {
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://127.0.0.1:8554/notExisting"));
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://127.0.0.1:8554/notExisting", _cancellationToken));
 
         exception.Should().NotBeNull();
         exception.Should().BeOfType<ArgumentException>();
@@ -266,7 +258,7 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     [Fact]
     public async Task GetMediaInfo_NotExistingRtspServer_ThrowException()
     {
-        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://xabe.net/notExisting"));
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.GetMediaInfo("rtsp://xabe.net/notExisting", _cancellationToken));
 
         exception.Should().NotBeNull();
         exception.Should().BeOfType<ArgumentException>();
@@ -277,9 +269,9 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     {
         var tempDir = storageFixture.GetTempDirectory();
         var input = Path.Combine(tempDir, "AMD is NOT Ripping Off Intel - WAN Show April 30, 2021_v1.mp4");
-        new FileInfo(Resources.BunnyMp4).CopyTo(input, overwrite: true);
+        File.Copy(Resources.BunnyMp4, input, true);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(input);
+        var mediaInfo = await FFmpeg.GetMediaInfo(input, _cancellationToken);
 
         mediaInfo.Location.OriginalString.Should().Be(input);
     }
@@ -289,9 +281,9 @@ public class MediaInfoTests(StorageFixture storageFixture, MediaMtxServerFixture
     {
         var tempDir = storageFixture.GetTempDirectory();
         var input = Path.Combine(tempDir, "AMD is NOT Ripping Off Intel - WAN Show April 30, 2021_v2.mp4");
-        new FileInfo(Resources.BunnyMp4).CopyTo(input, overwrite: true);
+        File.Copy(Resources.BunnyMp4, input, true);
 
-        var info = await FFmpeg.GetMediaInfo(input);
+        var info = await FFmpeg.GetMediaInfo(input, _cancellationToken);
 
         info.VideoStreams.First().Path.Should().Be($"\"{input}\"");
     }

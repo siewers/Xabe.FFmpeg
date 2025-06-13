@@ -1,9 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 /// <inheritdoc />
 public partial class Conversion
 {
@@ -12,12 +8,14 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputFilePath">Path to file</param>
     /// <param name="rtspServerUri">Uri of RTSP Server in format: rtsp://127.0.0.1:8554/name</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    internal async static Task<IConversion> SendToRtspServer(string inputFilePath, Uri rtspServerUri)
+    internal async static Task<IConversion> SendToRtspServer(string inputFilePath, Uri rtspServerUri, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputFilePath);
+        var info = await FFmpeg.GetMediaInfo(inputFilePath, cancellationToken);
 
         var streams = new List<IStream>();
+
         foreach (var stream in info.VideoStreams)
         {
             stream.SetStreamLoop(-1);

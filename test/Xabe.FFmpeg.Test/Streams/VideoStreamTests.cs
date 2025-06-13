@@ -1,18 +1,13 @@
 ﻿namespace Xabe.FFmpeg.Test;
 
-using System;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using Common.Fixtures;
 using Exceptions;
-using FluentAssertions;
-using FluentAssertions.Extensions;
-using Xunit;
 
 public class VideoStreamTests(StorageFixture storageFixture)
     : IClassFixture<StorageFixture>
 {
+    private readonly CancellationToken _testCancellationToken = TestContext.Current.CancellationToken;
+
     [Theory]
     [InlineData(RotateDegrees.Clockwise)]
     [InlineData(RotateDegrees.Invert)]
@@ -20,13 +15,13 @@ public class VideoStreamTests(StorageFixture storageFixture)
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First().Rotate(rotateDegrees))
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First().Rotate(rotateDegrees))
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -36,17 +31,17 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task Pad()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         videoStream.Pad(480, 640);
 
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(videoStream)
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(videoStream)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(480, mediaInfo.VideoStreams.First().Width);
         Assert.Equal(640, mediaInfo.VideoStreams.First().Height);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -56,18 +51,18 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task ChangeFramerate()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         var originalFramerate = videoStream.Framerate;
         Assert.Equal(25, originalFramerate);
         videoStream.SetFramerate(24);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(videoStream)
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(videoStream)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(24, mediaInfo.VideoStreams.First().Framerate);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -77,18 +72,18 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task SetBitrate()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         videoStream.Bitrate.Should().Be(860233);
 
         videoStream.SetBitrate(860237);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(videoStream)
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(videoStream)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         mediaInfo.VideoStreams.First().Bitrate.Should().BeInRange(560000, 580000);
         mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
         mediaInfo.AudioStreams.Should().BeEmpty();
@@ -98,19 +93,19 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task SetBitrate_WithMaxBitrateAndBuffer()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         var originalBitrate = videoStream.Bitrate;
         originalBitrate.Should().Be(860233);
 
         videoStream.SetBitrate(6000, 6000, 6000);
-        var conversionResult = await FFmpeg.Conversions.Create()
-                                           .AddStream(videoStream)
-                                           .SetOutput(outputPath.FullName)
-                                           .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(videoStream)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         mediaInfo.VideoStreams.Should().ContainSingle()
                  .Which.Should().Satisfy<IVideoStream>(stream =>
                                                        {
@@ -118,6 +113,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
                                                            stream.Codec.Should().Be("h264");
                                                        }
                                                       );
+
         mediaInfo.AudioStreams.Should().BeEmpty();
     }
 
@@ -127,7 +123,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task SetFlags()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags("ilme", "ildct");
@@ -135,9 +131,9 @@ public class VideoStreamTests(StorageFixture storageFixture)
         var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath.FullName)
-                                 .Start();
+                                 .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
         Assert.Contains("-flags +ilme+ildct", result.Arguments);
@@ -149,7 +145,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task SetFlags_FlagsWithPlus_CorrectConversion()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags("ilme", "ildct");
@@ -157,9 +153,9 @@ public class VideoStreamTests(StorageFixture storageFixture)
         var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath.FullName)
-                                 .Start();
+                                 .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
         Assert.Contains("-flags +ilme+ildct", result.Arguments);
@@ -171,7 +167,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     public async Task SetFlags_UseString_CorrectConversion()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags(Flag.ilme, Flag.ildct);
@@ -179,9 +175,9 @@ public class VideoStreamTests(StorageFixture storageFixture)
         var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath.FullName)
-                                 .Start();
+                                 .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
         Assert.Contains("-flags +ilme+ildct", result.Arguments);
@@ -190,10 +186,10 @@ public class VideoStreamTests(StorageFixture storageFixture)
     // Check if Filter Flags do work. FFProbe does not support checking for Interlaced or Progressive,
     //  so there is no "real check" here
     [Fact]
-    public async Task SetFlags_ContatenatedFlags_CorrectConversion()
+    public async Task SetFlags_ConcatenatedFlags_CorrectConversion()
     {
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         var videoStream = inputFile.VideoStreams.First();
         videoStream.SetFlags("+ilme+ildct");
@@ -201,11 +197,11 @@ public class VideoStreamTests(StorageFixture storageFixture)
         var result = await FFmpeg.Conversions.Create()
                                  .AddStream(videoStream)
                                  .SetOutput(outputPath.FullName)
-                                 .Start();
+                                 .Start(_testCancellationToken);
 
         result.Arguments.Should().Contain("-flags +ilme+ildct");
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
         mediaInfo.AudioStreams.Should().BeEmpty();
     }
@@ -216,15 +212,15 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [InlineData(0.5, 19)]
     public async Task ChangeSpeedTest(double speed, int expectedVideoDuration)
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First().SetCodec(VideoCodec.h264).ChangeSpeed(speed))
-                        .SetPreset(ConversionPreset.UltraFast)
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First().SetCodec(VideoCodec.h264).ChangeSpeed(speed))
+                    .SetPreset(ConversionPreset.UltraFast)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         mediaInfo.AudioStreams.Should().BeEmpty();
         mediaInfo.VideoStreams.First().Should().Satisfy<IVideoStream>(stream =>
                                                                       {
@@ -239,7 +235,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [InlineData(2.5)]
     public async Task ChangeMediaSpeedSTestArgumentOutOfRange(double multiplier)
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await FFmpeg.Conversions.Create()
@@ -249,21 +245,21 @@ public class VideoStreamTests(StorageFixture storageFixture)
                                                                                                 )
                                                                                       .SetPreset(ConversionPreset.UltraFast)
                                                                                       .SetOutput(outputPath.FullName)
-                                                                                      .Start()
+                                                                                      .Start(_testCancellationToken)
                                                              );
     }
 
     [Fact]
     public async Task BurnSubtitlesTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
         await FFmpeg.Conversions.Create()
                     .AddStream(inputFile.VideoStreams.First().AddSubtitles(Resources.SubtitleSrt))
                     .SetOutput(outputPath.FullName)
-                    .Start();
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         mediaInfo.Duration.Should().Be(9.Seconds().And(880.Milliseconds()));
         mediaInfo.VideoStreams.First().Codec.Should().Be("h264");
         mediaInfo.AudioStreams.Should().BeEmpty();
@@ -272,7 +268,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task BurnSubtitlesWithParametersTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var conversion = FFmpeg.Conversions.Create()
@@ -281,9 +277,9 @@ public class VideoStreamTests(StorageFixture storageFixture)
                                          )
                                .SetOutput(outputPath.FullName);
 
-        _ = await conversion.Start();
+        await conversion.Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -293,16 +289,16 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task ChangeOutputFramesCountTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetOutputFramesCount(50)
-                                  )
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetOutputFramesCount(50)
+                              )
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(TimeSpan.FromSeconds(2), mediaInfo.Duration);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -312,7 +308,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task IncompatibleParametersTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var act = async () =>
@@ -324,31 +320,31 @@ public class VideoStreamTests(StorageFixture storageFixture)
                                                       .CopyStream()
                                             )
                                   .SetOutput(outputPath.FullName)
-                                  .Start();
+                                  .Start(_testCancellationToken);
                   };
 
         (await act.Should().ThrowExactlyAsync<ConversionExceptionBase>())
             .Which.Should().Satisfy<ConversionExceptionBase>(ex =>
-                                                         {
-                                                             ex.InputParameters.Should().ContainAll("-c:v copy", "-vf reverse");
-                                                             ex.Message.Should().Contain("Filtergraph 'reverse' was specified, but codec copy was selected. Filtering and streamcopy cannot be used together.");
-                                                         }
-                                                        );
+                                                             {
+                                                                 ex.InputParameters.Should().ContainAll("-c:v copy", "-vf reverse");
+                                                                 ex.Message.Should().Contain("Filtergraph 'reverse' was specified, but codec copy was selected. Filtering and streamcopy cannot be used together.");
+                                                             }
+                                                            );
     }
 
     [Fact]
     public async Task LoopTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Gif);
         _ = await FFmpeg.Conversions.Create()
                         .AddStream(inputFile.VideoStreams.First()
                                             .SetLoop(1)
                                   )
                         .SetOutput(outputPath.FullName)
-                        .Start();
+                        .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
 
         mediaInfo.Duration.Should().Be(13.Seconds().And(480.Milliseconds()));
         mediaInfo.AudioStreams.Should().BeEmpty();
@@ -367,18 +363,18 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task ReverseTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetCodec(VideoCodec.h264)
-                                            .Reverse()
-                                  )
-                        .SetPreset(ConversionPreset.UltraFast)
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetCodec(VideoCodec.h264)
+                                        .Reverse()
+                              )
+                    .SetPreset(ConversionPreset.UltraFast)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -387,7 +383,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SeekLengthTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var conversion = FFmpeg.Conversions.Create()
@@ -395,15 +391,15 @@ public class VideoStreamTests(StorageFixture storageFixture)
                                .SetOutput(outputPath.FullName)
                                .SetSeek(TimeSpan.FromSeconds(2));
 
-        var currentProgress = new TimeSpan();
-        var videoLength = new TimeSpan();
+        var currentProgress = TimeSpan.Zero;
+        var videoLength = TimeSpan.Zero;
         conversion.OnProgress += (_, e) =>
                                  {
                                      currentProgress = e.Duration;
                                      videoLength = e.TotalLength;
                                  };
 
-        await conversion.Start();
+        await conversion.Start(_testCancellationToken);
 
         Assert.True(currentProgress > TimeSpan.Zero);
         Assert.True(currentProgress <= videoLength);
@@ -413,14 +409,14 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SimpleConversionTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First())
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First())
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -429,16 +425,16 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task X265Test()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetCodec(VideoCodec.hevc)
-                                  )
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetCodec(VideoCodec.hevc)
+                              )
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("hevc", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -447,16 +443,16 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SizeTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetSize(640, 480)
-                                  )
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetSize(640, 480)
+                              )
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -467,16 +463,16 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SetSize_UseEnum_ResultsAreCorrect()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetSize(VideoSize.Sntsc)
-                                  )
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetSize(VideoSize.Sntsc)
+                              )
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -487,16 +483,16 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task VideoCodecTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Ts);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetCodec(VideoCodec.mpeg2video)
-                                  )
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetCodec(VideoCodec.mpeg2video)
+                              )
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Equal("mpeg2video", mediaInfo.VideoStreams.First().Codec);
         Assert.False(mediaInfo.AudioStreams.Any());
@@ -505,7 +501,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task ExtractAdditionalValuesTest()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
 
         inputFile.VideoStreams.First().IsDefault.Should().BeTrue();
         inputFile.VideoStreams.First().IsForced.Should().BeFalse();
@@ -516,15 +512,15 @@ public class VideoStreamTests(StorageFixture storageFixture)
     {
         CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("pl-PL");
 
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First().SetCodec(VideoCodec.h264).ChangeSpeed(0.5))
-                        .SetPreset(ConversionPreset.UltraFast)
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First().SetCodec(VideoCodec.h264).ChangeSpeed(0.5))
+                    .SetPreset(ConversionPreset.UltraFast)
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(19, mediaInfo.Duration.Seconds);
         Assert.Equal(19, mediaInfo.VideoStreams.First().Duration.Seconds);
         Assert.Equal("h264", mediaInfo.VideoStreams.First().Codec);
@@ -534,14 +530,14 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SetBitstreamFilter_CorrectInput_CorrectResult()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter(BitstreamFilter.h264_mp4toannexb))
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter(BitstreamFilter.h264_mp4toannexb))
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(13, mediaInfo.Duration.Seconds);
         Assert.Equal(13, mediaInfo.VideoStreams.First().Duration.Seconds);
         Assert.NotEmpty(mediaInfo.VideoStreams);
@@ -550,13 +546,13 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SetBitstreamFilter_IncorrectFilter_ThrowConversionException()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter(BitstreamFilter.aac_adtstoasc))
                                                                             .SetOutput(outputPath.FullName)
-                                                                            .Start()
+                                                                            .Start(_testCancellationToken)
                                                    );
 
         exception.Should().BeOfType<InvalidBitstreamFilterException>();
@@ -565,14 +561,14 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SetBitstreamFilter_CorrectInputAsString_CorrectResult()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter("h264_mp4toannexb"))
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter("h264_mp4toannexb"))
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(13, mediaInfo.Duration.Seconds);
         Assert.Equal(13, mediaInfo.VideoStreams.First().Duration.Seconds);
         Assert.NotEmpty(mediaInfo.VideoStreams);
@@ -581,13 +577,13 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SetBitstreamFilter_IncorrectFilterAsString_ThrowConversionException()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.Mp4, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.VideoStreams.First().SetBitstreamFilter("aac_adtstoasc"))
                                                                             .SetOutput(outputPath.FullName)
-                                                                            .Start()
+                                                                            .Start(_testCancellationToken)
                                                    );
 
         exception.Should().BeOfType<InvalidBitstreamFilterException>();
@@ -599,7 +595,7 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [InlineData(VideoCodec._012v, "012v")]
     public async Task SetCodec_SpecialNames_EverythingIsCorrect(VideoCodec videoCodec, string expectedCodec)
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var args = FFmpeg.Conversions.Create()
@@ -615,13 +611,13 @@ public class VideoStreamTests(StorageFixture storageFixture)
     [Fact]
     public async Task SetCodec_InvalidCodec_ThrowConversionException()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
         var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.Create()
                                                                             .AddStream(inputFile.VideoStreams.First().SetCodec("notExisting"))
                                                                             .SetOutput(outputPath.FullName)
-                                                                            .Start()
+                                                                            .Start(_testCancellationToken)
                                                    );
 
         Assert.NotNull(exception);
@@ -629,19 +625,19 @@ public class VideoStreamTests(StorageFixture storageFixture)
     }
 
     [Fact]
-    public async Task SetSize_ParameterIsOverrided_NewValueIsSet()
+    public async Task SetSize_ParameterIsOverridden_NewValueIsSet()
     {
-        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio);
+        var inputFile = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         var outputPath = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await FFmpeg.Conversions.Create()
-                        .AddStream(inputFile.VideoStreams.First()
-                                            .SetSize(1920, 1080)
-                                            .SetSize(640, 480)
-                                  )
-                        .SetOutput(outputPath.FullName)
-                        .Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStream(inputFile.VideoStreams.First()
+                                        .SetSize(1920, 1080)
+                                        .SetSize(640, 480)
+                              )
+                    .SetOutput(outputPath.FullName)
+                    .Start(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath);
+        var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
         Assert.Equal(640, mediaInfo.VideoStreams.First().Width);
         Assert.Equal(480, mediaInfo.VideoStreams.First().Height);
     }

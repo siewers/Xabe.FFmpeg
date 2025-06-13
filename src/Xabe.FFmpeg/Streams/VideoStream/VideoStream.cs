@@ -1,9 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
 using Probe.Models;
 
 /// <inheritdoc cref="IVideoStream" />
@@ -32,6 +28,20 @@ public sealed class VideoStream : StreamBase, IVideoStream, IFilterable
     internal ConversionParameters Parameters { get; } = [];
 
     /// <inheritdoc />
+    public IEnumerable<IFilterConfiguration> GetFilters()
+    {
+        if (_videoFilters.Count != 0)
+        {
+            yield return new FilterConfiguration
+                         {
+                             FilterType = "-filter_complex",
+                             StreamNumber = Index,
+                             Filters = _videoFilters,
+                         };
+        }
+    }
+
+    /// <inheritdoc />
     public int Width { get; }
 
     /// <inheritdoc />
@@ -51,20 +61,6 @@ public sealed class VideoStream : StreamBase, IVideoStream, IFilterable
 
     /// <inheritdoc />
     public override StreamType StreamType => StreamType.Video;
-
-    /// <inheritdoc />
-    public IEnumerable<IFilterConfiguration> GetFilters()
-    {
-        if (_videoFilters.Count != 0)
-        {
-            yield return new FilterConfiguration
-                         {
-                             FilterType = "-filter_complex",
-                             StreamNumber = Index,
-                             Filters = _videoFilters,
-                         };
-        }
-    }
 
     /// <summary>
     ///     Create parameters string
@@ -92,6 +88,7 @@ public sealed class VideoStream : StreamBase, IVideoStream, IFilterable
         var rotate = rotateDegrees == RotateDegrees.Invert
             ? "\"transpose=2,transpose=2\" "
             : $"\"transpose={(int)rotateDegrees}\" ";
+
         Parameters.Add("vf", rotate);
         return this;
     }
@@ -374,14 +371,14 @@ public sealed class VideoStream : StreamBase, IVideoStream, IFilterable
     private static double GetVideoFrameRate(VideoStreamModel videoStream, TimeSpan duration)
     {
         var frameCount = GetFrameCount(videoStream);
-        var frameRate = videoStream.RawFrameRate.Split('/');
+        var framerate = videoStream.RawFrameRate.Split('/');
 
         if (frameCount > 0)
         {
             return Math.Round(frameCount / duration.TotalSeconds, 3);
         }
 
-        return Math.Round(double.Parse(frameRate[0]) / double.Parse(frameRate[1]), 3);
+        return Math.Round(double.Parse(framerate[0]) / double.Parse(framerate[1]), 3);
     }
 
     private static long GetFrameCount(StreamModelBase videoStream)

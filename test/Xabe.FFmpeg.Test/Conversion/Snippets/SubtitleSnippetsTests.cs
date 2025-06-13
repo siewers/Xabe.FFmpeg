@@ -1,19 +1,19 @@
-﻿using Xabe.FFmpeg.Test.Common.Fixtures;
-
-namespace Xabe.FFmpeg.Test;
+﻿namespace Xabe.FFmpeg.Test;
 
 public class SubtitleSnippetsTests(StorageFixture storageFixture)
     : IClassFixture<StorageFixture>
 {
+    private readonly CancellationToken _testCancellationToken = TestContext.Current.CancellationToken;
+
     [Fact]
     public async Task AddSubtitleTest()
     {
         var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mkv);
         var input = Resources.MkvWithAudio;
-        _ = await (await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt))
-            .Start();
+        await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, cancellationToken: _testCancellationToken)
+                    .StartConversion(cancellationToken: _testCancellationToken);
 
-        var outputInfo = await FFmpeg.GetMediaInfo(output);
+        var outputInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(51, outputInfo.Duration.Minutes);
         Assert.Equal(11, outputInfo.Duration.Seconds);
         Assert.Single(outputInfo.SubtitleStreams);
@@ -28,11 +28,11 @@ public class SubtitleSnippetsTests(StorageFixture storageFixture)
         var input = Resources.MkvWithAudio;
 
         var language = "pol";
-        _ = await (await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, language))
+        _ = await (await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, language, _testCancellationToken))
                   .SetPreset(ConversionPreset.UltraFast)
-                  .Start();
+                  .Start(_testCancellationToken);
 
-        var outputInfo = await FFmpeg.GetMediaInfo(output);
+        var outputInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(51, outputInfo.Duration.Minutes);
         Assert.Single(outputInfo.SubtitleStreams);
         Assert.Single(outputInfo.VideoStreams);
@@ -50,10 +50,10 @@ public class SubtitleSnippetsTests(StorageFixture storageFixture)
     {
         var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mkv);
         var input = Resources.MkvWithAudio;
-        _ = await (await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, subtitleCodec))
-            .Start();
+        await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, subtitleCodec, cancellationToken: _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var outputInfo = await FFmpeg.GetMediaInfo(output);
+        var outputInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(51, outputInfo.Duration.Minutes);
         Assert.Single(outputInfo.SubtitleStreams);
         Assert.Single(outputInfo.VideoStreams);
@@ -85,11 +85,11 @@ public class SubtitleSnippetsTests(StorageFixture storageFixture)
         var input = Resources.MkvWithAudio;
 
         var language = "pol";
-        _ = await (await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, subtitleCodec, language))
+        _ = await (await FFmpeg.Conversions.FromSnippet.AddSubtitle(input, output, Resources.SubtitleSrt, subtitleCodec, language, _testCancellationToken))
                   .SetPreset(ConversionPreset.UltraFast)
-                  .Start();
+                  .Start(_testCancellationToken);
 
-        var outputInfo = await FFmpeg.GetMediaInfo(output);
+        var outputInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(51, outputInfo.Duration.Minutes);
         Assert.Single(outputInfo.SubtitleStreams);
         Assert.Single(outputInfo.VideoStreams);
@@ -115,11 +115,11 @@ public class SubtitleSnippetsTests(StorageFixture storageFixture)
     {
         var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mp4);
         var input = Resources.Mp4;
-        _ = await (await FFmpeg.Conversions.FromSnippet.BurnSubtitle(input, output, Resources.SubtitleSrt))
+        _ = await (await FFmpeg.Conversions.FromSnippet.BurnSubtitle(input, output, Resources.SubtitleSrt, _testCancellationToken))
                   .SetPreset(ConversionPreset.UltraFast)
-                  .Start();
+                  .Start(_testCancellationToken);
 
-        var outputInfo = await FFmpeg.GetMediaInfo(output);
+        var outputInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(13, outputInfo.Duration.Seconds);
     }
 
@@ -127,9 +127,10 @@ public class SubtitleSnippetsTests(StorageFixture storageFixture)
     public async Task BasicConversion_InputFileWithSubtitles_SkipSubtitles()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output.FullName)).Start();
+        await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output.FullName, cancellationToken: _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);

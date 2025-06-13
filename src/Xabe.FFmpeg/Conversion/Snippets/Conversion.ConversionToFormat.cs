@@ -1,8 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Linq;
-using System.Threading.Tasks;
-
 public partial class Conversion
 {
     /// <summary>
@@ -10,10 +7,11 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ToMp4(string inputPath, string outputPath)
+    internal async static Task<IConversion> ToMp4(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.h264);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.aac);
@@ -27,10 +25,11 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ToTs(string inputPath, string outputPath)
+    internal async static Task<IConversion> ToTs(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.mpeg2video);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.mp2);
@@ -44,10 +43,11 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ToOgv(string inputPath, string outputPath)
+    internal async static Task<IConversion> ToOgv(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.theora);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.libvorbis);
@@ -61,10 +61,11 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ToWebM(string inputPath, string outputPath)
+    internal async static Task<IConversion> ToWebM(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         IStream? videoStream = info.VideoStreams.FirstOrDefault()?.SetCodec(VideoCodec.vp8);
         IStream? audioStream = info.AudioStreams.FirstOrDefault()?.SetCodec(AudioCodec.libvorbis);
@@ -80,10 +81,11 @@ public partial class Conversion
     /// <param name="outputPath">Output path</param>
     /// <param name="loop">Number of repeats</param>
     /// <param name="delay">Delay between repeats (in seconds)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ToGif(string inputPath, string outputPath, int loop, int delay = 0)
+    internal async static Task<IConversion> ToGif(string inputPath, string outputPath, int loop, int delay = 0, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetLoop(loop, delay);
 

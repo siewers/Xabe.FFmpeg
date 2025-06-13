@@ -1,10 +1,6 @@
 namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using Events;
 using Exceptions;
 
@@ -70,16 +66,16 @@ public interface IConversion
     /// <summary>
     ///     Builds the -framerate option for the output of this conversion
     /// </summary>
-    /// <param name="frameRate">The desired framerate of the output</param>
+    /// <param name="framerate">The desired framerate of the output</param>
     /// <returns>IConversion object</returns>
-    IConversion SetFrameRate(double frameRate);
+    IConversion SetFramerate(double framerate);
 
     /// <summary>
     ///     Builds the -framerate option for the input of this conversion
     /// </summary>
-    /// <param name="frameRate">the desired framerate of the input in bytes</param>
+    /// <param name="framerate">the desired framerate of the input in bytes</param>
     /// <returns>IConversion object</returns>
-    IConversion SetInputFrameRate(double frameRate);
+    IConversion SetInputFramerate(double framerate);
 
     /// <summary>
     ///     Seeks in output file to position. (-ss argument)

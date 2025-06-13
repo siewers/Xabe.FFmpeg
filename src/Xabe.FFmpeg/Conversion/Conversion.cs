@@ -1,16 +1,9 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Events;
-using JetBrains.Annotations;
 
 /// <inheritdoc />
 [PublicAPI]
@@ -340,18 +333,18 @@ public partial class Conversion : IConversion
     }
 
     /// <inheritdoc />
-    public IConversion SetInputFrameRate(double frameRate)
+    public IConversion SetInputFramerate(double framerate)
     {
-        _parameters.Add("framerate", frameRate.ToFFmpegFormat(3), ParameterPosition.PreInput);
-        _parameters.Add("r", frameRate.ToFFmpegFormat(3), ParameterPosition.PreInput);
+        _parameters.Add("framerate", framerate.ToFFmpegFormat(3), ParameterPosition.PreInput);
+        _parameters.Add("r", framerate.ToFFmpegFormat(3), ParameterPosition.PreInput);
         return this;
     }
 
     /// <inheritdoc />
-    public IConversion SetFrameRate(double frameRate)
+    public IConversion SetFramerate(double framerate)
     {
-        _parameters.Add("framerate", frameRate.ToFFmpegFormat(3), ParameterPosition.PostInput);
-        _parameters.Add("r", frameRate.ToFFmpegFormat(3), ParameterPosition.PostInput);
+        _parameters.Add("framerate", framerate.ToFFmpegFormat(3), ParameterPosition.PostInput);
+        _parameters.Add("r", framerate.ToFFmpegFormat(3), ParameterPosition.PostInput);
         return this;
     }
 

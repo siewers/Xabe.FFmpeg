@@ -1,7 +1,21 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Threading.Tasks;
+public static class ConversionExtensions
+{
+    public static Task<IConversionResult> StartConversion(this Task<IConversion> conversionTask, CancellationToken cancellationToken = default)
+    {
+        return conversionTask.Then(conversion => conversion.Start(cancellationToken));
+    }
+}
+
+internal static class TaskExtensions
+{
+    public async static Task<TResult> Then<TSource, TResult>(this Task<TSource> task, Func<TSource, Task<TResult>> next)
+    {
+        var source = await task;
+        return await next(source);
+    }
+}
 
 public class Snippets
 {
@@ -14,10 +28,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Output video stream</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ExtractAudio(string inputPath, string outputPath)
+    public async Task<IConversion> ExtractAudio(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ExtractAudio(inputPath, outputPath);
+        return await Conversion.ExtractAudio(inputPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -26,10 +41,11 @@ public class Snippets
     /// <param name="videoPath">Video</param>
     /// <param name="audioPath">Audio</param>
     /// <param name="outputPath">Output file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath)
+    public async Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.AddAudio(videoPath, audioPath, outputPath);
+        return await Conversion.AddAudio(videoPath, audioPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -37,10 +53,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ToMp4(string inputPath, string outputPath)
+    public async Task<IConversion> ToMp4(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ToMp4(inputPath, outputPath);
+        return await Conversion.ToMp4(inputPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -48,10 +65,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ToTs(string inputPath, string outputPath)
+    public async Task<IConversion> ToTs(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ToTs(inputPath, outputPath);
+        return await Conversion.ToTs(inputPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -59,10 +77,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ToOgv(string inputPath, string outputPath)
+    public async Task<IConversion> ToOgv(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ToOgv(inputPath, outputPath);
+        return await Conversion.ToOgv(inputPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -70,10 +89,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Destination file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ToWebM(string inputPath, string outputPath)
+    public async Task<IConversion> ToWebM(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ToWebM(inputPath, outputPath);
+        return await Conversion.ToWebM(inputPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -83,10 +103,11 @@ public class Snippets
     /// <param name="outputPath">Output path</param>
     /// <param name="loop">Number of repeats</param>
     /// <param name="delay">Delay between repeats (in seconds)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ToGif(string inputPath, string outputPath, int loop, int delay = 0)
+    public async Task<IConversion> ToGif(string inputPath, string outputPath, int loop, int delay = 0, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ToGif(inputPath, outputPath, loop, delay);
+        return await Conversion.ToGif(inputPath, outputPath, loop, delay, cancellationToken);
     }
 
     /// <summary>
@@ -102,8 +123,9 @@ public class Snippets
     /// <param name="decoder">Codec using to decoding input video (e.g. h264_cuvid)</param>
     /// <param name="encoder">Codec using to encode output video (e.g. h264_nvenc)</param>
     /// <param name="device">Number of device (0 = default video card) if more than one video card.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    public async Task<IConversion> ConvertWithHardware(string inputFilePath, string outputFilePath, HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0)
+    public async Task<IConversion> ConvertWithHardware(string inputFilePath, string outputFilePath, HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0, CancellationToken cancellationToken = default)
     {
         return await Conversion.ConvertWithHardwareAsync(inputFilePath, outputFilePath, hardwareAccelerator, decoder, encoder, device);
     }
@@ -114,8 +136,9 @@ public class Snippets
     /// <param name="inputPath">Video</param>
     /// <param name="outputPath">Output file</param>
     /// <param name="subtitlesPath">Subtitles</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> BurnSubtitle(string inputPath, string outputPath, string subtitlesPath)
+    public async Task<IConversion> BurnSubtitle(string inputPath, string outputPath, string subtitlesPath, CancellationToken cancellationToken = default)
     {
         return await Conversion.AddSubtitlesAsync(inputPath, outputPath, subtitlesPath);
     }
@@ -128,8 +151,9 @@ public class Snippets
     /// <param name="outputPath">Output path</param>
     /// <param name="subtitlePath">Path to subtitle file in .srt format</param>
     /// <param name="language">Language code in ISO 639. Example: "eng", "pol", "pl", "de", "ger"</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, string? language = null)
+    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, string? language = null, CancellationToken cancellationToken = default)
     {
         return await Conversion.AddSubtitleAsync(inputPath, outputPath, subtitlePath, language);
     }
@@ -143,8 +167,9 @@ public class Snippets
     /// <param name="subtitlePath">Path to subtitle file in .srt format</param>
     /// <param name="subtitleCodec">The Subtitle Codec to Use to Encode the Subtitles</param>
     /// <param name="language">Language code in ISO 639. Example: "eng", "pol", "pl", "de", "ger"</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, SubtitleCodec subtitleCodec, string? language = null)
+    public async Task<IConversion> AddSubtitle(string inputPath, string outputPath, string subtitlePath, SubtitleCodec subtitleCodec, string? language = null, CancellationToken cancellationToken = default)
     {
         return await Conversion.AddSubtitleAsync(inputPath, outputPath, subtitlePath, subtitleCodec, language);
     }
@@ -156,10 +181,11 @@ public class Snippets
     /// <param name="outputPath">Output file</param>
     /// <param name="inputImage">Watermark</param>
     /// <param name="position">Position of watermark</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> SetWatermark(string inputPath, string outputPath, string inputImage, Position position)
+    public async Task<IConversion> SetWatermark(string inputPath, string outputPath, string inputImage, Position position, CancellationToken cancellationToken = default)
     {
-        return await Conversion.SetWatermarkAsync(inputPath, outputPath, inputImage, position);
+        return await Conversion.SetWatermarkAsync(inputPath, outputPath, inputImage, position, cancellationToken);
     }
 
     /// <summary>
@@ -167,10 +193,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Output audio stream</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ExtractVideo(string inputPath, string outputPath)
+    public async Task<IConversion> ExtractVideo(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ExtractVideoAsync(inputPath, outputPath);
+        return await Conversion.ExtractVideoAsync(inputPath, outputPath, cancellationToken);
     }
 
     /// <summary>
@@ -179,10 +206,11 @@ public class Snippets
     /// <param name="inputPath">Video</param>
     /// <param name="outputPath">Output file</param>
     /// <param name="captureTime">TimeSpan of snapshot</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> Snapshot(string inputPath, string outputPath, TimeSpan captureTime)
+    public async Task<IConversion> Snapshot(string inputPath, string outputPath, TimeSpan captureTime, CancellationToken cancellationToken = default)
     {
-        return await Conversion.SnapshotAsync(inputPath, outputPath, captureTime);
+        return await Conversion.SnapshotAsync(inputPath, outputPath, captureTime, cancellationToken);
     }
 
     /// <summary>
@@ -192,10 +220,11 @@ public class Snippets
     /// <param name="outputPath">Output path</param>
     /// <param name="width">Expected width</param>
     /// <param name="height">Expected height</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ChangeSize(string inputPath, string outputPath, int width, int height)
+    public async Task<IConversion> ChangeSize(string inputPath, string outputPath, int width, int height, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ChangeSizeAsync(inputPath, outputPath, width, height);
+        return await Conversion.ChangeSizeAsync(inputPath, outputPath, width, height, cancellationToken);
     }
 
     /// <summary>
@@ -204,10 +233,11 @@ public class Snippets
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Output path</param>
     /// <param name="size">Expected size</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> ChangeSize(string inputPath, string outputPath, VideoSize size)
+    public async Task<IConversion> ChangeSize(string inputPath, string outputPath, VideoSize size, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ChangeSizeAsync(inputPath, outputPath, size);
+        return await Conversion.ChangeSizeAsync(inputPath, outputPath, size, cancellationToken);
     }
 
     /// <summary>
@@ -217,10 +247,11 @@ public class Snippets
     /// <param name="outputPath">Output file</param>
     /// <param name="startTime">Start point</param>
     /// <param name="duration">Duration of new video</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> Split(string inputPath, string outputPath, TimeSpan startTime, TimeSpan duration)
+    public async Task<IConversion> Split(string inputPath, string outputPath, TimeSpan startTime, TimeSpan duration, CancellationToken cancellationToken = default)
     {
-        return await Conversion.SplitAsync(inputPath, outputPath, startTime, duration);
+        return await Conversion.SplitAsync(inputPath, outputPath, startTime, duration, cancellationToken);
     }
 
     /// <summary>
@@ -229,10 +260,11 @@ public class Snippets
     /// <param name="uri">Uri to stream</param>
     /// <param name="outputPath">Output path</param>
     /// <param name="duration">Duration of stream</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> SaveM3U8Stream(Uri uri, string outputPath, TimeSpan? duration = null)
+    public async Task<IConversion> SaveM3U8Stream(Uri uri, string outputPath, TimeSpan? duration = null, CancellationToken cancellationToken = default)
     {
-        return await Conversion.SaveM3U8StreamAsync(uri, outputPath, duration);
+        return await Conversion.SaveM3U8StreamAsync(uri, outputPath, duration, cancellationToken);
     }
 
     /// <summary>
@@ -240,10 +272,11 @@ public class Snippets
     /// </summary>
     /// <param name="output">Concatenated inputVideos</param>
     /// <param name="inputVideos">Videos to add</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    public async Task<IConversion> Concatenate(string output, params string[] inputVideos)
+    public async Task<IConversion> Concatenate(string output, string[] inputVideos, CancellationToken cancellationToken = default)
     {
-        return await Conversion.Concatenate(output, inputVideos);
+        return await Conversion.Concatenate(output, inputVideos, cancellationToken);
     }
 
     /// <summary>
@@ -252,10 +285,11 @@ public class Snippets
     /// <param name="inputFilePath">Path to file</param>
     /// <param name="outputFilePath">Path to file</param>
     /// <param name="keepSubtitles">Whether to Keep Subtitles in the output video</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    public async Task<IConversion> Convert(string inputFilePath, string outputFilePath, bool keepSubtitles = false)
+    public async Task<IConversion> Convert(string inputFilePath, string outputFilePath, bool keepSubtitles = false, CancellationToken cancellationToken = default)
     {
-        return await Conversion.ConvertAsync(inputFilePath, outputFilePath, keepSubtitles);
+        return await Conversion.ConvertAsync(inputFilePath, outputFilePath, keepSubtitles, cancellationToken);
     }
 
     /// <summary>
@@ -267,10 +301,11 @@ public class Snippets
     /// <param name="videoCodec"> The video codec to Transcode the input to</param>
     /// <param name="subtitleCodec"> The subtitle codec to Transcode the input to</param>
     /// <param name="keepSubtitles">Whether to keep subtitles in the output video</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    public async Task<IConversion> Transcode(string inputFilePath, string outputFilePath, VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec, bool keepSubtitles = false)
+    public async Task<IConversion> Transcode(string inputFilePath, string outputFilePath, VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec, bool keepSubtitles = false, CancellationToken cancellationToken = default)
     {
-        return await Conversion.TranscodeAsync(inputFilePath, outputFilePath, videoCodec, audioCodec, subtitleCodec, keepSubtitles);
+        return await Conversion.TranscodeAsync(inputFilePath, outputFilePath, videoCodec, audioCodec, subtitleCodec, keepSubtitles, cancellationToken);
     }
 
     /// <summary>
@@ -283,6 +318,7 @@ public class Snippets
     /// <param name="mode">The visualisation mode (default is bar)</param>
     /// <param name="amplitudeScale">The frequency scale (default is lin)</param>
     /// <param name="frequencyScale">The amplitude scale (default is log)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
     public async Task<IConversion> VisualizeAudio
     (
@@ -290,10 +326,11 @@ public class Snippets
         PixelFormat pixelFormat = PixelFormat.yuv420p,
         VisualisationMode mode = VisualisationMode.bar,
         AmplitudeScale amplitudeScale = AmplitudeScale.lin,
-        FrequencyScale frequencyScale = FrequencyScale.log
+        FrequencyScale frequencyScale = FrequencyScale.log,
+        CancellationToken cancellationToken = default
     )
     {
-        return await Conversion.VisualizeAudio(inputPath, outputPath, size, pixelFormat, mode, amplitudeScale, frequencyScale);
+        return await Conversion.VisualizeAudio(inputPath, outputPath, size, pixelFormat, mode, amplitudeScale, frequencyScale, cancellationToken);
     }
 
     /// <summary>
@@ -301,10 +338,11 @@ public class Snippets
     /// </summary>
     /// <param name="inputFilePath">Path to file</param>
     /// <param name="rtspServerUri">Uri of RTSP Server in format: rtsp://127.0.0.1:8554/name</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    public async Task<IConversion> SendToRtspServer(string inputFilePath, Uri rtspServerUri)
+    public async Task<IConversion> SendToRtspServer(string inputFilePath, Uri rtspServerUri, CancellationToken cancellationToken = default)
     {
-        return await Conversion.SendToRtspServer(inputFilePath, rtspServerUri);
+        return await Conversion.SendToRtspServer(inputFilePath, rtspServerUri, cancellationToken);
     }
 
     /// <summary>

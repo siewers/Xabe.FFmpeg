@@ -1,9 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Probe;
 
 /// <inheritdoc />
@@ -16,10 +12,11 @@ public partial class Conversion
     /// <param name="outputPath">Output file</param>
     /// <param name="inputImage">Watermark</param>
     /// <param name="position">Position of watermark</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> SetWatermarkAsync(string inputPath, string outputPath, string inputImage, Position position)
+    internal async static Task<IConversion> SetWatermarkAsync(string inputPath, string outputPath, string inputImage, Position position, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetWatermark(inputImage, position);
 
@@ -33,10 +30,11 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Output audio stream</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ExtractVideoAsync(string inputPath, string outputPath)
+    internal async static Task<IConversion> ExtractVideoAsync(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var videoStream = info.VideoStreams.FirstOrDefault();
 
@@ -50,10 +48,11 @@ public partial class Conversion
     /// <param name="inputPath">Video</param>
     /// <param name="outputPath">Output file</param>
     /// <param name="captureTime">TimeSpan of snapshot</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> SnapshotAsync(string inputPath, string outputPath, TimeSpan captureTime)
+    internal async static Task<IConversion> SnapshotAsync(string inputPath, string outputPath, TimeSpan captureTime, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetOutputFramesCount(1).SetSeek(captureTime);
 
@@ -68,10 +67,11 @@ public partial class Conversion
     /// <param name="outputPath">Output path</param>
     /// <param name="width">Expected width</param>
     /// <param name="height">Expected height</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ChangeSizeAsync(string inputPath, string outputPath, int width, int height)
+    internal async static Task<IConversion> ChangeSizeAsync(string inputPath, string outputPath, int width, int height, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetSize(width, height);
 
@@ -87,10 +87,11 @@ public partial class Conversion
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Output path</param>
     /// <param name="size">Expected size</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ChangeSizeAsync(string inputPath, string outputPath, VideoSize size)
+    internal async static Task<IConversion> ChangeSizeAsync(string inputPath, string outputPath, VideoSize size, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var videoStream = info.VideoStreams.FirstOrDefault()?.SetSize(size);
 
@@ -107,10 +108,11 @@ public partial class Conversion
     /// <param name="outputPath">The path to the output file</param>
     /// <param name="startTime">The start time</param>
     /// <param name="duration">Duration of new video</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> SplitAsync(string inputPath, string outputPath, TimeSpan startTime, TimeSpan duration)
+    internal async static Task<IConversion> SplitAsync(string inputPath, string outputPath, TimeSpan startTime, TimeSpan duration, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var streams = info.VideoStreams.Select(stream => stream.Split(startTime, duration)).Cast<IStream>().ToList();
         streams.AddRange(info.AudioStreams.Select(stream => stream.Split(startTime, duration)));
@@ -125,10 +127,11 @@ public partial class Conversion
     /// <param name="uri">Uri to stream</param>
     /// <param name="outputPath">Output path</param>
     /// <param name="duration">Duration of stream</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> SaveM3U8StreamAsync(Uri uri, string outputPath, TimeSpan? duration = null)
+    internal async static Task<IConversion> SaveM3U8StreamAsync(Uri uri, string outputPath, TimeSpan? duration = null, CancellationToken cancellationToken = default)
     {
-        var mediaInfo = await FFmpeg.GetMediaInfo(uri.ToString());
+        var mediaInfo = await FFmpeg.GetMediaInfo(uri.ToString(), cancellationToken);
         return Create().AddStreams(mediaInfo.Streams)
                        .SetInputTime(duration)
                        .SetOutput(outputPath);
@@ -139,8 +142,9 @@ public partial class Conversion
     /// </summary>
     /// <param name="output">Concatenated inputVideos</param>
     /// <param name="inputVideos">Videos to add</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> Concatenate(string output, params string[] inputVideos)
+    internal async static Task<IConversion> Concatenate(string output, string[] inputVideos, CancellationToken cancellationToken = default)
     {
         if (inputVideos.Length <= 1)
         {
@@ -153,7 +157,7 @@ public partial class Conversion
 
         foreach (var inputVideo in inputVideos)
         {
-            var mediaInfo = await FFmpeg.GetMediaInfo(inputVideo);
+            var mediaInfo = await FFmpeg.GetMediaInfo(inputVideo, cancellationToken);
 
             mediaInfos.Add(mediaInfo);
             conversion.AddParameter($"-i {inputVideo.Escape()} ");
@@ -187,8 +191,9 @@ public partial class Conversion
     /// <param name="inputFilePath">Path to file</param>
     /// <param name="outputFilePath">Path to file</param>
     /// <param name="keepSubtitles">Whether to Keep Subtitles in the output video</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    internal async static Task<IConversion> ConvertAsync(string inputFilePath, string outputFilePath, bool keepSubtitles = false)
+    internal async static Task<IConversion> ConvertAsync(string inputFilePath, string outputFilePath, bool keepSubtitles = false, CancellationToken cancellationToken = default)
     {
         var info = await FFmpeg.GetMediaInfo(inputFilePath);
 
@@ -223,10 +228,11 @@ public partial class Conversion
     /// <param name="videoCodec">The video codec to transcode the input to</param>
     /// <param name="subtitleCodec">The subtitle codec to transcode the input to</param>
     /// <param name="keepSubtitles">Whether to keep subtitles in the output video</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
-    internal async static Task<IConversion> TranscodeAsync(string inputFilePath, string outputFilePath, VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec, bool keepSubtitles = false)
+    internal async static Task<IConversion> TranscodeAsync(string inputFilePath, string outputFilePath, VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec, bool keepSubtitles = false, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputFilePath);
+        var info = await FFmpeg.GetMediaInfo(inputFilePath, cancellationToken);
 
         var conversion = Create().SetOutput(outputFilePath);
 

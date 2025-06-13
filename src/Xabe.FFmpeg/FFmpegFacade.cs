@@ -1,11 +1,7 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Probe;
 
 /// <summary>
@@ -44,7 +40,7 @@ public abstract partial class FFmpeg
     ///     Get MediaInfo from file
     /// </summary>
     /// <param name="location">FullPath to file</param>
-    /// <param name="cancellationToken">Cancellation token</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <exception cref="ArgumentException">File does not exist</exception>
     /// <exception cref="TaskCanceledException">Operation takes too long</exception>
     public async static Task<IMediaInfo> GetMediaInfo(string location, CancellationToken cancellationToken = default)
@@ -83,7 +79,7 @@ public abstract partial class FFmpeg
         ExecutablesPath = directoryWithFFmpegAndFFprobe == null ? null : new DirectoryInfo(directoryWithFFmpegAndFFprobe).FullName;
         ArgumentException.ThrowIfNullOrWhiteSpace(ffmpegExecutableName, nameof(ffmpegExecutableName));
         ArgumentException.ThrowIfNullOrWhiteSpace(ffprobeExecutableName, nameof(ffprobeExecutableName));
-        _ffmpegExecutableName =  ffmpegExecutableName;
+        _ffmpegExecutableName = ffmpegExecutableName;
         _ffprobeExecutableName = ffprobeExecutableName;
 
         FilterMethod = filteringMethod;

@@ -1,6 +1,4 @@
-﻿using Xabe.FFmpeg.Test.Common.Fixtures;
-
-namespace Xabe.FFmpeg.Test;
+﻿namespace Xabe.FFmpeg.Test;
 
 public class FFmpegExecutablesHelperTests(StorageFixture storageFixture)
     : IClassFixture<StorageFixture>

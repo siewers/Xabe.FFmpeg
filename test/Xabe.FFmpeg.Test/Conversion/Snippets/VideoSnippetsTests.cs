@@ -1,17 +1,10 @@
 ﻿namespace Xabe.FFmpeg.Test;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Common;
-using Common.Fixtures;
-using FluentAssertions;
-using FluentAssertions.Extensions;
-
 public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFixture rtspServer)
     : IClassFixture<StorageFixture>, IClassFixture<MediaMtxServerFixture>
 {
+    private readonly CancellationToken _testCancellationToken = TestContext.Current.CancellationToken;
+
     public static TheoryData<string, string, int, int, int, string> JoinFiles => new()
                                                                                  {
                                                                                      { Resources.MkvWithAudio, Resources.Mp4WithAudio, 23, 1280, 720, "16:9" },
@@ -23,11 +16,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [MemberData(nameof(JoinFiles))]
     public async Task Concatenate_Test(string firstFile, string secondFile, int duration, int width, int height, string ratio)
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mp4);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
 
-        var result = await (await FFmpeg.Conversions.FromSnippet.Concatenate(output, firstFile, secondFile)).Start();
+        var result = await FFmpeg.Conversions.FromSnippet.Concatenate(output.FullName, [firstFile, secondFile], _testCancellationToken).StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(duration, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         var videoStream = mediaInfo.VideoStreams.First();
@@ -40,12 +33,12 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [Fact]
     public async Task ChangeSizeTest()
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mkv);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mkv);
         var input = Resources.MkvWithAudio;
-        _ = await (await FFmpeg.Conversions.FromSnippet.ChangeSize(input, output, 640, 360))
-            .Start();
+        await FFmpeg.Conversions.FromSnippet.ChangeSize(input, output.FullName, 640, 360, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Single(mediaInfo.VideoStreams);
         var videoStream = mediaInfo.VideoStreams.First();
         videoStream.Should().NotBeNull();
@@ -56,12 +49,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [Fact]
     public async Task ExtractVideo()
     {
-        var cancellationToken = TestContext.Current.CancellationToken;
-        var output = Path.ChangeExtension(Path.GetTempFileName(), Path.GetExtension(Resources.Mp4WithAudio));
-        _ = await (await FFmpeg.Conversions.FromSnippet.ExtractVideo(Resources.Mp4WithAudio, output))
-            .Start(cancellationToken);
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        await FFmpeg.Conversions.FromSnippet.ExtractVideo(Resources.Mp4WithAudio, output.FullName, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output, cancellationToken);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Single(mediaInfo.VideoStreams);
         mediaInfo.AudioStreams.Should().BeEmpty();
         var videoStream = mediaInfo.VideoStreams.First();
@@ -73,7 +65,10 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task SnapshotInvalidArgumentTest()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Png);
-        await Assert.ThrowsAsync<ArgumentException>(async () => await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output.FullName, TimeSpan.FromSeconds(999))).Start());
+        await Assert.ThrowsAsync<ArgumentException>(() => FFmpeg.Conversions.FromSnippet
+                                                                .Snapshot(Resources.Mp4WithAudio, output.FullName, 999.Seconds(), _testCancellationToken)
+                                                                .StartConversion(_testCancellationToken)
+                                                   );
     }
 
     [Theory]
@@ -82,22 +77,23 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task SnapshotTest(string extension, long expectedLength)
     {
         var output = storageFixture.GetTempFileName(extension);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output.FullName, TimeSpan.FromSeconds(0)))
-            .Start();
+        await FFmpeg.Conversions.FromSnippet.Snapshot(Resources.Mp4WithAudio, output.FullName, 0.Seconds(), _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
         output.Exists.Should().BeTrue();
         // It does not have to be the same
-        Assert.Equal(expectedLength / 10, (await output.ReadAllBytesAsync()).LongLength / 10);
+        Assert.Equal(expectedLength / 10, (await output.ReadAllBytesAsync(_testCancellationToken)).LongLength / 10);
     }
 
     [Fact]
     public async Task SplitVideoTest()
     {
         var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Split(Resources.Mp4WithAudio, output, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(8)))
-            .Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Split(Resources.Mp4WithAudio, output, 2.Seconds(), 8.Seconds(), _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
@@ -114,13 +110,14 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [Fact]
     public async Task WatermarkTest()
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), FileExtensions.Mp4);
-        var result = await (await FFmpeg.Conversions.FromSnippet.SetWatermark(Resources.Mp4WithAudio, output, Resources.PngSample, Position.Center))
-            .Start();
+        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var result = await FFmpeg.Conversions.FromSnippet
+                                 .SetWatermark(Resources.Mp4WithAudio, output.FullName, Resources.PngSample, Position.Center, _testCancellationToken)
+                                 .StartConversion(_testCancellationToken);
 
         result.Arguments.Should().Contain("overlay=");
         result.Arguments.Should().Contain(Resources.Mp4WithAudio);
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
         var audioStream = mediaInfo.AudioStreams.First();
@@ -134,11 +131,12 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [Fact]
     public async Task SaveM3U8Stream_Https_EverythingWorks()
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), "mkv");
+        var output = storageFixture.GetTempFileName(FileExtensions.Mkv);
         var uri = new Uri("https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8");
 
-        var exception = await Record.ExceptionAsync(async () => await (await FFmpeg.Conversions.FromSnippet.SaveM3U8Stream(uri, output, TimeSpan.FromSeconds(1)))
-                                                        .Start()
+        var exception = await Record.ExceptionAsync(() => FFmpeg.Conversions.FromSnippet
+                                                                .SaveM3U8Stream(uri, output.FullName, 1.Seconds(), _testCancellationToken)
+                                                                .StartConversion(_testCancellationToken)
                                                    );
 
         exception.Should().BeNull();
@@ -147,11 +145,12 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [Fact]
     public async Task SaveM3U8Stream_Http_EverythingWorks()
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), "mkv");
-        var uri = new Uri("http://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8");
+        var output = storageFixture.GetTempFileName(FileExtensions.Mkv);
+        var uri = new Uri("https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8");
 
-        var exception = await Record.ExceptionAsync(async () => await (await FFmpeg.Conversions.FromSnippet.SaveM3U8Stream(uri, output, TimeSpan.FromSeconds(1)))
-                                                        .Start()
+        var exception = await Record.ExceptionAsync(() => FFmpeg.Conversions.FromSnippet
+                                                                .SaveM3U8Stream(uri, output.FullName, 1.Seconds(), _testCancellationToken)
+                                                                .StartConversion(_testCancellationToken)
                                                    );
 
         exception.Should().BeNull();
@@ -160,11 +159,12 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     [Fact]
     public async Task SaveM3U8Stream_NotExisting_ExceptionIsThrown()
     {
-        var output = Path.ChangeExtension(Path.GetTempFileName(), "mkv");
-        var uri = new Uri("http://www.bitdash-a.akamaihd.net/notexisting.m3u8");
+        var output = storageFixture.GetTempFileName(FileExtensions.Mkv);
+        var uri = new Uri("https://www.bitdash-a.akamaihd.net/notexisting.m3u8");
 
-        var exception = await Record.ExceptionAsync(async () => await (await FFmpeg.Conversions.FromSnippet.SaveM3U8Stream(uri, output, TimeSpan.FromSeconds(1)))
-                                                        .Start()
+        var exception = await Record.ExceptionAsync(async () => await FFmpeg.Conversions.FromSnippet
+                                                                            .SaveM3U8Stream(uri, output.FullName, 1.Seconds(), _testCancellationToken)
+                                                                            .StartConversion(_testCancellationToken)
                                                    );
 
         exception.Should().NotBeNull();
@@ -174,9 +174,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicConversion_InputFileWithSubtitles_SkipSubtitles()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output.FullName)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Convert(Resources.MkvWithSubtitles, output.FullName, cancellationToken: _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
@@ -194,9 +196,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicConversion_InputFileWithSubtitles_SkipSubtitlesWithParameter()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output.FullName, false)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Convert(Resources.MkvWithSubtitles, output.FullName, false, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
@@ -214,9 +218,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicConversion_InputFileWithSubtitles_KeepSubtitles()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MkvWithSubtitles, output.FullName, true)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Convert(Resources.MkvWithSubtitles, output.FullName, true, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
@@ -236,9 +242,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicTranscode_InputFileWithSubtitles_KeepSubtitles(VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec)
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Transcode(Resources.MkvWithSubtitles, output.FullName, videoCodec, audioCodec, subtitleCodec, true)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Transcode(Resources.MkvWithSubtitles, output.FullName, videoCodec, audioCodec, subtitleCodec, true, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
@@ -258,9 +266,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicTranscode_InputFileWithSubtitles_SkipSubtitles(VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec)
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Transcode(Resources.MkvWithSubtitles, output.FullName, videoCodec, audioCodec, subtitleCodec)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Transcode(Resources.MkvWithSubtitles, output.FullName, videoCodec, audioCodec, subtitleCodec, false, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
@@ -280,9 +290,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicTranscode_InputFileWithSubtitles_SkipSubtitlesWithParameter(VideoCodec videoCodec, AudioCodec audioCodec, SubtitleCodec subtitleCodec)
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Transcode(Resources.MkvWithSubtitles, output.FullName, videoCodec, audioCodec, subtitleCodec, false)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Transcode(Resources.MkvWithSubtitles, output.FullName, videoCodec, audioCodec, subtitleCodec, false, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(9, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Single(mediaInfo.AudioStreams);
@@ -300,16 +312,18 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicConversion_SloMoVideo_CorrectFramerate()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.SloMoMp4, output.FullName)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Convert(Resources.SloMoMp4, output.FullName, false, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(3, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         var videoStream = mediaInfo.VideoStreams.First();
         videoStream.Should().NotBeNull();
         videoStream.Codec.Should().Be("h264");
         mediaInfo.SubtitleStreams.Should().BeEmpty();
-        // It does not has to be the same
+        // It does not have to be the same
         Assert.Equal(116, (int)videoStream.Framerate);
     }
 
@@ -317,9 +331,11 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task BasicConversion_InputFileWithMultipleStreams_CorrectResult()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        _ = await (await FFmpeg.Conversions.FromSnippet.Convert(Resources.MultipleStream, output.FullName)).Start();
+        await FFmpeg.Conversions.FromSnippet
+                    .Convert(Resources.MultipleStream, output.FullName, false, _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(output);
+        var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.Equal(46, mediaInfo.Duration.Seconds);
         Assert.Single(mediaInfo.VideoStreams);
         Assert.Equal(2, mediaInfo.AudioStreams.Count());
@@ -333,14 +349,18 @@ public class VideoSnippetsTests(StorageFixture storageFixture, MediaMtxServerFix
     public async Task Rtsp_GotTwoStreams_SaveEverything()
     {
         var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
-        await rtspServer.Publish(Resources.BunnyMp4, "bunny");
-        await Task.Delay(2000);
+        var resourceUri = await rtspServer.Publish(Resources.BunnyMp4, "bunny");
+        await Task.Delay(2.Seconds(), _testCancellationToken);
 
-        var mediaInfo = await FFmpeg.GetMediaInfo(rtspServer.Container.GetResourceUri("bunny"));
+        var mediaInfo = await FFmpeg.GetMediaInfo(resourceUri, _testCancellationToken);
 
-        await FFmpeg.Conversions.Create().AddStreams(mediaInfo.Streams).SetInputTime(TimeSpan.FromSeconds(3)).SetOutput(output.FullName).Start();
+        await FFmpeg.Conversions.Create()
+                    .AddStreams(mediaInfo.Streams)
+                    .SetInputTime(TimeSpan.FromSeconds(3))
+                    .SetOutput(output.FullName)
+                    .Start(_testCancellationToken);
 
-        var result = await FFmpeg.GetMediaInfo(output);
+        var result = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         result.Duration.Should().BeGreaterThan(0.Seconds());
         Assert.Single(result.VideoStreams);
         Assert.Single(result.AudioStreams);

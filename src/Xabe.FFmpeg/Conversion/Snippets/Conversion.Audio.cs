@@ -1,8 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Linq;
-using System.Threading.Tasks;
-
 public partial class Conversion
 {
     /// <summary>
@@ -10,10 +7,11 @@ public partial class Conversion
     /// </summary>
     /// <param name="inputPath">Input path</param>
     /// <param name="outputPath">Output video stream</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ExtractAudio(string inputPath, string outputPath)
+    internal async static Task<IConversion> ExtractAudio(string inputPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var info = await FFmpeg.GetMediaInfo(inputPath);
+        var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
         var audioStream = info.AudioStreams.FirstOrDefault();
 
@@ -29,17 +27,18 @@ public partial class Conversion
     /// <param name="videoPath">Video</param>
     /// <param name="audioPath">Audio</param>
     /// <param name="outputPath">Output file</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath)
+    internal async static Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath, CancellationToken cancellationToken = default)
     {
-        var videoInfo = await FFmpeg.GetMediaInfo(videoPath);
-        var audioInfo = await FFmpeg.GetMediaInfo(audioPath);
+        var videoInfo = await FFmpeg.GetMediaInfo(videoPath, cancellationToken);
+        var audioInfo = await FFmpeg.GetMediaInfo(audioPath, cancellationToken);
 
         return Create()
-                   .AddStream(videoInfo.VideoStreams.FirstOrDefault())
-                   .AddStream(audioInfo.AudioStreams.FirstOrDefault())
-                   .AddStreams(videoInfo.SubtitleStreams)
-                   .SetOutput(outputPath);
+               .AddStream(videoInfo.VideoStreams.FirstOrDefault())
+               .AddStream(audioInfo.AudioStreams.FirstOrDefault())
+               .AddStreams(videoInfo.SubtitleStreams)
+               .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -52,6 +51,7 @@ public partial class Conversion
     /// <param name="mode">The visualisation mode (default is bar)</param>
     /// <param name="amplitudeScale">The frequency scale (default is lin)</param>
     /// <param name="frequencyScale">The amplitude scale (default is log)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>IConversion object</returns>
     internal async static Task<IConversion> VisualizeAudio
     (
@@ -59,20 +59,21 @@ public partial class Conversion
         PixelFormat pixelFormat = PixelFormat.yuv420p,
         VisualisationMode mode = VisualisationMode.bar,
         AmplitudeScale amplitudeScale = AmplitudeScale.lin,
-        FrequencyScale frequencyScale = FrequencyScale.log
+        FrequencyScale frequencyScale = FrequencyScale.log,
+        CancellationToken cancellationToken = default
     )
     {
-        var inputInfo = await FFmpeg.GetMediaInfo(inputPath);
+        var inputInfo = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
         var audioStream = inputInfo.AudioStreams.FirstOrDefault();
         var videoStream = inputInfo.VideoStreams.FirstOrDefault();
 
         var filter = $"\"[0:a]showfreqs=mode={mode.ToStringFast()}:fscale={frequencyScale.ToStringFast()}:ascale={amplitudeScale.ToStringFast()},format={pixelFormat.ToStringFast()},scale={size.ToFFmpegFormat()} [v]\"";
 
         return Create()
-                   .AddStream(audioStream)
-                   .AddParameter($"-filter_complex {filter}")
-                   .AddParameter("-map [v]")
-                   .SetFrameRate(videoStream?.Framerate ?? 30) // Pin frame rate at the original rate or 30 fps to stop dropped or duplicated frames
-                   .SetOutput(outputPath);
+               .AddStream(audioStream)
+               .AddParameter($"-filter_complex {filter}")
+               .AddParameter("-map [v]")
+               .SetFramerate(videoStream?.Framerate ?? 30) // Pin frame rate at the original rate or 30 fps to stop dropped or duplicated frames
+               .SetOutput(outputPath);
     }
 }

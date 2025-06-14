@@ -1,8 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-
 internal sealed record ConversionParameter
 {
     private ConversionParameter(string name, string? value = null, ParameterPosition position = ParameterPosition.PostInput)

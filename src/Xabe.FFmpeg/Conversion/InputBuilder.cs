@@ -1,11 +1,7 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-
 /// <summary>
-/// Default Implementation of the IInputBuilder Interface
+///     Default Implementation of the IInputBuilder Interface
 /// </summary>
 [PublicAPI]
 public sealed class InputBuilder : IInputBuilder

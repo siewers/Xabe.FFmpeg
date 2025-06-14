@@ -1,12 +1,5 @@
 ﻿namespace Xabe.FFmpeg.Probe;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Exceptions;
 using Models;
 

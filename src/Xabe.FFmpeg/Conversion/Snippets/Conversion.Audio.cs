@@ -15,6 +15,11 @@ public partial class Conversion
 
         var audioStream = info.AudioStreams.FirstOrDefault();
 
+        if (audioStream is null)
+        {
+            throw new InvalidOperationException($"No audio stream found in {inputPath}");
+        }
+
         return Create()
                .AddStream(audioStream)
                .SetAudioBitrate(audioStream.Bitrate)
@@ -35,9 +40,9 @@ public partial class Conversion
         var audioInfo = await FFmpeg.GetMediaInfo(audioPath, cancellationToken);
 
         return Create()
-               .AddStream(videoInfo.VideoStreams.FirstOrDefault())
-               .AddStream(audioInfo.AudioStreams.FirstOrDefault())
+               .AddStreams(videoInfo.VideoStreams)
                .AddStreams(videoInfo.SubtitleStreams)
+               .AddStreams(audioInfo.AudioStreams)
                .SetOutput(outputPath);
     }
 

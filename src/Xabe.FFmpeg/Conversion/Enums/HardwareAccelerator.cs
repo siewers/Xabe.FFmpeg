@@ -47,7 +47,6 @@ public enum HardwareAccelerator
     vaapi,
 
     /// <summary>
-    ///
     /// </summary>
     libmfx,
 }

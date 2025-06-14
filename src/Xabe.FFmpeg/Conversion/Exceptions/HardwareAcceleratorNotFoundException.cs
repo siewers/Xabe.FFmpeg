@@ -2,7 +2,7 @@
 
 /// <inheritdoc />
 /// <summary>
-///      The exception that is thrown when a FFmpeg cannot find specified hardware accelerator.
+///     The exception that is thrown when a FFmpeg cannot find specified hardware accelerator.
 /// </summary>
 [PublicAPI]
 public sealed class HardwareAcceleratorNotFoundException : ConversionExceptionBase

@@ -1,6 +1,5 @@
 ﻿namespace Xabe.FFmpeg.Exceptions;
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 
 internal sealed class ExceptionCheck(string searchPhrase, bool containsFileIsEmptyMessage, Func<string, string, Exception> exceptionFactory)

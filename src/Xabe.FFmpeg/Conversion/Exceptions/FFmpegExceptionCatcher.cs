@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg.Exceptions;
 
-using System.Collections.Generic;
-
 internal sealed class FFmpegExceptionCatcher
 {
     private static readonly List<ExceptionCheck> Checks = [];

@@ -1,7 +1,5 @@
 namespace Xabe.FFmpeg.Probe.Models;
 
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
 internal sealed class StreamDispositionModel : Dictionary<string, bool>

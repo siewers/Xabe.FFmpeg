@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg.Events;
 
-using System;
-
 /// <summary>
 ///     Video data
 /// </summary>

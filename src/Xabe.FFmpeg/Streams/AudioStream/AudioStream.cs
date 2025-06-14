@@ -1,9 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
 using Probe.Models;
 
 /// <inheritdoc cref="IAudioStream" />

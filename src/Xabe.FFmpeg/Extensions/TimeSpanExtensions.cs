@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-
 /// <summary>
 ///     Extension methods
 /// </summary>

@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg.Exceptions;
 
-using System;
-
 /// <inheritdoc />
 /// <summary>
 ///     The exception that is thrown when a FFmpeg process return error.
@@ -38,7 +36,6 @@ public class ConversionExceptionBase : Exception
     ///     Gets the FFmpeg input parameters
     /// </summary>
     public string InputParameters { get; }
-
 }
 
 public sealed class GenericConversionException : ConversionExceptionBase

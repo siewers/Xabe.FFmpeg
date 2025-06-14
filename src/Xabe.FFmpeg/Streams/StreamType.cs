@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using JetBrains.Annotations;
-
 /// <summary>
 ///     Stream type
 /// </summary>

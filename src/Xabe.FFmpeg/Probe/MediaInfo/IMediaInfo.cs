@@ -1,9 +1,5 @@
 ﻿namespace Xabe.FFmpeg.Probe;
 
-using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-
 /// <summary>
 ///     Information about media file
 /// </summary>

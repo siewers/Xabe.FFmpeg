@@ -1,7 +1,6 @@
 ﻿namespace Xabe.FFmpeg;
 
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 internal static class StringExtensions
 {

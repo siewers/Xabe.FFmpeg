@@ -1,6 +1,5 @@
 namespace Xabe.FFmpeg.Probe.Models;
 
-using System;
 using System.Text.Json.Serialization;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "codec_type")]

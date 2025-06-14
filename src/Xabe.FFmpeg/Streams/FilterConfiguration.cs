@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Collections.Generic;
-
 /// <inheritdoc />
 internal sealed class FilterConfiguration : IFilterConfiguration
 {

@@ -1,7 +1,5 @@
 namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
 using Probe.Models;
 
 public abstract class StreamBase : IStream
@@ -26,6 +24,7 @@ public abstract class StreamBase : IStream
         IsDefault = streamModel.Disposition.IsDefault;
         IsForced = streamModel.Disposition.IsForced;
     }
+
     public string Path { get; }
 
     public string? Title { get; }

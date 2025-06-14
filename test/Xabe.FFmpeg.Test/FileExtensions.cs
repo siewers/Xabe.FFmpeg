@@ -74,5 +74,4 @@ public static class FileExtensions
     ///     .webp
     /// </summary>
     public const string WebP = ".webp";
-
 }

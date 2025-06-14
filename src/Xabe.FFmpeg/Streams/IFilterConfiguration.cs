@@ -1,8 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Collections.Generic;
-using JetBrains.Annotations;
-
 /// <summary>
 ///     Stream filter configuration
 /// </summary>

@@ -2,7 +2,7 @@
 
 namespace Xabe.FFmpeg;
 
-using JetBrains.Annotations;
+using System.ComponentModel.DataAnnotations;
 using NetEscapades.EnumGenerators;
 
 /// <summary>
@@ -15,27 +15,27 @@ public enum Format
     /// <summary>
     ///     3DO STR
     /// </summary>
-    _3dostr,
+    [Display(Name = "3dostr")] _3dostr,
 
     /// <summary>
     ///     3GP2 (3GPP2 file format)
     /// </summary>
-    _3g2,
+    [Display(Name = "3gp2")] _3g2,
 
     /// <summary>
     ///     3GP (3GPP file format)
     /// </summary>
-    _3gp,
+    [Display(Name = "3gp")] _3gp,
 
     /// <summary>
     ///     4X Technologies
     /// </summary>
-    _4xm,
+    [Display(Name = "4xm")] _4xm,
 
     /// <summary>
     ///     a64 - video for Commodore 64
     /// </summary>
-    a64,
+    [Display(Name = "a64")] a64,
 
     /// <summary>
     ///     Audible AA format files

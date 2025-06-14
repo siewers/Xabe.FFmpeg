@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-
 internal static class VideoSizeExtensions
 {
     public static string ToFFmpegFormat(this VideoSize videoSize)

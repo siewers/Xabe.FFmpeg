@@ -22,10 +22,10 @@
     <DefineConstants>$(DefineConstants);NETESCAPADES_ENUMGENERATORS_EMBED_ATTRIBUTES</DefineConstants>
   </PropertyGroup>
 
-<!--  <PropertyGroup>-->
-<!--    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>-->
-<!--    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>-->
-<!--  </PropertyGroup>-->
+  <!--  <PropertyGroup>-->
+  <!--    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>-->
+  <!--    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>-->
+  <!--  </PropertyGroup>-->
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>full</DebugType>

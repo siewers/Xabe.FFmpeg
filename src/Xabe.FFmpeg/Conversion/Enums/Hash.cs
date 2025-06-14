@@ -5,7 +5,7 @@ namespace Xabe.FFmpeg;
 using NetEscapades.EnumGenerators;
 
 /// <summary>
-/// Hash Formats ("ffmpeg -i INPUT -f hash")
+///     Hash Formats ("ffmpeg -i INPUT -f hash")
 /// </summary>
 [PublicAPI]
 [EnumExtensions]

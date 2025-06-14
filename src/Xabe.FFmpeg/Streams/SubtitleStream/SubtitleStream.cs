@@ -1,7 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Linq;
-using JetBrains.Annotations;
 using Probe.Models;
 
 [PublicAPI]

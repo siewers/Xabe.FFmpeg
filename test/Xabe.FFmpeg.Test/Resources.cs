@@ -14,12 +14,12 @@ internal static class Resources
     internal static readonly string BunnyMp4 = GetResourceFilePath("bunny.mp4");
     internal static readonly string SloMoMp4 = GetResourceFilePath("slomo.mp4");
     internal static readonly string Dll = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Xabe.FFmpeg.Test.dll");
-
     internal static readonly string Images = GetResourceFilePath("Images");
-
     internal static readonly string SubtitleSrt = GetResourceFilePath("sampleSrt.srt");
-
     internal static readonly string FFbinariesInfo = GetResourceFilePath("ffbinaries.json");
 
-    private static string GetResourceFilePath(string fileName) => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", fileName);
+    private static string GetResourceFilePath(string fileName)
+    {
+        return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", fileName);
+    }
 }

@@ -1,9 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-
 /// <summary>
 ///     Base stream class
 /// </summary>
@@ -31,12 +27,12 @@ public interface IStream
     string? Language { get; }
 
     /// <summary>
-    ///    Gets the duration of the stream
+    ///     Gets the duration of the stream
     /// </summary>
     TimeSpan Duration { get; }
 
     /// <summary>
-    ///    Gets the bitrate of the stream in bits per second
+    ///     Gets the bitrate of the stream in bits per second
     /// </summary>
     long Bitrate { get; }
 
@@ -46,7 +42,7 @@ public interface IStream
     StreamType StreamType { get; }
 
     /// <summary>
-    ///   Gets the title of the stream.
+    ///     Gets the title of the stream.
     /// </summary>
     string? Title { get; }
 

@@ -1,4 +1,6 @@
-﻿[assembly: FluentAssertions.Extensibility.AssertionEngineInitializer(typeof(AssertionEngineInitializer), nameof(AssertionEngineInitializer.AcknowledgeSoftWarning))]
+﻿using FluentAssertions.Extensibility;
+
+[assembly: AssertionEngineInitializer(typeof(AssertionEngineInitializer), nameof(AssertionEngineInitializer.AcknowledgeSoftWarning))]
 
 // ReSharper disable once CheckNamespace
 internal static class AssertionEngineInitializer

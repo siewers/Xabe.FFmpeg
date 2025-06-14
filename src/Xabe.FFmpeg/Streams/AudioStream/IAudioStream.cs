@@ -1,8 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using JetBrains.Annotations;
-
 /// <summary>
 ///     Audio stream
 /// </summary>

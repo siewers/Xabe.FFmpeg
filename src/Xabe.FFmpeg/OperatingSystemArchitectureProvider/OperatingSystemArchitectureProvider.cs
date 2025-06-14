@@ -1,6 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
 using System.Runtime.InteropServices;
 
 internal sealed class OperatingSystemArchitectureProvider : IOperatingSystemArchitectureProvider

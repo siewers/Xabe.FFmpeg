@@ -18,13 +18,13 @@ public partial class Conversion : IConversion
     private Func<string, string>? _buildOutputFileName;
     private FFmpegWrapper? _ffmpeg;
     private bool _hasInputBuilder;
-    private string _output;
+    private string? _output;
     private ProcessPriorityClass? _priority;
 
     public Conversion()
     {
-        _userDefinedParameters[ParameterPosition.PostInput] = [];
-        _userDefinedParameters[ParameterPosition.PreInput] = [];
+        _userDefinedParameters[key: ParameterPosition.PostInput] = [];
+        _userDefinedParameters[key: ParameterPosition.PreInput] = [];
     }
 
     /// <inheritdoc />
@@ -36,24 +36,24 @@ public partial class Conversion : IConversion
 
             _buildOutputFileName ??= _ => _output;
 
-            builder.Append(string.Join(" ", _userDefinedParameters[ParameterPosition.PreInput].Select(x => x.Trim())) + " ");
-            builder.Append(GetParameters(ParameterPosition.PreInput));
-            builder.Append(GetStreamsPreInputs());
+            builder.Append(value: string.Join(" ", _userDefinedParameters[key: ParameterPosition.PreInput].Select(selector: x => x.Trim())) + " ");
+            builder.Append(value: GetParameters(forPosition: ParameterPosition.PreInput));
+            builder.Append(value: GetStreamsPreInputs());
 
             if (_buildInputFileName is not null)
             {
                 _hasInputBuilder = true;
-                builder.Append(_buildInputFileName("_%03d"));
+                builder.Append(value: _buildInputFileName(arg: "_%03d"));
             }
 
-            builder.Append(GetInputs());
+            builder.Append(value: GetInputs());
 
-            builder.Append(GetStreamsPostInputs());
-            builder.Append(GetFilters());
-            builder.Append(GetMap());
-            builder.Append(GetParameters(ParameterPosition.PostInput));
-            builder.Append(string.Join(" ", _userDefinedParameters[ParameterPosition.PostInput].Select(x => x.Trim())) + " ");
-            builder.Append(_buildOutputFileName("_%03d"));
+            builder.Append(value: GetStreamsPostInputs());
+            builder.Append(value: GetFilters());
+            builder.Append(value: GetMap());
+            builder.Append(value: GetParameters(forPosition: ParameterPosition.PostInput));
+            builder.Append(value: string.Join(" ", _userDefinedParameters[key: ParameterPosition.PostInput].Select(selector: x => x.Trim())) + " ");
+            builder.Append(value: _buildOutputFileName(arg: "_%03d"));
 
             return builder.ToString();
         }
@@ -95,7 +95,7 @@ public partial class Conversion : IConversion
     {
         if (_ffmpeg is not null)
         {
-            throw new InvalidOperationException("Conversion has already been started.");
+            throw new InvalidOperationException(message: "Conversion has already been started.");
         }
 
         _ffmpeg = new FFmpegWrapper();
@@ -112,8 +112,8 @@ public partial class Conversion : IConversion
 
             return new ConversionResult
                    {
-                       StartTime = new DateTime(startTime),
-                       EndTime = new DateTime(endTime),
+                       StartTime = new DateTime(ticks: startTime),
+                       EndTime = new DateTime(ticks: endTime),
                        Duration = Stopwatch.GetElapsedTime(startTime, endTime),
                        Arguments = parameters,
                        OutputLog = string.Join(Environment.NewLine, _ffmpeg.OutputLog),
@@ -131,7 +131,7 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion AddParameter(string parameter, ParameterPosition parameterPosition = ParameterPosition.PostInput)
     {
-        _userDefinedParameters[parameterPosition].Add(parameter);
+        _userDefinedParameters[key: parameterPosition].Add(item: parameter);
         return this;
     }
 
@@ -140,7 +140,7 @@ public partial class Conversion : IConversion
     {
         if (stream is not null)
         {
-            _streams.Add(stream);
+            _streams.Add(item: stream);
         }
 
         return this;
@@ -151,7 +151,7 @@ public partial class Conversion : IConversion
     {
         foreach (var stream in streams)
         {
-            AddStream(stream);
+            AddStream(stream: stream);
         }
 
         return this;
@@ -167,8 +167,8 @@ public partial class Conversion : IConversion
             _ => hashFormat.ToStringFast(),
         };
 
-        SetOutputFormat(Format.hash);
-        return SetHashFormat(format);
+        SetOutputFormat(outputFormat: Format.hash);
+        return SetHashFormat(hashFormat: format);
     }
 
     /// <inheritdoc />
@@ -181,7 +181,7 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetPreset(ConversionPreset preset)
     {
-        _parameters.Add("preset", preset.ToString().ToLower(), ParameterPosition.PostInput);
+        _parameters.Add("preset", preset.ToStringFast().ToLower(), ParameterPosition.PostInput);
         return this;
     }
 
@@ -236,7 +236,7 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetOutput(string outputFilePath)
     {
-        OutputFilePath = new FileInfo(outputFilePath).FullName;
+        OutputFilePath = new FileInfo(fileName: outputFilePath).FullName;
         _output = outputFilePath.Escape();
         return this;
     }
@@ -244,7 +244,7 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion PipeOutput(PipeDescriptor descriptor = PipeDescriptor.stdout)
     {
-        SetOutput($"pipe:{descriptor.ToStringFast()}");
+        SetOutput(outputFilePath: $"pipe:{descriptor.ToStringFast()}");
         OutputPipeDescriptor = descriptor;
         return this;
     }
@@ -298,9 +298,9 @@ public partial class Conversion : IConversion
     public IConversion ExtractEveryNthFrame(int frameNo, Func<string, string> buildOutputFileName)
     {
         _buildOutputFileName = buildOutputFileName;
-        OutputFilePath = buildOutputFileName("");
+        OutputFilePath = buildOutputFileName(arg: "");
         _parameters.Add("vf", $"select='not(mod(n\\,{frameNo}))'", ParameterPosition.PostInput);
-        SetVideoSyncMethod(VideoSyncMethod.vfr);
+        SetVideoSyncMethod(method: VideoSyncMethod.vfr);
 
         return this;
     }
@@ -310,8 +310,8 @@ public partial class Conversion : IConversion
     {
         _buildOutputFileName = buildOutputFileName;
         _parameters.Add("vf", $"select='eq(n\\,{frameNo})'", ParameterPosition.PostInput);
-        OutputFilePath = buildOutputFileName("");
-        SetVideoSyncMethod(VideoSyncMethod.passthrough);
+        OutputFilePath = buildOutputFileName(arg: "");
+        SetVideoSyncMethod(method: VideoSyncMethod.passthrough);
         return this;
     }
 
@@ -335,16 +335,16 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetInputFramerate(double framerate)
     {
-        _parameters.Add("framerate", framerate.ToFFmpegFormat(3), ParameterPosition.PreInput);
-        _parameters.Add("r", framerate.ToFFmpegFormat(3), ParameterPosition.PreInput);
+        _parameters.Add("framerate", framerate.ToFFmpegFormat(decimalPlaces: 3), ParameterPosition.PreInput);
+        _parameters.Add("r", framerate.ToFFmpegFormat(decimalPlaces: 3), ParameterPosition.PreInput);
         return this;
     }
 
     /// <inheritdoc />
     public IConversion SetFramerate(double framerate)
     {
-        _parameters.Add("framerate", framerate.ToFFmpegFormat(3), ParameterPosition.PostInput);
-        _parameters.Add("r", framerate.ToFFmpegFormat(3), ParameterPosition.PostInput);
+        _parameters.Add("framerate", framerate.ToFFmpegFormat(decimalPlaces: 3), ParameterPosition.PostInput);
+        _parameters.Add("r", framerate.ToFFmpegFormat(decimalPlaces: 3), ParameterPosition.PostInput);
         return this;
     }
 
@@ -367,7 +367,7 @@ public partial class Conversion : IConversion
             _parameters.Add("hwaccel_device", device, ParameterPosition.PreInput);
         }
 
-        UseMultiThread(false);
+        UseMultiThread(multiThread: false);
         return this;
     }
 
@@ -391,16 +391,8 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetInputFormat(Format inputFormat)
     {
-        var format = inputFormat switch
-        {
-            Format._3dostr => "3dostr",
-            Format._3g2 => "3g2",
-            Format._3gp => "3gp",
-            Format._4xm => "4xm",
-            _ => inputFormat.ToStringFast(),
-        };
-
-        return SetInputFormat(format);
+        var format = inputFormat.ToStringFast(useMetadataAttributes: true);
+        return SetInputFormat(format: format);
     }
 
     /// <inheritdoc />
@@ -417,16 +409,8 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetOutputFormat(Format outputFormat)
     {
-        var format = outputFormat switch
-        {
-            Format._3dostr => "3dostr",
-            Format._3g2 => "3g2",
-            Format._3gp => "3gp",
-            Format._4xm => "4xm",
-            _ => outputFormat.ToStringFast(),
-        };
-
-        return SetOutputFormat(format);
+        var format = outputFormat.ToStringFast(useMetadataAttributes: true);
+        return SetOutputFormat(format: format);
     }
 
     /// <inheritdoc />
@@ -443,14 +427,9 @@ public partial class Conversion : IConversion
     /// <inheritdoc />
     public IConversion SetPixelFormat(PixelFormat pixelFormat)
     {
-        var format = pixelFormat switch
-        {
-            PixelFormat._0bgr => "0bgr",
-            PixelFormat._0rgb => "0rgb",
-            _ => pixelFormat.ToStringFast(),
-        };
+        var format = pixelFormat.ToStringFast(useMetadataAttributes: true);
 
-        return SetPixelFormat(format);
+        return SetPixelFormat(pixelFormat: format);
     }
 
     /// <inheritdoc />
@@ -483,13 +462,13 @@ public partial class Conversion : IConversion
     public IConversion AddDesktopStream(string? videoSize = null, double framerate = 30, int xOffset = 0, int yOffset = 0)
     {
         var (path, format) = GetPathAndFormat();
-        var index = _streams.Count != 0 ? _streams.Max(x => x.Index) + 1 : 0;
+        var index = _streams.Count != 0 ? _streams.Max(selector: x => x.Index) + 1 : 0;
 
         var stream = new VideoStream(path, index);
 
-        stream.SetInputFormat(format);
+        stream.SetInputFormat(inputFormat: format);
 
-        stream.Parameters.Add("framerate", framerate.ToFFmpegFormat(4), ParameterPosition.PreInput);
+        stream.Parameters.Add("framerate", framerate.ToFFmpegFormat(decimalPlaces: 4), ParameterPosition.PreInput);
         stream.Parameters.Add("offset_x", xOffset, ParameterPosition.PreInput);
         stream.Parameters.Add("offset_y", yOffset, ParameterPosition.PreInput);
 
@@ -498,23 +477,23 @@ public partial class Conversion : IConversion
             stream.Parameters.Add("video_size", videoSize, ParameterPosition.PreInput);
         }
 
-        AddStream(stream);
+        AddStream(stream: stream);
 
         return this;
 
         (string Path, Format Format) GetPathAndFormat()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.Windows))
             {
                 return (Path: "desktop", Format: Format.gdigrab);
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.OSX))
             {
                 return (Path: "1:1", Format: Format.avfoundation);
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.Linux))
             {
                 return (Path: ":0.0+0,0", Format: Format.x11grab);
             }
@@ -531,16 +510,16 @@ public partial class Conversion : IConversion
 
     private void CreateOutputDirectoryIfNotExists()
     {
-        if (string.IsNullOrWhiteSpace(OutputFilePath) || OutputPipeDescriptor is not null)
+        if (string.IsNullOrWhiteSpace(value: OutputFilePath) || OutputPipeDescriptor is not null)
         {
             return;
         }
 
         try
         {
-            if (!Directory.Exists(Path.GetDirectoryName(OutputFilePath.Unescape())))
+            if (!Directory.Exists(path: Path.GetDirectoryName(path: OutputFilePath.Unescape())))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(OutputFilePath.Unescape()));
+                Directory.CreateDirectory(path: Path.GetDirectoryName(path: OutputFilePath.Unescape()));
             }
         }
         catch (IOException)
@@ -554,7 +533,7 @@ public partial class Conversion : IConversion
 
         foreach (var stream in _streams)
         {
-            builder.Append(stream.BuildParameters(ParameterPosition.PostInput));
+            builder.Append(value: stream.BuildParameters(forPosition: ParameterPosition.PostInput));
         }
 
         return builder.ToString();
@@ -566,7 +545,7 @@ public partial class Conversion : IConversion
 
         foreach (var stream in _streams)
         {
-            builder.Append(stream.BuildParameters(ParameterPosition.PreInput));
+            builder.Append(value: stream.BuildParameters(forPosition: ParameterPosition.PreInput));
         }
 
         return builder.ToString();
@@ -577,29 +556,29 @@ public partial class Conversion : IConversion
         var builder = new StringBuilder();
         var configurations = new List<IFilterConfiguration>();
 
-        configurations.AddRange(_streams.OfType<IFilterable>().SelectMany(filterable => filterable.GetFilters()));
+        configurations.AddRange(collection: _streams.OfType<IFilterable>().SelectMany(selector: filterable => filterable.GetFilters()));
 
-        var filterGroups = configurations.GroupBy(configuration => configuration.FilterType);
+        var filterGroups = configurations.GroupBy(keySelector: configuration => configuration.FilterType);
 
         foreach (var filterGroup in filterGroups)
         {
-            builder.Append($"{filterGroup.Key} \"");
+            builder.Append(handler: $"{filterGroup.Key} \"");
 
-            foreach (var configuration in configurations.Where(x => x.FilterType == filterGroup.Key))
+            foreach (var configuration in configurations.Where(predicate: x => x.FilterType == filterGroup.Key))
             {
                 var values = new List<string>();
 
                 foreach (var filter in configuration.Filters)
                 {
                     var map = $"[{configuration.StreamNumber}]";
-                    var value = string.IsNullOrEmpty(filter.Value) ? $"{filter.Key} " : $"{filter.Key}={filter.Value}";
-                    values.Add($"{map} {value} ");
+                    var value = string.IsNullOrEmpty(value: filter.Value) ? $"{filter.Key} " : $"{filter.Key}={filter.Value}";
+                    values.Add(item: $"{map} {value} ");
                 }
 
-                builder.Append(string.Join(";", values));
+                builder.Append(value: string.Join(";", values));
             }
 
-            builder.Append("\" ");
+            builder.Append(value: "\" ");
         }
 
         return builder.ToString();
@@ -617,7 +596,7 @@ public partial class Conversion : IConversion
         {
             if (_hasInputBuilder) // If we have an input builder we always want to map the first video stream as it will be created by our input builder
             {
-                builder.Append("-map 0:0 ");
+                builder.Append(value: "-map 0:0 ");
             }
 
             foreach (var source in stream.GetSource())
@@ -625,11 +604,11 @@ public partial class Conversion : IConversion
                 if (_hasInputBuilder)
                 {
                     // If we have an input builder we need to add one to the input file index to account for the input created by our input builder.
-                    builder.Append($"-map {_inputFileMap[source] + 1}:{stream.Index} ");
+                    builder.Append(handler: $"-map {_inputFileMap[key: source] + 1}:{stream.Index} ");
                 }
                 else
                 {
-                    builder.Append($"-map {_inputFileMap[source]}:{stream.Index} ");
+                    builder.Append(handler: $"-map {_inputFileMap[key: source]}:{stream.Index} ");
                 }
             }
         }
@@ -644,8 +623,8 @@ public partial class Conversion : IConversion
     /// <returns>Parameters</returns>
     private string GetParameters(ParameterPosition forPosition)
     {
-        var parameters = _parameters.Where(x => x.Position == forPosition);
-        return string.Join(string.Empty, parameters.Select(x => x.Parameter));
+        var parameters = _parameters.Where(predicate: x => x.Position == forPosition);
+        return string.Join(string.Empty, parameters.Select(selector: x => x.Parameter));
     }
 
     /// <summary>
@@ -657,10 +636,10 @@ public partial class Conversion : IConversion
         var builder = new StringBuilder();
         var index = 0;
 
-        foreach (var source in _streams.SelectMany(x => x.GetSource()).Distinct())
+        foreach (var source in _streams.SelectMany(selector: x => x.GetSource()).Distinct())
         {
-            _inputFileMap[source] = index++;
-            builder.Append($"-i {source.Escape()} ");
+            _inputFileMap[key: source] = index++;
+            builder.Append(handler: $"-i {source.Escape()} ");
         }
 
         return builder.ToString();
@@ -668,11 +647,11 @@ public partial class Conversion : IConversion
 
     private bool HasH264Stream()
     {
-        return _streams.Any(stream => stream is IVideoStream { Codec: nameof(VideoCodec.libx264) or nameof(VideoCodec.h264) });
+        return _streams.Any(predicate: stream => stream is IVideoStream { Codec: nameof(VideoCodec.libx264) or nameof(VideoCodec.h264) });
     }
 
     internal static IConversion Create()
     {
-        return new Conversion().SetOverwriteOutput(false);
+        return new Conversion().SetOverwriteOutput(overwrite: false);
     }
 }

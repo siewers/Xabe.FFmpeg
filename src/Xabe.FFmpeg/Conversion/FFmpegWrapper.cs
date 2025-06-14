@@ -1,13 +1,7 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Events;
 using Exceptions;
 using Microsoft.Win32.SafeHandles;
@@ -18,9 +12,10 @@ using Microsoft.Win32.SafeHandles;
 /// </summary>
 internal partial class FFmpegWrapper : FFmpeg
 {
-    internal List<string> OutputLog { get; } = [];
     private TimeSpan _totalTime;
     private bool _wasKilled;
+
+    internal List<string> OutputLog { get; } = [];
 
     /// <summary>
     ///     Fires when FFmpeg progress changes

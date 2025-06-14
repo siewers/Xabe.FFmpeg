@@ -1,13 +1,8 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Exceptions;
 
 /// <summary>
@@ -18,10 +13,8 @@ public abstract partial class FFmpeg
 {
     private static readonly Lock FFmpegPathLock = new();
     private static readonly Lock FFprobePathLock = new();
-
     private static string _ffmpegExecutableName = "ffmpeg";
     private static string _ffprobeExecutableName = "ffprobe";
-
     private static string? _ffmpegPath;
     private static string? _ffprobePath;
     private static string _lastExecutablePath = Guid.NewGuid().ToString();
@@ -170,6 +163,7 @@ public abstract partial class FFmpeg
                     return magicNumber[0] == 0xCE && magicNumber[1] == 0xFA && magicNumber[2] == 0xED && magicNumber[3] == 0xFE;
                 case OperatingSystem.Linux:
                     var architecture = architectureProvider.GetArchitecture();
+
                     if (architecture is OperatingSystemArchitecture.X86 or OperatingSystemArchitecture.X64)
                     {
                         return magicNumber[0] == 0x7F && magicNumber[1] == 0x45 && magicNumber[2] == 0x4C && magicNumber[3] == 0x46;

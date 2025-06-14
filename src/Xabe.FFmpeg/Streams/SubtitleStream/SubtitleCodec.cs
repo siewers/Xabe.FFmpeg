@@ -3,7 +3,6 @@
 
 namespace Xabe.FFmpeg;
 
-using JetBrains.Annotations;
 using NetEscapades.EnumGenerators;
 
 /// <summary>

@@ -2,7 +2,6 @@
 
 namespace Xabe.FFmpeg;
 
-using JetBrains.Annotations;
 using NetEscapades.EnumGenerators;
 
 /// <summary>
@@ -12,908 +11,908 @@ using NetEscapades.EnumGenerators;
 [EnumExtensions]
 public enum AudioCodec
 {
-    ///<summary>
+    /// <summary>
     ///     4GV (Fourth Generation Vocoder)
-    ///</summary>
+    /// </summary>
     _4gv,
 
-    ///<summary>
+    /// <summary>
     ///     8SVX exponential
-    ///</summary>
+    /// </summary>
     _8svx_exp,
 
-    ///<summary>
+    /// <summary>
     ///     8SVX fibonacci
-    ///</summary>
+    /// </summary>
     _8svx_fib,
 
-    ///<summary>
+    /// <summary>
     ///     AAC (Advanced Audio Coding) (decoders: aac aac_fixed )
-    ///</summary>
+    /// </summary>
     aac,
 
-    ///<summary>
+    /// <summary>
     ///     AAC LATM (Advanced Audio Coding LATM syntax)
-    ///</summary>
+    /// </summary>
     aac_latm,
 
-    ///<summary>
+    /// <summary>
     ///     ATSC A/52A (AC-3) (decoders: ac3 ac3_fixed ) (encoders: ac3 ac3_fixed )
-    ///</summary>
+    /// </summary>
     ac3,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM 4X Movie
-    ///</summary>
+    /// </summary>
     adpcm_4xm,
 
-    ///<summary>
+    /// <summary>
     ///     SEGA CRI ADX ADPCM
-    ///</summary>
+    /// </summary>
     adpcm_adx,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Nintendo Gamecube AFC
-    ///</summary>
+    /// </summary>
     adpcm_afc,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM AmuseGraphics Movie AGM
-    ///</summary>
+    /// </summary>
     adpcm_agm,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Yamaha AICA
-    ///</summary>
+    /// </summary>
     adpcm_aica,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Creative Technology
-    ///</summary>
+    /// </summary>
     adpcm_ct,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Nintendo Gamecube DTK
-    ///</summary>
+    /// </summary>
     adpcm_dtk,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Electronic Arts
-    ///</summary>
+    /// </summary>
     adpcm_ea,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Electronic Arts Maxis CDROM XA
-    ///</summary>
+    /// </summary>
     adpcm_ea_maxis_xa,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Electronic Arts R1
-    ///</summary>
+    /// </summary>
     adpcm_ea_r1,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Electronic Arts R2
-    ///</summary>
+    /// </summary>
     adpcm_ea_r2,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Electronic Arts R3
-    ///</summary>
+    /// </summary>
     adpcm_ea_r3,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Electronic Arts XAS
-    ///</summary>
+    /// </summary>
     adpcm_ea_xas,
 
-    ///<summary>
+    /// <summary>
     ///     G.722 ADPCM (decoders: g722 ) (encoders: g722 )
-    ///</summary>
+    /// </summary>
     adpcm_g722,
 
-    ///<summary>
+    /// <summary>
     ///     G.726 ADPCM (decoders: g726 ) (encoders: g726 )
-    ///</summary>
+    /// </summary>
     adpcm_g726,
 
-    ///<summary>
+    /// <summary>
     ///     G.726 ADPCM little-endian (decoders: g726le ) (encoders: g726le )
-    ///</summary>
+    /// </summary>
     adpcm_g726le,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA AMV
-    ///</summary>
+    /// </summary>
     adpcm_ima_amv,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA CRYO APC
-    ///</summary>
+    /// </summary>
     adpcm_ima_apc,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Eurocom DAT4
-    ///</summary>
+    /// </summary>
     adpcm_ima_dat4,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Duck DK3
-    ///</summary>
+    /// </summary>
     adpcm_ima_dk3,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Duck DK4
-    ///</summary>
+    /// </summary>
     adpcm_ima_dk4,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Electronic Arts EACS
-    ///</summary>
+    /// </summary>
     adpcm_ima_ea_eacs,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Electronic Arts SEAD
-    ///</summary>
+    /// </summary>
     adpcm_ima_ea_sead,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Funcom ISS
-    ///</summary>
+    /// </summary>
     adpcm_ima_iss,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Dialogic OKI
-    ///</summary>
+    /// </summary>
     adpcm_ima_oki,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA QuickTime
-    ///</summary>
+    /// </summary>
     adpcm_ima_qt,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Radical
-    ///</summary>
+    /// </summary>
     adpcm_ima_rad,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Loki SDL MJPEG
-    ///</summary>
+    /// </summary>
     adpcm_ima_smjpeg,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA WAV
-    ///</summary>
+    /// </summary>
     adpcm_ima_wav,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM IMA Westwood
-    ///</summary>
+    /// </summary>
     adpcm_ima_ws,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Microsoft
-    ///</summary>
+    /// </summary>
     adpcm_ms,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM MTAF
-    ///</summary>
+    /// </summary>
     adpcm_mtaf,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Playstation
-    ///</summary>
+    /// </summary>
     adpcm_psx,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Sound Blaster Pro 2-bit
-    ///</summary>
+    /// </summary>
     adpcm_sbpro_2,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Sound Blaster Pro 2.6-bit
-    ///</summary>
+    /// </summary>
     adpcm_sbpro_3,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Sound Blaster Pro 4-bit
-    ///</summary>
+    /// </summary>
     adpcm_sbpro_4,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Shockwave Flash
-    ///</summary>
+    /// </summary>
     adpcm_swf,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Nintendo THP
-    ///</summary>
+    /// </summary>
     adpcm_thp,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Nintendo THP (Little-Endian)
-    ///</summary>
+    /// </summary>
     adpcm_thp_le,
 
-    ///<summary>
+    /// <summary>
     ///     LucasArts VIMA audio
-    ///</summary>
+    /// </summary>
     adpcm_vima,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM CDROM XA
-    ///</summary>
+    /// </summary>
     adpcm_xa,
 
-    ///<summary>
+    /// <summary>
     ///     ADPCM Yamaha
-    ///</summary>
+    /// </summary>
     adpcm_yamaha,
 
-    ///<summary>
+    /// <summary>
     ///     ALAC (Apple Lossless Audio Codec)
-    ///</summary>
+    /// </summary>
     alac,
 
-    ///<summary>
+    /// <summary>
     ///     AMR-NB (Adaptive Multi-Rate NarrowBand) (decoders: amrnb libopencore_amrnb ) (encoders: libopencore_amrnb )
-    ///</summary>
+    /// </summary>
     amr_nb,
 
-    ///<summary>
+    /// <summary>
     ///     AMR-WB (Adaptive Multi-Rate WideBand) (decoders: amrwb libopencore_amrwb ) (encoders: libvo_amrwbenc )
-    ///</summary>
+    /// </summary>
     amr_wb,
 
-    ///<summary>
+    /// <summary>
     ///     Monkey's Audio
-    ///</summary>
+    /// </summary>
     ape,
 
-    ///<summary>
+    /// <summary>
     ///     aptX (Audio Processing Technology for Bluetooth)
-    ///</summary>
+    /// </summary>
     aptx,
 
-    ///<summary>
+    /// <summary>
     ///     aptX HD (Audio Processing Technology for Bluetooth)
-    ///</summary>
+    /// </summary>
     aptx_hd,
 
-    ///<summary>
+    /// <summary>
     ///     ATRAC1 (Adaptive TRansform Acoustic Coding)
-    ///</summary>
+    /// </summary>
     atrac1,
 
-    ///<summary>
+    /// <summary>
     ///     ATRAC3 (Adaptive TRansform Acoustic Coding 3)
-    ///</summary>
+    /// </summary>
     atrac3,
 
-    ///<summary>
+    /// <summary>
     ///     ATRAC3 AL (Adaptive TRansform Acoustic Coding 3 Advanced Lossless)
-    ///</summary>
+    /// </summary>
     atrac3al,
 
-    ///<summary>
+    /// <summary>
     ///     ATRAC3+ (Adaptive TRansform Acoustic Coding 3+) (decoders: atrac3plus )
-    ///</summary>
+    /// </summary>
     atrac3p,
 
-    ///<summary>
+    /// <summary>
     ///     ATRAC3+ AL (Adaptive TRansform Acoustic Coding 3+ Advanced Lossless) (decoders: atrac3plusal )
-    ///</summary>
+    /// </summary>
     atrac3pal,
 
-    ///<summary>
+    /// <summary>
     ///     ATRAC9 (Adaptive TRansform Acoustic Coding 9)
-    ///</summary>
+    /// </summary>
     atrac9,
 
-    ///<summary>
+    /// <summary>
     ///     On2 Audio for Video Codec (decoders: on2avc )
-    ///</summary>
+    /// </summary>
     avc,
 
-    ///<summary>
+    /// <summary>
     ///     Bink Audio (DCT)
-    ///</summary>
+    /// </summary>
     binkaudio_dct,
 
-    ///<summary>
+    /// <summary>
     ///     Bink Audio (RDFT)
-    ///</summary>
+    /// </summary>
     binkaudio_rdft,
 
-    ///<summary>
+    /// <summary>
     ///     Discworld II BMV audio
-    ///</summary>
+    /// </summary>
     bmv_audio,
 
-    ///<summary>
+    /// <summary>
     ///     Constrained Energy Lapped Transform (CELT)
-    ///</summary>
+    /// </summary>
     celt,
 
-    ///<summary>
+    /// <summary>
     ///     codec2 (very low bitrate speech codec)
-    ///</summary>
+    /// </summary>
     codec2,
 
-    ///<summary>
+    /// <summary>
     ///     RFC 3389 Comfort Noise
-    ///</summary>
+    /// </summary>
     comfortnoise,
 
-    ///<summary>
+    /// <summary>
     ///     Cook / Cooker / Gecko (RealAudio G2)
-    ///</summary>
+    /// </summary>
     cook,
 
-    ///<summary>
+    /// <summary>
     ///     Dolby E
-    ///</summary>
+    /// </summary>
     dolby_e,
 
-    ///<summary>
+    /// <summary>
     ///     DSD (Direct Stream Digital), least significant bit first
-    ///</summary>
+    /// </summary>
     dsd_lsbf,
 
-    ///<summary>
+    /// <summary>
     ///     DSD (Direct Stream Digital), least significant bit first, planar
-    ///</summary>
+    /// </summary>
     dsd_lsbf_planar,
 
-    ///<summary>
+    /// <summary>
     ///     DSD (Direct Stream Digital), most significant bit first
-    ///</summary>
+    /// </summary>
     dsd_msbf,
 
-    ///<summary>
+    /// <summary>
     ///     DSD (Direct Stream Digital), most significant bit first, planar
-    ///</summary>
+    /// </summary>
     dsd_msbf_planar,
 
-    ///<summary>
+    /// <summary>
     ///     Delphine Software International CIN audio
-    ///</summary>
+    /// </summary>
     dsicinaudio,
 
-    ///<summary>
+    /// <summary>
     ///     Digital Speech Standard - Standard Play mode (DSS SP)
-    ///</summary>
+    /// </summary>
     dss_sp,
 
-    ///<summary>
+    /// <summary>
     ///     DST (Direct Stream Transfer)
-    ///</summary>
+    /// </summary>
     dst,
 
-    ///<summary>
+    /// <summary>
     ///     DCA (DTS Coherent Acoustics) (decoders: dca ) (encoders: dca )
-    ///</summary>
+    /// </summary>
     dts,
 
-    ///<summary>
+    /// <summary>
     ///     DV audio
-    ///</summary>
+    /// </summary>
     dvaudio,
 
-    ///<summary>
+    /// <summary>
     ///     ATSC A/52B (AC-3, E-AC-3)
-    ///</summary>
+    /// </summary>
     eac3,
 
-    ///<summary>
+    /// <summary>
     ///     EVRC (Enhanced Variable Rate Codec)
-    ///</summary>
+    /// </summary>
     evrc,
 
-    ///<summary>
+    /// <summary>
     ///     FLAC (Free Lossless Audio Codec)
-    ///</summary>
+    /// </summary>
     flac,
 
-    ///<summary>
+    /// <summary>
     ///     G.723.1
-    ///</summary>
+    /// </summary>
     g723_1,
 
-    ///<summary>
+    /// <summary>
     ///     G.729
-    ///</summary>
+    /// </summary>
     g729,
 
-    ///<summary>
+    /// <summary>
     ///     DPCM Gremlin
-    ///</summary>
+    /// </summary>
     gremlin_dpcm,
 
-    ///<summary>
+    /// <summary>
     ///     GSM
-    ///</summary>
+    /// </summary>
     gsm,
 
-    ///<summary>
+    /// <summary>
     ///     GSM Microsoft variant
-    ///</summary>
+    /// </summary>
     gsm_ms,
 
-    ///<summary>
+    /// <summary>
     ///     HCOM Audio
-    ///</summary>
+    /// </summary>
     hcom,
 
-    ///<summary>
+    /// <summary>
     ///     IAC (Indeo Audio Coder)
-    ///</summary>
+    /// </summary>
     iac,
 
-    ///<summary>
+    /// <summary>
     ///     iLBC (Internet Low Bitrate Codec)
-    ///</summary>
+    /// </summary>
     ilbc,
 
-    ///<summary>
+    /// <summary>
     ///     IMC (Intel Music Coder)
-    ///</summary>
+    /// </summary>
     imc,
 
-    ///<summary>
+    /// <summary>
     ///     DPCM Interplay
-    ///</summary>
+    /// </summary>
     interplay_dpcm,
 
-    ///<summary>
+    /// <summary>
     ///     Interplay ACM
-    ///</summary>
+    /// </summary>
     interplayacm,
 
-    ///<summary>
+    /// <summary>
     ///     MACE (Macintosh Audio Compression/Expansion) 3:1
-    ///</summary>
+    /// </summary>
     mace3,
 
-    ///<summary>
+    /// <summary>
     ///     MACE (Macintosh Audio Compression/Expansion) 6:1
-    ///</summary>
+    /// </summary>
     mace6,
 
-    ///<summary>
+    /// <summary>
     ///     Voxware MetaSound
-    ///</summary>
+    /// </summary>
     metasound,
 
-    ///<summary>
+    /// <summary>
     ///     MLP (Meridian Lossless Packing)
-    ///</summary>
+    /// </summary>
     mlp,
 
-    ///<summary>
+    /// <summary>
     ///     MP1 (MPEG audio layer 1) (decoders: mp1 mp1float )
-    ///</summary>
+    /// </summary>
     mp1,
 
-    ///<summary>
+    /// <summary>
     ///     MP2 (MPEG audio layer 2) (decoders: mp2 mp2float ) (encoders: mp2 mp2fixed libtwolame )
-    ///</summary>
+    /// </summary>
     mp2,
 
-    ///<summary>
+    /// <summary>
     ///     MP3 (MPEG audio layer 3) (decoders: mp3float mp3 ) (encoders: libmp3lame libshine )
-    ///</summary>
+    /// </summary>
     mp3,
 
-    ///<summary>
+    /// <summary>
     ///     ADU (Application Data Unit) MP3 (MPEG audio layer 3) (decoders: mp3adufloat mp3adu )
-    ///</summary>
+    /// </summary>
     mp3adu,
 
-    ///<summary>
+    /// <summary>
     ///     MP3onMP4 (decoders: mp3on4float mp3on4 )
-    ///</summary>
+    /// </summary>
     mp3on4,
 
-    ///<summary>
+    /// <summary>
     ///     MPEG-4 Audio Lossless Coding (ALS) (decoders: als )
-    ///</summary>
+    /// </summary>
     mp4als,
 
-    ///<summary>
+    /// <summary>
     ///     Musepack SV7 (decoders: mpc7 )
-    ///</summary>
+    /// </summary>
     musepack7,
 
-    ///<summary>
+    /// <summary>
     ///     Musepack SV8 (decoders: mpc8 )
-    ///</summary>
+    /// </summary>
     musepack8,
 
-    ///<summary>
+    /// <summary>
     ///     Nellymoser Asao
-    ///</summary>
+    /// </summary>
     nellymoser,
 
-    ///<summary>
+    /// <summary>
     ///     Opus (Opus Interactive Audio Codec) (decoders: opus libopus ) (encoders: opus libopus )
-    ///</summary>
+    /// </summary>
     opus,
 
-    ///<summary>
+    /// <summary>
     ///     Amazing Studio Packed Animation File Audio
-    ///</summary>
+    /// </summary>
     paf_audio,
 
-    ///<summary>
+    /// <summary>
     ///     PCM A-law / G.711 A-law
-    ///</summary>
+    /// </summary>
     pcm_alaw,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16|20|24-bit big-endian for Blu-ray media
-    ///</summary>
+    /// </summary>
     pcm_bluray,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 20|24-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_dvd,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 16.8 floating point little-endian
-    ///</summary>
+    /// </summary>
     pcm_f16le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 24.0 floating point little-endian
-    ///</summary>
+    /// </summary>
     pcm_f24le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 32-bit floating point big-endian
-    ///</summary>
+    /// </summary>
     pcm_f32be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 32-bit floating point little-endian
-    ///</summary>
+    /// </summary>
     pcm_f32le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 64-bit floating point big-endian
-    ///</summary>
+    /// </summary>
     pcm_f64be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM 64-bit floating point little-endian
-    ///</summary>
+    /// </summary>
     pcm_f64le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 20-bit little-endian planar
-    ///</summary>
+    /// </summary>
     pcm_lxf,
 
-    ///<summary>
+    /// <summary>
     ///     PCM mu-law / G.711 mu-law
-    ///</summary>
+    /// </summary>
     pcm_mulaw,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_s16be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16-bit big-endian planar
-    ///</summary>
+    /// </summary>
     pcm_s16be_planar,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_s16le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 16-bit little-endian planar
-    ///</summary>
+    /// </summary>
     pcm_s16le_planar,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 24-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_s24be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM D-Cinema audio signed 24-bit
-    ///</summary>
+    /// </summary>
     pcm_s24daud,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 24-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_s24le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 24-bit little-endian planar
-    ///</summary>
+    /// </summary>
     pcm_s24le_planar,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 32-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_s32be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 32-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_s32le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 32-bit little-endian planar
-    ///</summary>
+    /// </summary>
     pcm_s32le_planar,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 64-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_s64be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 64-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_s64le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 8-bit
-    ///</summary>
+    /// </summary>
     pcm_s8,
 
-    ///<summary>
+    /// <summary>
     ///     PCM signed 8-bit planar
-    ///</summary>
+    /// </summary>
     pcm_s8_planar,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 16-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_u16be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 16-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_u16le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 24-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_u24be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 24-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_u24le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 32-bit big-endian
-    ///</summary>
+    /// </summary>
     pcm_u32be,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 32-bit little-endian
-    ///</summary>
+    /// </summary>
     pcm_u32le,
 
-    ///<summary>
+    /// <summary>
     ///     PCM unsigned 8-bit
-    ///</summary>
+    /// </summary>
     pcm_u8,
 
-    ///<summary>
+    /// <summary>
     ///     PCM Archimedes VIDC
-    ///</summary>
+    /// </summary>
     pcm_vidc,
 
-    ///<summary>
+    /// <summary>
     ///     PCM Zork
-    ///</summary>
+    /// </summary>
     pcm_zork,
 
-    ///<summary>
+    /// <summary>
     ///     QCELP / PureVoice
-    ///</summary>
+    /// </summary>
     qcelp,
 
-    ///<summary>
+    /// <summary>
     ///     QDesign Music Codec 2
-    ///</summary>
+    /// </summary>
     qdm2,
 
-    ///<summary>
+    /// <summary>
     ///     QDesign Music
-    ///</summary>
+    /// </summary>
     qdmc,
 
-    ///<summary>
+    /// <summary>
     ///     RealAudio 1.0 (14.4K) (decoders: real_144 ) (encoders: real_144 )
-    ///</summary>
+    /// </summary>
     ra_144,
 
-    ///<summary>
+    /// <summary>
     ///     RealAudio 2.0 (28.8K) (decoders: real_288 )
-    ///</summary>
+    /// </summary>
     ra_288,
 
-    ///<summary>
+    /// <summary>
     ///     RealAudio Lossless
-    ///</summary>
+    /// </summary>
     ralf,
 
-    ///<summary>
+    /// <summary>
     ///     DPCM id RoQ
-    ///</summary>
+    /// </summary>
     roq_dpcm,
 
-    ///<summary>
+    /// <summary>
     ///     SMPTE 302M
-    ///</summary>
+    /// </summary>
     s302m,
 
-    ///<summary>
+    /// <summary>
     ///     SBC (low-complexity subband codec)
-    ///</summary>
+    /// </summary>
     sbc,
 
-    ///<summary>
+    /// <summary>
     ///     DPCM Squareroot-Delta-Exact
-    ///</summary>
+    /// </summary>
     sdx2_dpcm,
 
-    ///<summary>
+    /// <summary>
     ///     Shorten
-    ///</summary>
+    /// </summary>
     shorten,
 
-    ///<summary>
+    /// <summary>
     ///     RealAudio SIPR / ACELP.NET
-    ///</summary>
+    /// </summary>
     sipr,
 
-    ///<summary>
+    /// <summary>
     ///     Smacker audio (decoders: smackaud )
-    ///</summary>
+    /// </summary>
     smackaudio,
 
-    ///<summary>
+    /// <summary>
     ///     SMV (Selectable Mode Vocoder)
-    ///</summary>
+    /// </summary>
     smv,
 
-    ///<summary>
+    /// <summary>
     ///     DPCM Sol
-    ///</summary>
+    /// </summary>
     sol_dpcm,
 
-    ///<summary>
+    /// <summary>
     ///     Sonic
-    ///</summary>
+    /// </summary>
     sonic,
 
-    ///<summary>
+    /// <summary>
     ///     Sonic lossless
-    ///</summary>
+    /// </summary>
     sonicls,
 
-    ///<summary>
+    /// <summary>
     ///     Speex (decoders: libspeex ) (encoders: libspeex )
-    ///</summary>
+    /// </summary>
     speex,
 
-    ///<summary>
+    /// <summary>
     ///     TAK (Tom's lossless Audio Kompressor)
-    ///</summary>
+    /// </summary>
     tak,
 
-    ///<summary>
+    /// <summary>
     ///     TrueHD
-    ///</summary>
+    /// </summary>
     truehd,
 
-    ///<summary>
+    /// <summary>
     ///     DSP Group TrueSpeech
-    ///</summary>
+    /// </summary>
     truespeech,
 
-    ///<summary>
+    /// <summary>
     ///     TTA (True Audio)
-    ///</summary>
+    /// </summary>
     tta,
 
-    ///<summary>
+    /// <summary>
     ///     VQF TwinVQ
-    ///</summary>
+    /// </summary>
     twinvq,
 
-    ///<summary>
+    /// <summary>
     ///     Sierra VMD audio
-    ///</summary>
+    /// </summary>
     vmdaudio,
 
-    ///<summary>
+    /// <summary>
     ///     Vorbis (decoders: vorbis libvorbis ) (encoders: vorbis libvorbis )
-    ///</summary>
+    /// </summary>
     vorbis,
 
-    ///<summary>
+    /// <summary>
     ///     Wave synthesis pseudo-codec
-    ///</summary>
+    /// </summary>
     wavesynth,
 
-    ///<summary>
+    /// <summary>
     ///     WavPack (encoders: wavpack libwavpack )
-    ///</summary>
+    /// </summary>
     wavpack,
 
-    ///<summary>
+    /// <summary>
     ///     Westwood Audio (SND1) (decoders: ws_snd1 )
-    ///</summary>
+    /// </summary>
     westwood_snd1,
 
-    ///<summary>
+    /// <summary>
     ///     Windows Media Audio Lossless
-    ///</summary>
+    /// </summary>
     wmalossless,
 
-    ///<summary>
+    /// <summary>
     ///     Windows Media Audio 9 Professional
-    ///</summary>
+    /// </summary>
     wmapro,
 
-    ///<summary>
+    /// <summary>
     ///     Windows Media Audio 1
-    ///</summary>
+    /// </summary>
     wmav1,
 
-    ///<summary>
+    /// <summary>
     ///     Windows Media Audio 2
-    ///</summary>
+    /// </summary>
     wmav2,
 
-    ///<summary>
+    /// <summary>
     ///     Windows Media Audio Voice
-    ///</summary>
+    /// </summary>
     wmavoice,
 
-    ///<summary>
+    /// <summary>
     ///     DPCM Xan
-    ///</summary>
+    /// </summary>
     xan_dpcm,
 
-    ///<summary>
+    /// <summary>
     ///     Xbox Media Audio 1
-    ///</summary>
+    /// </summary>
     xma1,
 
-    ///<summary>
+    /// <summary>
     ///     Xbox Media Audio 2
-    ///</summary>
+    /// </summary>
     xma2,
 
-    ///<summary>
+    /// <summary>
     ///     libvorbis
-    ///</summary>
+    /// </summary>
     libvorbis,
 
-    ///<summary>
+    /// <summary>
     ///     copy
-    ///</summary>
+    /// </summary>
     copy,
 
-    ///<summary>
+    /// <summary>
     ///     Opus (Opus Interactive Audio Codec) (decoders: opus libopus ) (encoders: opus libopus )
-    ///</summary>
+    /// </summary>
     libopus,
 }

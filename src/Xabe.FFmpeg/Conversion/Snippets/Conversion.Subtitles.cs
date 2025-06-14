@@ -1,8 +1,5 @@
 ﻿namespace Xabe.FFmpeg;
 
-using System.Linq;
-using System.Threading.Tasks;
-
 public partial class Conversion
 {
     /// <summary>

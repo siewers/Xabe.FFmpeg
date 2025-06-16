@@ -18,10 +18,10 @@ public class ConversionToFormatTests(StorageFixture storageFixture)
     public async Task ToGifTest(int loopCount, int delay, double framerate)
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.Gif);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Gif);
 
         // Act
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToGif(Resources.Mp4, output.FullName, loopCount, delay, _testCancellationToken))
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToGif(Resources.Mp4, output, loopCount, delay, _testCancellationToken))
                   .SetPreset(ConversionPreset.UltraFast)
                   .Start(_testCancellationToken);
 
@@ -49,10 +49,10 @@ public class ConversionToFormatTests(StorageFixture storageFixture)
     public async Task ToMp4Test()
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Mp4);
 
         // Act
-        await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.MkvWithAudio, output.FullName, _testCancellationToken)
+        await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.MkvWithAudio, output, _testCancellationToken)
                     .StartConversion(_testCancellationToken);
 
         // Assert
@@ -73,10 +73,10 @@ public class ConversionToFormatTests(StorageFixture storageFixture)
     public async Task ToOgvTest()
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.Ogv);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Ogv);
 
         // Act
-        await FFmpeg.Conversions.FromSnippet.ToOgv(Resources.MkvWithAudio, output.FullName, _testCancellationToken)
+        await FFmpeg.Conversions.FromSnippet.ToOgv(Resources.MkvWithAudio, output, _testCancellationToken)
                     .StartConversion(_testCancellationToken);
 
         // Assert
@@ -97,10 +97,10 @@ public class ConversionToFormatTests(StorageFixture storageFixture)
     public async Task ToTsTest()
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.Ts);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Ts);
 
         // Act
-        await FFmpeg.Conversions.FromSnippet.ToTs(Resources.Mp4WithAudio, output.FullName, _testCancellationToken)
+        await FFmpeg.Conversions.FromSnippet.ToTs(Resources.Mp4WithAudio, output, _testCancellationToken)
                     .StartConversion(_testCancellationToken);
 
         // Assert
@@ -121,10 +121,10 @@ public class ConversionToFormatTests(StorageFixture storageFixture)
     public async Task ToWebMTest()
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.WebM);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.WebM);
 
         // Act
-        _ = await (await FFmpeg.Conversions.FromSnippet.ToWebM(Resources.Mp4WithAudio, output.FullName, _testCancellationToken))
+        _ = await (await FFmpeg.Conversions.FromSnippet.ToWebM(Resources.Mp4WithAudio, output, _testCancellationToken))
                   .SetPreset(ConversionPreset.UltraFast)
                   .Start(_testCancellationToken);
 
@@ -146,10 +146,10 @@ public class ConversionToFormatTests(StorageFixture storageFixture)
     public async Task ConversionWithoutSpecificFormat()
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Mp4);
 
         // Act
-        await Conversion.ConvertAsync(Resources.MkvWithAudio, output.FullName, cancellationToken: _testCancellationToken)
+        await Conversion.ConvertAsync(Resources.MkvWithAudio, output, cancellationToken: _testCancellationToken)
                         .StartConversion(_testCancellationToken);
 
         // Assert

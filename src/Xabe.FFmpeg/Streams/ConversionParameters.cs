@@ -16,55 +16,39 @@ internal sealed class ConversionParameters : IEnumerable<ConversionParameter>
         return GetEnumerator();
     }
 
-    private void Add(ConversionParameter item)
+    public void Add(ConversionParameter item)
     {
         _items.Remove(item);
         _items.Add(item);
     }
 
-    public ConversionParameters Add(string name, ParameterPosition position = ParameterPosition.PostInput)
+    public ConversionParameters AddPostInput(string name)
     {
-        Add(ConversionParameter.Create(name, position));
+        Add(ConversionParameter.PostInput(name));
         return this;
     }
 
-    public ConversionParameters Add(string name, TimeSpan value, ParameterPosition position = ParameterPosition.PostInput)
+    public ConversionParameters AddPostInput<T>(string name, T value)
     {
-        Add(ConversionParameter.Create(name, value, position));
+        Add(ConversionParameter.PostInput(name, value));
         return this;
     }
 
-    public ConversionParameters Add(string name, string value, ParameterPosition position = ParameterPosition.PostInput)
+    public ConversionParameters AddPreInput(string name)
     {
-        Add(ConversionParameter.Create(name, value, position));
+        Add(ConversionParameter.Create(name, ParameterPosition.PreInput));
         return this;
     }
 
-    public ConversionParameters Add(string name, int value, ParameterPosition position = ParameterPosition.PostInput)
+    public ConversionParameters AddPreInput<T>(string name, T value)
     {
-        Add(ConversionParameter.Create(name, value, position));
+        Add(ConversionParameter.PreInput(name, value));
         return this;
     }
 
-    public ConversionParameters Add(string name, long value, ParameterPosition position = ParameterPosition.PostInput)
+    public ConversionParameters Remove(string name)
     {
-        Add(ConversionParameter.Create(name, value, position));
+        _items.RemoveWhere(parameter => parameter.Name == name);
         return this;
-    }
-
-    public ConversionParameters Remove(string name, ParameterPosition position = ParameterPosition.PostInput)
-    {
-        _items.Remove(ConversionParameter.Create(name, position));
-        return this;
-    }
-
-    internal void Remove(ConversionParameter item)
-    {
-        _items.Remove(item);
-    }
-
-    internal void Clear()
-    {
-        _items.Clear();
     }
 }

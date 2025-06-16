@@ -2,6 +2,7 @@
 
 namespace Xabe.FFmpeg;
 
+using System.ComponentModel.DataAnnotations;
 using NetEscapades.EnumGenerators;
 
 /// <summary>
@@ -60,11 +61,13 @@ public enum Hash
     /// <summary>
     ///     SHA 512-bit/224-bit Hashing Algorithm
     /// </summary>
+    [Display(Name = "SHA512/224")]
     SHA512_224,
 
     /// <summary>
     ///     SHA 512-bit/256-bit Hashing Algorithm
     /// </summary>
+    [Display(Name = "SHA512/256")]
     SHA512_256,
 
     /// <summary>

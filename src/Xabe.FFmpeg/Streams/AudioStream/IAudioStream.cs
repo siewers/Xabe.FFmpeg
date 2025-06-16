@@ -73,7 +73,7 @@ public interface IAudioStream : IStream
     /// </summary>
     /// <param name="minBitrate">Bitrate in bits</param>
     /// <param name="maxBitrate">Bitrate in bits</param>
-    /// <param name="bufferSize">Buffersize in bits</param>
+    /// <param name="bufferSize">Buffer size in bits</param>
     /// <returns>IAudioStream</returns>
     IAudioStream SetBitrate(long minBitrate, long maxBitrate, long bufferSize);
 

@@ -45,9 +45,9 @@ public enum ConversionPreset
     VeryFast,
 
     /// <summary>
-    ///     Super fast
+    ///     Superfast
     /// </summary>
-    SuperFast,
+    Superfast,
 
     /// <summary>
     ///     Ultra fast

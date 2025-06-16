@@ -16,31 +16,30 @@ internal sealed class FFprobeWrapper : FFmpeg
     {
         return await Task.Factory.StartNew(() =>
                                            {
-                                               using (var process = RunProcess(args, FFprobePath, null, standardOutput: true))
-                                               {
-                                                   var processExited = false;
-                                                   cancellationToken.Register(() =>
+                                               using var process = RunProcess(args, FFprobePath, priority: null, standardOutput: true);
+
+                                               var processExited = false;
+                                               cancellationToken.Register(() =>
+                                                                          {
+                                                                              try
                                                                               {
-                                                                                  try
+                                                                                  if (!processExited && !process.HasExited)
                                                                                   {
-                                                                                      if (!processExited && !process.HasExited)
-                                                                                      {
-                                                                                          process.CloseMainWindow();
-                                                                                          process.Kill();
-                                                                                      }
-                                                                                  }
-                                                                                  catch
-                                                                                  {
-                                                                                      // ignored
+                                                                                      process.CloseMainWindow();
+                                                                                      process.Kill();
                                                                                   }
                                                                               }
-                                                                             );
+                                                                              catch
+                                                                              {
+                                                                                  // ignored
+                                                                              }
+                                                                          }
+                                                                         );
 
-                                                   var output = process.StandardOutput.ReadToEnd();
-                                                   process.WaitForExit();
-                                                   processExited = true;
-                                                   return output;
-                                               }
+                                               var output = process.StandardOutput.ReadToEnd();
+                                               process.WaitForExit();
+                                               processExited = true;
+                                               return output;
                                            },
                                            cancellationToken,
                                            TaskCreationOptions.LongRunning,
@@ -48,11 +47,9 @@ internal sealed class FFprobeWrapper : FFmpeg
                                           );
     }
 
-    public async Task<ProbeModel> GetProbeModel(Uri mediaUri, CancellationToken cancellationToken)
+    public async Task<ProbeModel> GetProbeModel(MediaLocation mediaLocation, CancellationToken cancellationToken)
     {
-        var mediaLocation = $"\"{mediaUri.OriginalString.Trim('"')}\"";
-
-        var arguments = $"-v panic -print_format json -show_format -show_streams {mediaLocation}";
+        var arguments = $"-v panic -print_format json -show_format -show_streams {mediaLocation.Escape()}";
         var probeResult = await Start(arguments, cancellationToken);
 
         if (string.IsNullOrWhiteSpace(probeResult))

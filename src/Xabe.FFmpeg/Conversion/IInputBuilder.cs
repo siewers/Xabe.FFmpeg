@@ -18,5 +18,5 @@ public interface IInputBuilder
     /// <param name="files">A list of file paths to prepare</param>
     /// <param name="directory">The Path to the temporary directory containing the prepared files</param>
     /// <returns>Delegate function to generate input argument from file List</returns>
-    Func<string, string> PrepareInputFiles(List<string> files, out string directory);
+    Func<string, MediaLocation> PrepareInputFiles(IEnumerable<MediaLocation> files, out string directory);
 }

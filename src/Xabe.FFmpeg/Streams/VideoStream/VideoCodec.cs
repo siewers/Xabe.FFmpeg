@@ -2,6 +2,7 @@
 
 namespace Xabe.FFmpeg;
 
+using System.ComponentModel.DataAnnotations;
 using NetEscapades.EnumGenerators;
 
 /// <summary>
@@ -14,17 +15,17 @@ public enum VideoCodec
     /// <summary>
     ///     Uncompressed 4:2:2 10-bit
     /// </summary>
-    _012v,
+    [Display(Name = "012v")] _012v,
 
     /// <summary>
     ///     4X Movie
     /// </summary>
-    _4xm,
+    [Display(Name = "4xm")] _4xm,
 
     /// <summary>
     ///     QuickTime 8BPS video
     /// </summary>
-    _8bps,
+    [Display(Name = "8bps")] _8bps,
 
     /// <summary>
     ///     Multicolor charset for Commodore 64 (encoders: a64multi )

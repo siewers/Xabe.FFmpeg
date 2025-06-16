@@ -15,6 +15,9 @@ internal class StreamModelBase
     [JsonPropertyName("codec_name")]
     public string? CodecName { get; set; }
 
+    [JsonPropertyName("bit_rate")]
+    public long? Bitrate { get; set; }
+
     [JsonPropertyName("codec_long_name")]
     public string? CodecLongName { get; set; }
 

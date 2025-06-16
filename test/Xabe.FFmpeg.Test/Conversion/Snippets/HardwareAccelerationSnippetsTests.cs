@@ -8,10 +8,10 @@ public class HardwareAcceleration(StorageFixture storageFixture)
     [RunnableInDebugOnly]
     public async Task ConversionWithHardware()
     {
-        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Mp4);
         await FFmpeg.Conversions.FromSnippet
-                    .ConvertWithHardware(Resources.MkvWithAudio, output.FullName, HardwareAccelerator.cuvid, VideoCodec.h264_cuvid, VideoCodec.h264_nvenc, cancellationToken: _testCancellationToken)
-                    .StartConversion(cancellationToken: _testCancellationToken);
+                    .ConvertWithHardwareAcceleration(Resources.MkvWithAudio, output, HardwareAccelerator.cuvid, VideoCodec.h264_cuvid, VideoCodec.h264_nvenc, cancellationToken: _testCancellationToken)
+                    .StartConversion(_testCancellationToken);
 
         var mediaInfo = await FFmpeg.GetMediaInfo(output, _testCancellationToken);
         Assert.InRange(mediaInfo.Duration, 9.Seconds(), 11.Seconds());

@@ -9,9 +9,9 @@ public class AudioSnippetsTests(StorageFixture storageFixture)
     public async Task AddAudio()
     {
         // Arrange
-        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Mp4);
         await FFmpeg.Conversions.FromSnippet
-                    .AddAudio(Resources.Mp4, Resources.Mp3, output.FullName, _testCancellationToken)
+                    .AddAudio(Resources.Mp4, Resources.Mp3, output, _testCancellationToken)
                     .StartConversion(_testCancellationToken);
 
         // Act
@@ -42,7 +42,7 @@ public class AudioSnippetsTests(StorageFixture storageFixture)
                                                        {
                                                            stream.Codec.Should().Be("mp3");
                                                            stream.Duration.Should().Be(13.Seconds().And(536.Milliseconds()));
-                                                           stream.Bitrate.Should().Be(320000);
+                                                           stream.Bitrate.Should().Be(320654);
                                                        }
                                                       );
     }
@@ -54,10 +54,10 @@ public class AudioSnippetsTests(StorageFixture storageFixture)
         // Arrange
         const VideoSize size = VideoSize.Hd1080;
         const PixelFormat pixelFormat = PixelFormat.yuv420p;
-        var output = storageFixture.GetTempFileName(FileExtensions.Mp4);
+        var output = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Mp4);
         var originalMediaInfo = await FFmpeg.GetMediaInfo(Resources.MkvWithAudio, _testCancellationToken);
         await FFmpeg.Conversions.FromSnippet
-                    .VisualizeAudio(Resources.Mp4WithAudio, output.FullName, size, pixelFormat, mode, amplitudeScale, frequencyScale, _testCancellationToken)
+                    .VisualizeAudio(Resources.Mp4WithAudio, output, size, pixelFormat, mode, amplitudeScale, frequencyScale, _testCancellationToken)
                     .StartConversion(_testCancellationToken);
 
         // Act

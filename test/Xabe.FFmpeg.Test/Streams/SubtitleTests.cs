@@ -11,14 +11,14 @@ public class SubtitleTests(StorageFixture storageFixture)
     [InlineData(Format.srt, ".srt", "subrip")]
     public async Task ConvertTest(Format format, string extension, string expectedFormat)
     {
-        var outputPath = storageFixture.GetTempFileName(extension);
+        var outputPath = storageFixture.CreateMediaLocation().WithExtension(extension);
 
         var info = await FFmpeg.GetMediaInfo(Resources.SubtitleSrt, _testCancellationToken);
 
         var subtitleStream = info.SubtitleStreams.FirstOrDefault();
         await FFmpeg.Conversions.Create()
                     .AddStream(subtitleStream)
-                    .SetOutput(outputPath.FullName)
+                    .SetOutput(outputPath)
                     .SetOutputFormat(format)
                     .Start(_testCancellationToken);
 
@@ -34,7 +34,7 @@ public class SubtitleTests(StorageFixture storageFixture)
     [InlineData(".srt", "subrip", false)]
     public async Task ExtractSubtitles(string extension, string expectedFormat, bool checkOutputLanguage)
     {
-        var outputPath = storageFixture.GetTempFileName(extension);
+        var outputPath = storageFixture.CreateMediaLocation().WithExtension(extension);
         var info = await FFmpeg.GetMediaInfo(Resources.MultipleStream, _testCancellationToken);
 
         var subtitleStream = info.SubtitleStreams.FirstOrDefault(x => x.Language == "spa");
@@ -42,7 +42,7 @@ public class SubtitleTests(StorageFixture storageFixture)
 
         await FFmpeg.Conversions.Create()
                     .AddStream(subtitleStream)
-                    .SetOutput(outputPath.FullName)
+                    .SetOutput(outputPath)
                     .Start(_testCancellationToken);
 
         var resultInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);

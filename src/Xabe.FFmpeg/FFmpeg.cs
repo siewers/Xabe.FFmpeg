@@ -20,7 +20,7 @@ public abstract partial class FFmpeg
     private static string _lastExecutablePath = Guid.NewGuid().ToString();
 
     /// <summary>
-    ///     Initalize new FFmpeg. Search FFmpeg and FFprobe in PATH
+    ///     Initialize new FFmpeg. Search FFmpeg and FFprobe in PATH
     /// </summary>
     protected FFmpeg()
     {
@@ -153,7 +153,7 @@ public abstract partial class FFmpeg
 
             var magicNumber = new byte[4];
             var appMagicNumber = new byte[4];
-            fileStream.ReadExactly(magicNumber, 0, 4);
+            fileStream.ReadExactly(magicNumber, offset: 0, count: 4);
 
             switch (systemProvider.GetOperatingSystem())
             {
@@ -169,8 +169,8 @@ public abstract partial class FFmpeg
                         return magicNumber[0] == 0x7F && magicNumber[1] == 0x45 && magicNumber[2] == 0x4C && magicNumber[3] == 0x46;
                     }
 
-                    fileStream.Seek(0x30, SeekOrigin.Begin);
-                    fileStream.ReadExactly(appMagicNumber, 0, 4);
+                    fileStream.Seek(offset: 0x30, SeekOrigin.Begin);
+                    fileStream.ReadExactly(appMagicNumber, offset: 0, count: 4);
                     return appMagicNumber[0] == 0x50 && appMagicNumber[1] == 0x4B && appMagicNumber[2] == 0x03 && appMagicNumber[3] == 0x04;
             }
         }
@@ -182,7 +182,7 @@ public abstract partial class FFmpeg
         return false;
     }
 
-    [MemberNotNullWhen(true, nameof(FFmpegPath), nameof(FFprobePath))]
+    [MemberNotNullWhen(returnValue: true, nameof(FFmpegPath), nameof(FFprobePath))]
     private bool IsPathsSet()
     {
         return !string.IsNullOrWhiteSpace(FFmpegPath) && !string.IsNullOrWhiteSpace(FFprobePath);

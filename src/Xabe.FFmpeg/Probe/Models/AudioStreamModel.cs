@@ -12,7 +12,4 @@ internal sealed class AudioStreamModel : StreamModelBase
 
     [JsonPropertyName("channel_layout")]
     public string? ChannelLayout { get; set; }
-
-    [JsonPropertyName("bit_rate")]
-    public long? BitRate { get; set; }
 }

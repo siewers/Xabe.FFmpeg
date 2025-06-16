@@ -9,7 +9,7 @@ public interface IMediaInfo
     /// <summary>
     ///     Source info
     /// </summary>
-    Uri Location { get; }
+    MediaLocation Location { get; }
 
     /// <summary>
     ///     Date and Time when the media was created

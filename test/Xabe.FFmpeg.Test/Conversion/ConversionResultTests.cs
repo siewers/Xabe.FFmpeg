@@ -13,12 +13,13 @@ public class ConversionResultTests(StorageFixture storageFixture)
     [InlineData(ProcessPriorityClass.BelowNormal)]
     public async Task ConversionResultTest(ProcessPriorityClass? priority)
     {
-        var outputPath = storageFixture.GetTempFileName(extension: ".mp4");
+        var outputPath = storageFixture.CreateMediaLocation().WithExtension(FileExtensions.Mp4);
 
-        var result = await (await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.FlvWithAudio, outputPath.FullName, _testCancellationToken))
-                           .SetPreset(ConversionPreset.UltraFast)
-                           .SetPriority(priority)
-                           .Start(_testCancellationToken);
+        var conversion = await FFmpeg.Conversions.FromSnippet.ToMp4(Resources.FlvWithAudio, outputPath, _testCancellationToken);
+
+        var result = await conversion.SetPreset(ConversionPreset.UltraFast)
+                                     .SetPriority(priority)
+                                     .Start(_testCancellationToken);
 
         var mediaInfo = await FFmpeg.GetMediaInfo(outputPath, _testCancellationToken);
 
@@ -35,7 +36,7 @@ public class ConversionResultTests(StorageFixture storageFixture)
     [Fact]
     public async Task ConversionWithWrongInputTest2()
     {
-        var randomFileName = storageFixture.GetTempFileName();
+        var randomFileName = storageFixture.CreateMediaLocation();
         await FluentActions.Awaiting(() => FFmpeg.GetMediaInfo(randomFileName, _testCancellationToken))
                            .Should().ThrowAsync<InvalidInputException>()
                            .WithMessage($"Input file {randomFileName} doesn't exist.");

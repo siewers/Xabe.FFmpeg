@@ -13,7 +13,7 @@ public interface IConversion
     /// <summary>
     ///     Output file path
     /// </summary>
-    string OutputFilePath { get; }
+    MediaLocation OutputFilePath { get; }
 
     /// <summary>
     ///     Output pipe descriptor
@@ -38,7 +38,7 @@ public interface IConversion
     /// <param name="frameNo">The frame interval to extract </param>
     /// <param name="buildOutputFileName"> Delegate Function to build up custom filename when outputting multiple files </param>
     /// <returns></returns>
-    IConversion ExtractEveryNthFrame(int frameNo, Func<string, string> buildOutputFileName);
+    IConversion ExtractEveryNthFrame(int frameNo, Func<string, MediaLocation> buildOutputFileName);
 
     /// <summary>
     ///     Extracts the frameNo'th frame of the input video and outputs as a png image
@@ -46,7 +46,7 @@ public interface IConversion
     /// <param name="frameNo">The frame to extract</param>
     /// <param name="buildOutputFileName"> Delegate Function to build up custom filename when outputting multiple files </param>
     /// <returns></returns>
-    IConversion ExtractNthFrame(int frameNo, Func<string, string> buildOutputFileName);
+    IConversion ExtractNthFrame(int frameNo, Func<string, MediaLocation> buildOutputFileName);
 
     /// <summary>
     ///     Builds a video from a directory containing one or more sequentially named images
@@ -54,14 +54,14 @@ public interface IConversion
     /// <param name="startNumber">The number of the image to start building video from</param>
     /// <param name="buildInputFileName"> Delegate Function to build up custom filename when inputting multiple files </param>
     /// <returns>IConversion object</returns>
-    IConversion BuildVideoFromImages(int startNumber, Func<string, string> buildInputFileName);
+    IConversion BuildVideoFromImages(int startNumber, Func<string, MediaLocation> buildInputFileName);
 
     /// <summary>
     ///     Builds a video from a directory containing one or more sequentially named images
     /// </summary>
     /// <param name="imageFiles"> List of Image Files to Build into a Video</param>
     /// <returns>IConversion object</returns>
-    IConversion BuildVideoFromImages(IEnumerable<string> imageFiles);
+    IConversion BuildVideoFromImages(IEnumerable<MediaLocation> imageFiles);
 
     /// <summary>
     ///     Builds the -framerate option for the output of this conversion
@@ -149,11 +149,11 @@ public interface IConversion
     IConversion UseMultiThread(bool multiThread);
 
     /// <summary>
-    ///     Sets the output media file path.
+    ///     Sets the output media location.
     /// </summary>
-    /// <param name="outputFilePath">The output media file path</param>
+    /// <param name="mediaLocation">The location of the media output</param>
     /// <returns>IConversion object</returns>
-    IConversion SetOutput(string outputFilePath);
+    IConversion SetOutput(MediaLocation mediaLocation);
 
     /// <summary>
     ///     Set piped output file descriptor

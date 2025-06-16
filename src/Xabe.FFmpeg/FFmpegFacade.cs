@@ -31,38 +31,16 @@ public abstract partial class FFmpeg
     /// </summary>
     public static IFormatProvider FormatProvider { get; private set; } = CultureInfo.InvariantCulture;
 
-    public static Task<IMediaInfo> GetMediaInfo(FileInfo file, CancellationToken cancellationToken = default)
-    {
-        return GetMediaInfo(file.FullName, cancellationToken);
-    }
-
     /// <summary>
     ///     Get MediaInfo from file
     /// </summary>
-    /// <param name="location">FullPath to file</param>
+    /// <param name="mediaLocation">FullPath to file</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <exception cref="ArgumentException">File does not exist</exception>
     /// <exception cref="TaskCanceledException">Operation takes too long</exception>
-    public async static Task<IMediaInfo> GetMediaInfo(string location, CancellationToken cancellationToken = default)
+    public async static Task<IMediaInfo> GetMediaInfo(MediaLocation mediaLocation, CancellationToken cancellationToken = default)
     {
-        location = location.Trim('"');
-
-        if (!Uri.TryCreate(location, UriKind.Absolute, out var mediaLocation))
-        {
-            throw new ArgumentException($"Invalid location: {location}", nameof(location));
-        }
-
         return await MediaInfo.Get(mediaLocation, cancellationToken);
-    }
-
-    public static Task<IMediaInfo> GetMediaInfo(Uri location, CancellationToken cancellationToken = default)
-    {
-        if (!location.IsAbsoluteUri)
-        {
-            throw new ArgumentException($"Invalid location: {location}", nameof(location));
-        }
-
-        return MediaInfo.Get(location, cancellationToken);
     }
 
     /// <summary>

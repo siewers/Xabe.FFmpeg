@@ -1,58 +1,107 @@
 ﻿namespace Xabe.FFmpeg;
 
-internal sealed record ConversionParameter
+internal readonly record struct ConversionParameter
 {
-    private ConversionParameter(string name, string? value = null, ParameterPosition position = ParameterPosition.PostInput)
+    private ConversionParameter(string name, string? value, ParameterPosition position)
     {
-        Parameter = $"-{name.TrimStart('-').Trim()} {value?.Trim()} ";
-        Key = name.Trim();
+        Name = name.Trim();
+        Value = $"-{name.TrimStart('-').Trim()} {value?.Trim()} ";
         Position = position;
     }
 
-    public string Parameter { get; }
+    public string Name { get; }
 
-    public string Key { get; }
+    public string Value { get; }
 
     public ParameterPosition Position { get; }
 
     public bool Equals(ConversionParameter? other)
     {
-        return other is not null &&
-               Key == other.Key &&
-               Position == other.Position &&
-               Key != "-i";
+        return other.HasValue &&
+               Name == other.Value.Name &&
+               Position == other.Value.Position &&
+               Name is not "-i";
     }
 
     public override int GetHashCode()
     {
         var hashCode = 495346454;
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Key);
+        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
         hashCode = hashCode * -1521134295 + Position.GetHashCode();
         return hashCode;
     }
 
-    public static ConversionParameter Create(string name, ParameterPosition position = ParameterPosition.PostInput)
+    public static ConversionParameter PostInput(string name)
     {
-        return new ConversionParameter(name, null, position);
+        return new ConversionParameter(name, value: null, ParameterPosition.PostInput);
     }
 
-    public static ConversionParameter Create(string name, TimeSpan value, ParameterPosition position = ParameterPosition.PostInput)
+    public static ConversionParameter PostInput<T>(string name, T value)
     {
-        return new ConversionParameter(name, value.ToFFmpeg(), position);
+        return Create(name, value, ParameterPosition.PostInput);
     }
 
-    public static ConversionParameter Create(string name, string value, ParameterPosition position = ParameterPosition.PostInput)
+    public static ConversionParameter PreInput(string name)
+    {
+        return new ConversionParameter(name, value: null, ParameterPosition.PreInput);
+    }
+
+    public static ConversionParameter PreInput<T>(string name, T value)
+    {
+        return Create(name, value, ParameterPosition.PreInput);
+    }
+
+    public static ConversionParameter Create(string name, ParameterPosition position)
+    {
+        return new ConversionParameter(name, value: null, position);
+    }
+
+    private static ConversionParameter Create<T>(string name, T value, ParameterPosition position)
+    {
+        var stringValue = string.Format(FFmpegFormatProvider.Instance, "{0}", value);
+        return Create(name, stringValue, position);
+    }
+
+    private static ConversionParameter Create(string name, string value, ParameterPosition position)
     {
         return new ConversionParameter(name, value, position);
     }
 
-    public static ConversionParameter Create(string name, int value, ParameterPosition position = ParameterPosition.PostInput)
+    private sealed class FFmpegFormatProvider : IFormatProvider, ICustomFormatter
     {
-        return new ConversionParameter(name, value.ToString(), position);
-    }
+        public static readonly FFmpegFormatProvider Instance = new();
 
-    public static ConversionParameter Create(string name, long value, ParameterPosition position = ParameterPosition.PostInput)
-    {
-        return new ConversionParameter(name, value.ToString(), position);
+        private FFmpegFormatProvider()
+        {
+        }
+
+        public string Format(string? format, object? arg, IFormatProvider? formatProvider)
+        {
+            return arg switch
+            {
+                TimeSpan timeSpan => ToFFmpeg(timeSpan),
+                _ => arg?.ToString() ?? string.Empty,
+            };
+        }
+
+        public object? GetFormat(Type? formatType)
+        {
+            return formatType == typeof(ICustomFormatter) ? this : null;
+        }
+
+        /// <summary>
+        ///     Returns FFmpeg formatted time.
+        /// </summary>
+        /// <param name="timeSpan">The <see cref="TimeSpan" /> to format</param>
+        /// <returns>The FFmpeg formated time</returns>
+        private static string ToFFmpeg(TimeSpan timeSpan)
+        {
+            var milliseconds = timeSpan.Milliseconds;
+            var seconds = timeSpan.Seconds;
+            var minutes = timeSpan.Minutes;
+            var hours = (int)timeSpan.TotalHours;
+
+            return $"{hours:D}:{minutes:D2}:{seconds:D2}.{milliseconds:D3}";
+        }
     }
 }

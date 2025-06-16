@@ -37,7 +37,7 @@ internal partial class FFmpegWrapper : FFmpeg
         return Task.Factory.StartNew(() =>
                                      {
                                          var pipedOutput = OnVideoDataReceived != null;
-                                         var process = RunProcess(args, FFmpegPath, priority, true, pipedOutput, true);
+                                         var process = RunProcess(args, FFmpegPath, priority, standardInput: true, pipedOutput, standardError: true);
                                          var processId = process.Id;
 
                                          using (process)
@@ -81,7 +81,7 @@ internal partial class FFmpegWrapper : FFmpeg
                                              {
                                                  using (var processEnded = new ManualResetEvent(false))
                                                  {
-                                                     processEnded.SetSafeWaitHandle(new SafeWaitHandle(process.Handle, false));
+                                                     processEnded.SetSafeWaitHandle(new SafeWaitHandle(process.Handle, ownsHandle: false));
                                                      var index = WaitHandle.WaitAny([processEnded, cancellationToken.WaitHandle]);
 
                                                      if (!process.HasExited)
@@ -142,7 +142,6 @@ internal partial class FFmpegWrapper : FFmpeg
         OnDataReceived?.Invoke(this, e);
 
         OutputLog.Add(e.Data);
-
         CalculateTime(e, args, processId);
     }
 

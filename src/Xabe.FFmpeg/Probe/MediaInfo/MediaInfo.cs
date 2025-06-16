@@ -7,7 +7,7 @@ using Models;
 [PublicAPI]
 public sealed class MediaInfo : IMediaInfo
 {
-    private MediaInfo(Uri location, ProbeModel probeModel)
+    private MediaInfo(MediaLocation location, ProbeModel probeModel)
     {
         Location = location;
         Size = probeModel.Format.Size;
@@ -19,7 +19,7 @@ public sealed class MediaInfo : IMediaInfo
     }
 
     /// <inheritdoc />
-    public Uri Location { get; }
+    public MediaLocation Location { get; }
 
     /// <inheritdoc />
     public DateTime? CreationTime { get; internal set; }
@@ -42,11 +42,11 @@ public sealed class MediaInfo : IMediaInfo
     /// <inheritdoc />
     public IEnumerable<ISubtitleStream> SubtitleStreams { get; internal set; }
 
-    internal async static Task<IMediaInfo> Get(Uri mediaLocation, CancellationToken cancellationToken = default)
+    internal async static Task<IMediaInfo> Get(MediaLocation mediaLocation, CancellationToken cancellationToken = default)
     {
-        if (mediaLocation.IsFile && !File.Exists(mediaLocation.OriginalString))
+        if (!mediaLocation.Exists())
         {
-            throw new InvalidInputException($"Input file {mediaLocation.LocalPath} doesn't exist.");
+            throw new InvalidInputException($"Input file {mediaLocation} doesn't exist.");
         }
 
         using var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));

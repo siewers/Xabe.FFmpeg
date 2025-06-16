@@ -4,7 +4,7 @@ using System.Text.Json;
 
 internal sealed class FormatModel : Dictionary<string, object>
 {
-    private FormatModel(JsonElement element)
+    public FormatModel(JsonElement element)
         : base(StringComparer.OrdinalIgnoreCase)
     {
         foreach (var entry in element.EnumerateObject())
@@ -18,7 +18,7 @@ internal sealed class FormatModel : Dictionary<string, object>
                     Size = long.Parse(entry.Value.GetString()!);
                     break;
                 case "bit_rate":
-                    BitRate = long.Parse(entry.Value.GetString()!);
+                    Bitrate = long.Parse(entry.Value.GetString()!);
                     break;
                 case "duration":
                     Duration = entry.Value.GetTimeSpan()!.Value;
@@ -37,14 +37,9 @@ internal sealed class FormatModel : Dictionary<string, object>
 
     public long Size { get; }
 
-    public long? BitRate { get; }
+    public long? Bitrate { get; }
 
     public TimeSpan Duration { get; }
 
     public TagsModel Tags { get; } = new();
-
-    public static FormatModel CreateInstance(JsonElement element)
-    {
-        return new FormatModel(element);
-    }
 }

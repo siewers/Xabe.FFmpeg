@@ -4,7 +4,7 @@ using Probe.Models;
 
 /// <inheritdoc cref="IAudioStream" />
 [PublicAPI]
-public sealed class AudioStream : StreamBase, IAudioStream, IFilterable
+internal sealed class AudioStream : StreamBase, IAudioStream, IFilterable
 {
     private readonly Dictionary<string, string> _audioFilters = [];
     private readonly ConversionParameters _parameters = [];
@@ -32,7 +32,7 @@ public sealed class AudioStream : StreamBase, IAudioStream, IFilterable
     /// <inheritdoc />
     public IAudioStream Reverse()
     {
-        _parameters.Add("af", "areverse");
+        _parameters.AddPostInput("af", "areverse");
         return this;
     }
 
@@ -41,15 +41,15 @@ public sealed class AudioStream : StreamBase, IAudioStream, IFilterable
     {
         var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
         return parameters.Length > 0
-            ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
+            ? string.Join(string.Empty, parameters.Select(x => x.Value))
             : string.Empty;
     }
 
     /// <inheritdoc />
     public IAudioStream Split(TimeSpan startTime, TimeSpan duration)
     {
-        _parameters.Add("ss", startTime);
-        _parameters.Add("t", duration);
+        _parameters.AddPostInput("ss", startTime);
+        _parameters.AddPostInput("t", duration);
         return this;
     }
 
@@ -62,43 +62,43 @@ public sealed class AudioStream : StreamBase, IAudioStream, IFilterable
     /// <inheritdoc />
     public IAudioStream SetChannels(int channels)
     {
-        _parameters.Add($"ac:{Index}", channels);
+        _parameters.AddPostInput($"ac:{Index}", channels);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetBitstreamFilter(BitstreamFilter filter)
     {
-        return SetBitstreamFilter(filter.ToStringFast());
+        return SetBitstreamFilter(filter.ToStringFast(useMetadataAttributes: true));
     }
 
     /// <inheritdoc />
     public IAudioStream SetBitstreamFilter(string filter)
     {
-        _parameters.Add("bsf:a", filter);
+        _parameters.AddPostInput("bsf:a", filter);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetBitrate(long bitRate)
     {
-        _parameters.Add($"b:a:{Index}", bitRate);
+        _parameters.AddPostInput($"b:a:{Index}", bitRate);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetBitrate(long minBitrate, long maxBitrate, long bufferSize)
     {
-        _parameters.Add($"b:a:{Index}", minBitrate);
-        _parameters.Add("maxrate", maxBitrate);
-        _parameters.Add("bufsize", bufferSize);
+        _parameters.AddPostInput($"b:a:{Index}", minBitrate);
+        _parameters.AddPostInput("maxrate", maxBitrate);
+        _parameters.AddPostInput("bufsize", bufferSize);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetSampleRate(int sampleRate)
     {
-        _parameters.Add($"ar:{Index}", sampleRate);
+        _parameters.AddPostInput($"ar:{Index}", sampleRate);
         return this;
     }
 
@@ -126,41 +126,41 @@ public sealed class AudioStream : StreamBase, IAudioStream, IFilterable
     /// <inheritdoc />
     public IAudioStream SetCodec(string codec)
     {
-        _parameters.Add("c:a", codec);
+        _parameters.AddPostInput("c:a", codec);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetSeek(TimeSpan seek)
     {
-        _parameters.Add("ss", seek.ToFFmpeg(), ParameterPosition.PreInput);
+        _parameters.AddPreInput("ss", seek);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetInputFormat(string inputFormat)
     {
-        _parameters.Add("f", inputFormat, ParameterPosition.PreInput);
+        _parameters.AddPreInput("f", inputFormat);
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetInputFormat(Format inputFormat)
     {
-        return SetInputFormat(inputFormat.ToStringFast());
+        return SetInputFormat(inputFormat.ToStringFast(useMetadataAttributes: true));
     }
 
     /// <inheritdoc />
     public IAudioStream UseNativeInputRead(bool readInputAtNativeFrameRate)
     {
-        _parameters.Add("re", ParameterPosition.PreInput);
+        _parameters.AddPreInput("re");
         return this;
     }
 
     /// <inheritdoc />
     public IAudioStream SetStreamLoop(int loopCount)
     {
-        _parameters.Add("stream_loop", loopCount, ParameterPosition.PreInput);
+        _parameters.AddPreInput("stream_loop", loopCount);
         return this;
     }
 

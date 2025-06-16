@@ -20,7 +20,7 @@ public enum Format
     /// <summary>
     ///     3GP2 (3GPP2 file format)
     /// </summary>
-    [Display(Name = "3gp2")] _3g2,
+    [Display(Name = "3g2")] _3g2,
 
     /// <summary>
     ///     3GP (3GPP file format)

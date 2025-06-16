@@ -1,9 +1,8 @@
 <Project>
   <PropertyGroup>
-    <LangVersion>13.0</LangVersion>
     <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 </Project>

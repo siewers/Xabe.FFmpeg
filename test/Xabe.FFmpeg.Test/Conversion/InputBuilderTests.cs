@@ -5,7 +5,9 @@ public class InputBuilderTests
     [Fact]
     public void PrepareInputFilesTest()
     {
-        var files = Directory.EnumerateFiles(Resources.Images).ToList();
+        var files = Directory.EnumerateFiles(Resources.Images)
+                             .Select(MediaLocation.Create);
+
         var builder = new InputBuilder();
 
         builder.PrepareInputFiles(files, out var directory);

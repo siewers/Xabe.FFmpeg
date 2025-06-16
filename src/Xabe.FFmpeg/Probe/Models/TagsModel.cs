@@ -27,7 +27,7 @@ internal sealed class TagsModel() : Dictionary<string, string?>(StringComparer.O
                     Rotation = entry.Value.GetInt32();
                     break;
                 case "bps":
-                    BitRate = long.Parse(entry.Value.GetString()!);
+                    Bitrate = long.Parse(entry.Value.GetString()!);
                     break;
                 case "duration":
                     Duration = entry.Value.GetTimeSpan();
@@ -49,7 +49,7 @@ internal sealed class TagsModel() : Dictionary<string, string?>(StringComparer.O
 
     public int? Rotation { get; }
 
-    public long? BitRate { get; }
+    public long? Bitrate { get; }
 
     public TimeSpan? Duration { get; }
 }

@@ -2,58 +2,44 @@ namespace Xabe.FFmpeg;
 
 using Probe.Models;
 
-public abstract class StreamBase : IStream
+internal abstract class StreamBase(string path, int index) : IStream
 {
-    protected StreamBase(string path, int index)
-    {
-        Path = path;
-        Index = index;
-    }
-
     internal StreamBase(StreamModelBase streamModel, FormatModel formatModel)
+        : this(formatModel.FileName, streamModel.Index)
     {
-        var duration = GetStreamDuration(streamModel, formatModel);
-
-        Path = formatModel.FileName;
         Title = formatModel.Tags.Title;
         Codec = streamModel.CodecName;
         Language = streamModel.Tags.Language;
-        Duration = duration;
-        Index = streamModel.Index;
-        Bitrate = Math.Abs(streamModel.Tags.BitRate ?? formatModel.BitRate ?? 0);
-        IsDefault = streamModel.Disposition.IsDefault;
+        Duration = streamModel.Duration ?? streamModel.Tags.Duration ?? formatModel.Duration;
+        Bitrate = Math.Abs(streamModel.Bitrate ?? streamModel.Tags.Bitrate ?? formatModel.Bitrate ?? 0);
         IsForced = streamModel.Disposition.IsForced;
+        IsDefault = streamModel.Disposition.IsDefault;
     }
 
-    public string Path { get; }
+    public string Path { get; } = path;
 
     public string? Title { get; }
 
-    public int Index { get; }
+    public int Index { get; } = index;
 
     public string? Codec { get; }
 
     public string? Language { get; }
 
-    public bool? IsDefault { get; }
-
-    public bool? IsForced { get; }
-
     public TimeSpan Duration { get; }
 
     public long Bitrate { get; }
+
+    public bool? IsForced { get; }
+
+    public bool? IsDefault { get; }
 
     public abstract StreamType StreamType { get; }
 
     public abstract string BuildParameters(ParameterPosition forPosition);
 
-    public virtual IEnumerable<string> GetSource()
+    public virtual IEnumerable<MediaLocation> GetSource()
     {
         return [Path];
-    }
-
-    private static TimeSpan GetStreamDuration(StreamModelBase streamModel, FormatModel formatModel)
-    {
-        return streamModel.Duration ?? streamModel.Tags.Duration ?? formatModel.Duration;
     }
 }

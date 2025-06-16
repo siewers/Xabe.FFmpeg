@@ -7,6 +7,11 @@ using Xunit.Sdk;
 public sealed class MediaMtxServerFixture(IMessageSink messageSink)
     : ContainerFixture<MediaMtxServerBuilder, MediaMtxServerContainer>(messageSink)
 {
+    public Uri GetResourceUri(string name)
+    {
+        return Container.GetResourceUri(name);
+    }
+
     public async Task<Uri> Publish(string filePath, string name)
     {
         var resourceUri = Container.GetResourceUri(name);

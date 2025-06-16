@@ -66,5 +66,5 @@ public interface IStream
     ///     Get stream input
     /// </summary>
     /// <returns>Input path</returns>
-    IEnumerable<string> GetSource();
+    IEnumerable<MediaLocation> GetSource();
 }

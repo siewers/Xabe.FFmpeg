@@ -3,7 +3,7 @@
 using Probe.Models;
 
 [PublicAPI]
-public sealed class SubtitleStream : StreamBase, ISubtitleStream
+internal sealed class SubtitleStream : StreamBase, ISubtitleStream
 {
     private readonly ConversionParameters _parameters = [];
 
@@ -20,7 +20,7 @@ public sealed class SubtitleStream : StreamBase, ISubtitleStream
     {
         var parameters = _parameters.Where(x => x.Position == forPosition).ToArray();
         return parameters.Length > 0
-            ? string.Join(string.Empty, parameters.Select(x => x.Parameter))
+            ? string.Join(string.Empty, parameters.Select(x => x.Value))
             : string.Empty;
     }
 
@@ -34,7 +34,7 @@ public sealed class SubtitleStream : StreamBase, ISubtitleStream
             return this;
         }
 
-        _parameters.Add($"metadata:s:s:{Index}", $"language={language}");
+        _parameters.AddPostInput($"metadata:s:s:{Index}", $"language={language}");
 
         return this;
     }
@@ -48,21 +48,21 @@ public sealed class SubtitleStream : StreamBase, ISubtitleStream
     /// <inheritdoc />
     public ISubtitleStream SetCodec(string codec)
     {
-        _parameters.Add("c:s", codec);
+        _parameters.AddPostInput("c:s", codec);
         return this;
     }
 
     /// <inheritdoc />
     public ISubtitleStream UseNativeInputRead(bool readInputAtNativeFrameRate)
     {
-        _parameters.Add("re", ParameterPosition.PreInput);
+        _parameters.AddPreInput("re");
         return this;
     }
 
     /// <inheritdoc />
     public ISubtitleStream SetStreamLoop(int loopCount)
     {
-        _parameters.Add("stream_loop", loopCount, ParameterPosition.PreInput);
+        _parameters.AddPreInput("stream_loop", loopCount);
         return this;
     }
 }

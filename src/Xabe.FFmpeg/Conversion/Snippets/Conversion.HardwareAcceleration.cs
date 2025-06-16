@@ -6,8 +6,8 @@ public partial class Conversion
     ///     Convert one file to another with destination format using hardware acceleration (if possible). Using cuvid. Works
     ///     only on Windows/Linux with NVidia GPU.
     /// </summary>
-    /// <param name="inputFilePath">Path to file</param>
-    /// <param name="outputFilePath">Path to file</param>
+    /// <param name="inputLocation">Path to file</param>
+    /// <param name="outputLocation">Path to file</param>
     /// <param name="hardwareAccelerator">
     ///     Hardware accelerator. List of all acceclerators available for your system - "ffmpeg
     ///     -hwaccels"
@@ -16,9 +16,9 @@ public partial class Conversion
     /// <param name="encoder">Codec using to encode output video (e.g. h264_nvenc)</param>
     /// <param name="device">Number of device (0 = default video card) if more than one video card.</param>
     /// <returns>IConversion object</returns>
-    internal async static Task<IConversion> ConvertWithHardwareAsync(string inputFilePath, string outputFilePath, HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0)
+    internal async static Task<IConversion> ConvertWithHardwareAcceleration(MediaLocation inputLocation, MediaLocation outputLocation, HardwareAccelerator hardwareAccelerator, VideoCodec decoder, VideoCodec encoder, int device = 0)
     {
-        var conversion = await ConvertAsync(inputFilePath, outputFilePath);
+        var conversion = await ConvertAsync(inputLocation, outputLocation);
         return conversion.UseHardwareAcceleration(hardwareAccelerator, decoder, encoder, device);
     }
 }

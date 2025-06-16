@@ -9,7 +9,7 @@ public partial class Conversion
     /// <param name="outputPath">Output video stream</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> ExtractAudio(string inputPath, string outputPath, CancellationToken cancellationToken = default)
+    internal async static Task<IConversion> ExtractAudio(MediaLocation inputPath, MediaLocation outputPath, CancellationToken cancellationToken = default)
     {
         var info = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
 
@@ -20,10 +20,9 @@ public partial class Conversion
             throw new InvalidOperationException($"No audio stream found in {inputPath}");
         }
 
-        return Create()
-               .AddStream(audioStream)
-               .SetAudioBitrate(audioStream.Bitrate)
-               .SetOutput(outputPath);
+        return Create().AddStream(audioStream)
+                       .SetAudioBitrate(audioStream.Bitrate)
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -34,16 +33,15 @@ public partial class Conversion
     /// <param name="outputPath">Output file</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
     /// <returns>Conversion result</returns>
-    internal async static Task<IConversion> AddAudio(string videoPath, string audioPath, string outputPath, CancellationToken cancellationToken = default)
+    internal async static Task<IConversion> AddAudio(MediaLocation videoPath, MediaLocation audioPath, MediaLocation outputPath, CancellationToken cancellationToken = default)
     {
         var videoInfo = await FFmpeg.GetMediaInfo(videoPath, cancellationToken);
         var audioInfo = await FFmpeg.GetMediaInfo(audioPath, cancellationToken);
 
-        return Create()
-               .AddStreams(videoInfo.VideoStreams)
-               .AddStreams(videoInfo.SubtitleStreams)
-               .AddStreams(audioInfo.AudioStreams)
-               .SetOutput(outputPath);
+        return Create().AddStreams(videoInfo.VideoStreams)
+                       .AddStreams(videoInfo.SubtitleStreams)
+                       .AddStreams(audioInfo.AudioStreams)
+                       .SetOutput(outputPath);
     }
 
     /// <summary>
@@ -60,7 +58,9 @@ public partial class Conversion
     /// <returns>IConversion object</returns>
     internal async static Task<IConversion> VisualizeAudio
     (
-        string inputPath, string outputPath, VideoSize size,
+        MediaLocation inputPath,
+        MediaLocation outputPath,
+        VideoSize size,
         PixelFormat pixelFormat = PixelFormat.yuv420p,
         VisualisationMode mode = VisualisationMode.bar,
         AmplitudeScale amplitudeScale = AmplitudeScale.lin,
@@ -72,13 +72,12 @@ public partial class Conversion
         var audioStream = inputInfo.AudioStreams.FirstOrDefault();
         var videoStream = inputInfo.VideoStreams.FirstOrDefault();
 
-        var filter = $"\"[0:a]showfreqs=mode={mode.ToStringFast()}:fscale={frequencyScale.ToStringFast()}:ascale={amplitudeScale.ToStringFast()},format={pixelFormat.ToStringFast()},scale={size.ToFFmpegFormat()} [v]\"";
+        var filter = $"\"[0:a]showfreqs=mode={mode.ToStringFast(useMetadataAttributes: true)}:fscale={frequencyScale.ToStringFast(useMetadataAttributes: true)}:ascale={amplitudeScale.ToStringFast(useMetadataAttributes: true)},format={pixelFormat.ToStringFast(useMetadataAttributes: true)},scale={size.ToStringFast(useMetadataAttributes: true)} [v]\"";
 
-        return Create()
-               .AddStream(audioStream)
-               .AddParameter($"-filter_complex {filter}")
-               .AddParameter("-map [v]")
-               .SetFramerate(videoStream?.Framerate ?? 30) // Pin frame rate at the original rate or 30 fps to stop dropped or duplicated frames
-               .SetOutput(outputPath);
+        return Create().AddStream(audioStream)
+                       .AddParameter($"-filter_complex {filter}")
+                       .AddParameter("-map [v]")
+                       .SetFramerate(videoStream?.Framerate ?? 30) // Pin frame rate at the original rate or 30 fps to stop dropped or duplicated frames
+                       .SetOutput(outputPath);
     }
 }
